@@ -52,7 +52,6 @@ CREATE TABLE public.appointments (
     follow_up_plan_id uuid,
     id uuid NOT NULL,
     patient_id uuid NOT NULL,
-    prev_encounter_id uuid,
     shift_assignment_id uuid,
     description text,
     status character varying(255) NOT NULL,
@@ -705,8 +704,6 @@ ALTER TABLE ONLY public.admissions
 -- Name: appointments fk997ckhlni48hpt2uddouyr682; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.appointments
-    ADD CONSTRAINT fk997ckhlni48hpt2uddouyr682 FOREIGN KEY (prev_encounter_id) REFERENCES public.encounters(id);
 
 
 --

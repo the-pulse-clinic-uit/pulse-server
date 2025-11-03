@@ -72,10 +72,6 @@ public class Appointment {
     private ShiftAssignment shift_assignment;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
-    @JoinColumn(name = "prev_encounter_id")
-    private Encounter prev_encounter;
-
-    @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "follow_up_plan_id")
     private FollowUpPlan follow_up_plan;
 

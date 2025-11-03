@@ -36,7 +36,7 @@ public class Invoice {
 
     @ColumnDefault("0.00")
     @Column(nullable = false, name = "amount_paid")
-    private BigDecimal amount_paid;
+    private BigDecimal amount_paid = BigDecimal.ZERO;
 
     @ColumnDefault("0.00")
     @Column(nullable = false, name = "total_amount")
