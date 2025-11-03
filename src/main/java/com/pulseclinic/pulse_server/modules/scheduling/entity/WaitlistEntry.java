@@ -6,6 +6,10 @@ import com.pulseclinic.pulse_server.modules.appointments.entity.Appointment;
 import com.pulseclinic.pulse_server.modules.patients.entity.Patient;
 import com.pulseclinic.pulse_server.modules.staff.entity.Doctor;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.UuidGenerator;
@@ -14,6 +18,10 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+@AllArgsConstructor
+@NoArgsConstructor
+@Data
+@Builder
 @Entity
 @Table(name = "waitlist_entries")
 public class WaitlistEntry {

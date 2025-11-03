@@ -5,6 +5,10 @@ import com.pulseclinic.pulse_server.enums.ShiftAssignmentStatus;
 import com.pulseclinic.pulse_server.modules.rooms.entity.Room;
 import com.pulseclinic.pulse_server.modules.staff.entity.Doctor;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -14,6 +18,10 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+@AllArgsConstructor
+@NoArgsConstructor
+@Data
+@Builder
 @Entity
 @Table(name = "shift_assignments")
 public class ShiftAssignment {
