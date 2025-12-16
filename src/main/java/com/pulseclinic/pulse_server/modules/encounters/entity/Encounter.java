@@ -48,6 +48,9 @@ public class Encounter {
     @CreationTimestamp
     private LocalDateTime created_at = LocalDateTime.now();
 
+    @Column(name = "deleted_at")
+    private LocalDateTime deleted_at;
+
     // relationships => 3
 
     @OneToOne(fetch = FetchType.LAZY, optional = true)

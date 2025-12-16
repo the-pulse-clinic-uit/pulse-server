@@ -16,6 +16,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @RestController
+@RequestMapping("/roles")
 public class RoleController {
     private final RoleMapper roleMapper;
     private final RoleService roleService;
@@ -24,13 +25,13 @@ public class RoleController {
         this.roleMapper = roleMapper;
     }
 
-    @PostMapping(path = "/roles")
+    @PostMapping
     public ResponseEntity<RoleDto> createRole(@RequestBody RoleRequestDto roleRequestDto) {
         Role role = this.roleMapper.mapFrom(roleRequestDto);
         return new ResponseEntity<>(this.roleMapper.mapTo(this.roleService.create(role)), HttpStatus.CREATED);
     }
 
-    @GetMapping(path = "/roles/{id}")
+    @GetMapping( "/{id}")
     public ResponseEntity<RoleDto> findById(@PathVariable UUID id) {
         Optional<Role> role = this.roleService.findById(id);
         if (role.isPresent()) {
@@ -40,12 +41,31 @@ public class RoleController {
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-    @GetMapping(path="/roles")
+    @GetMapping("/search")
+    public ResponseEntity<RoleDto> findByName(@RequestParam String name) {
+        Optional<Role> role = this.roleService.findByName(name);
+        if (role.isPresent()) {
+            RoleDto roleDto = this.roleMapper.mapTo(role.get());
+            return ResponseEntity.ok(roleDto);
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+
+    @GetMapping
     public ResponseEntity<List<RoleDto>> findAll() {
         List<Role> roles = this.roleService.findAll();
         List<RoleDto> roleDtos = roles.stream()
                 .map(roleMapper::mapTo)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(roleDtos);
+    }
+
+    @DeleteMapping(path="/{id}")
+    public ResponseEntity<HttpStatus> deleteById(@PathVariable UUID id) {
+        Boolean deleted = this.roleService.deleteById(id);
+        if (deleted) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.notFound().build();
     }
 }

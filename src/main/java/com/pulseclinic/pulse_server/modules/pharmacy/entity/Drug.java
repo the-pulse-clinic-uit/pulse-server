@@ -49,4 +49,7 @@ public class Drug {
     @ColumnDefault("0.00")
     @Column(nullable = false, name = "unit_price")
     private BigDecimal unit_price;
+
+    @Column(name = "deleted_at")
+    private LocalDateTime deleted_at;
 }

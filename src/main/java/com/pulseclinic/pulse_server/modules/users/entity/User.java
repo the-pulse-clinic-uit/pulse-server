@@ -80,6 +80,9 @@ public class User {
     @ColumnDefault("TRUE")
     private Boolean is_active = true;
 
+    @Column(name = "deleted_at")
+    private LocalDateTime deleted_at;
+
     // relationships
     @JoinColumn(name= "role_id")
     @ManyToOne(fetch = FetchType.EAGER)

@@ -10,4 +10,6 @@ public interface RoleService {
     Role create(Role role);
     Optional<Role> findById(UUID id);
     List<Role> findAll();
+    Optional<Role> findByName(String name);
+    Boolean deleteById(UUID id);
 }

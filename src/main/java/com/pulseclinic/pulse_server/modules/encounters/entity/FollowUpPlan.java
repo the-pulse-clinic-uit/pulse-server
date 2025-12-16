@@ -43,6 +43,9 @@ public class FollowUpPlan {
     @Column(nullable = false, name = "created_at")
     @CreationTimestamp
     private LocalDateTime created_at = LocalDateTime.now();
+
+    @Column(name = "deleted_at")
+    private LocalDateTime deleted_at;
     // relationships
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
