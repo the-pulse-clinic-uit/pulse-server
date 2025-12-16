@@ -10,10 +10,15 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 
 @AllArgsConstructor
@@ -22,7 +27,7 @@ import java.util.UUID;
 @Builder
 @Entity
 @Table(name = "users")
-public class User {
+public class User implements UserDetails {
     @Id
     @UuidGenerator // Hibernate 6
     @Column(name = "id", columnDefinition = "uuid", updatable = false, nullable = false)
@@ -87,4 +92,19 @@ public class User {
     @JoinColumn(name= "role_id")
     @ManyToOne(fetch = FetchType.EAGER)
     private Role role;
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority(role.getName()));
+    }
+
+    @Override
+    public String getPassword() {
+        return hashed_password;
+    }
+
+    @Override
+    public String getUsername() {
+        return email;
+    }
 }
