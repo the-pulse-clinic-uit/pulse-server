@@ -33,4 +33,7 @@ public class Department {
     @CreationTimestamp
     @Column(nullable = false)
     private LocalDateTime created_at = LocalDateTime.now();
+
+    @Column(name = "deleted_at")
+    private LocalDateTime deleted_at;
 }

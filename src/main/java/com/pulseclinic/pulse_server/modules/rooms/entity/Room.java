@@ -41,6 +41,9 @@ public class Room {
     @CreationTimestamp
     private LocalDateTime created_at = LocalDateTime.now();
 
+    @Column(name = "deleted_at")
+    private LocalDateTime deleted_at;
+
     // relationships
 
     @ManyToOne(fetch = FetchType.LAZY, optional = true)

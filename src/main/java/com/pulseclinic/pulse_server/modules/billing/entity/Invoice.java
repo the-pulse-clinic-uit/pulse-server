@@ -50,6 +50,9 @@ public class Invoice {
     @UpdateTimestamp
     private LocalDateTime updated_at;
 
+    @Column(name = "deleted_at")
+    private LocalDateTime deleted_at;
+
     // relationships => 1
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)

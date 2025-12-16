@@ -41,6 +41,9 @@ public class Prescription {
     @Column(nullable = false)
     private PrescriptionStatus status = PrescriptionStatus.DRAFT;
 
+    @Column(name = "deleted_at")
+    private LocalDateTime deleted_at;
+
     // relationship
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)

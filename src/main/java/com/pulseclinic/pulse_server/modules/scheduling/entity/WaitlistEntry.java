@@ -56,6 +56,9 @@ public class WaitlistEntry {
 
     @Column(name = "served_at")
     private LocalDateTime served_at;
+
+    @Column(name = "deleted_at")
+    private LocalDateTime deleted_at;
     // relationships => 3
 
     @OneToOne(fetch = FetchType.EAGER, optional = true)

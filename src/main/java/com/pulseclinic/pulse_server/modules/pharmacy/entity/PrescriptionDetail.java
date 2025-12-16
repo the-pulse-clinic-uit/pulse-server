@@ -56,6 +56,9 @@ public class PrescriptionDetail {
     @Column(nullable = false, name = "frequency")
     private String frequency; // 2 times per day
 
+    @Column(name = "deleted_at")
+    private LocalDateTime deleted_at;
+
     // relationships => 2
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
