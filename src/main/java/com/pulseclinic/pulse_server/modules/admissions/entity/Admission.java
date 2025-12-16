@@ -29,12 +29,14 @@ public class Admission {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    @Builder.Default
     private AdmissionStatus status = AdmissionStatus.ONGOING;
 
     @Column(columnDefinition = "TEXT",nullable = true)
     private String notes;
 
     @Column(nullable = false, name = "admitted_at")
+    @Builder.Default
     private LocalDateTime admitted_at = LocalDateTime.now();
 
     @Column(name = "discharged_at")

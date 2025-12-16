@@ -30,9 +30,11 @@ public class Encounter {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    @Builder.Default
     private EncounterType type = EncounterType.APPOINTED;
 
     @Column(nullable = false, name = "started_at")
+    @Builder.Default
     private LocalDateTime started_at = LocalDateTime.now();
 
     @Column(nullable = false, name = "ended_at")
@@ -46,6 +48,7 @@ public class Encounter {
 
     @Column(nullable = false, name = "created_at")
     @CreationTimestamp
+    @Builder.Default
     private LocalDateTime created_at = LocalDateTime.now();
 
     // relationships => 3
