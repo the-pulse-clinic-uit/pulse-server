@@ -45,10 +45,12 @@ public class WaitlistEntry {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    @Builder.Default
     private WaitlistStatus status = WaitlistStatus.WAITING;
 
     @Column(nullable = false, name = "created_at")
     @CreationTimestamp
+    @Builder.Default
     private LocalDateTime created_at = LocalDateTime.now();
 
     @Column(name = "called_at")
