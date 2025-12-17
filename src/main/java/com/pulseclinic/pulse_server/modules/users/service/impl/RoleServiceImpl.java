@@ -45,7 +45,7 @@ public class RoleServiceImpl implements RoleService {
     public Boolean deleteById(UUID id) {
         Role role = this.roleRepository.findById(id).orElse(null);
         if (role != null) {
-            role.setDeleted_at(LocalDateTime.now());
+            role.setDeletedAt(LocalDateTime.now());
             this.roleRepository.save(role);
             return true;
         }

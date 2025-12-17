@@ -33,17 +33,19 @@ public class Appointment {
     private UUID id;
 
     @Column(nullable = false, name = "starts_at")
-    private LocalDateTime starts_at;
+    private LocalDateTime startsAt;
 
     @Column(nullable = false, name = "ends_at")
-    private LocalDateTime ends_at;
+    private LocalDateTime endsAt;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    @Builder.Default
     private AppointmentStatus status = AppointmentStatus.PENDING;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    @Builder.Default
     private AppointmentType type = AppointmentType.NORMAL;
 
     @Column(columnDefinition = "TEXT", nullable = true)
@@ -51,14 +53,15 @@ public class Appointment {
 
     @Column(nullable = false, name = "created_at")
     @CreationTimestamp
-    private LocalDateTime created_at = LocalDateTime.now();
+    @Builder.Default
+    private LocalDateTime createdAt = LocalDateTime.now();
 
     @Column(name = "updated_at")
     @UpdateTimestamp
-    private LocalDateTime updated_at;
+    private LocalDateTime updatedAt;
 
     @Column(name = "deleted_at")
-    private LocalDateTime deleted_at;
+    private LocalDateTime deletedAt;
 
     // relationships => 5
 
@@ -72,10 +75,10 @@ public class Appointment {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "shift_assignment_id")
-    private ShiftAssignment shift_assignment;
+    private ShiftAssignment shiftAssignment;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "follow_up_plan_id")
-    private FollowUpPlan follow_up_plan;
+    private FollowUpPlan followUpPlan;
 
 }

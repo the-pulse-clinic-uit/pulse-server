@@ -30,13 +30,15 @@ public class Encounter {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    @Builder.Default
     private EncounterType type = EncounterType.APPOINTED;
 
     @Column(nullable = false, name = "started_at")
-    private LocalDateTime started_at = LocalDateTime.now();
+    @Builder.Default
+    private LocalDateTime startedAt = LocalDateTime.now();
 
     @Column(nullable = false, name = "ended_at")
-    private LocalDateTime ended_at;
+    private LocalDateTime endedAt;
 
     @Column(columnDefinition = "TEXT", nullable = false)
     private String diagnosis;
@@ -46,10 +48,11 @@ public class Encounter {
 
     @Column(nullable = false, name = "created_at")
     @CreationTimestamp
-    private LocalDateTime created_at = LocalDateTime.now();
+    @Builder.Default
+    private LocalDateTime createdAt = LocalDateTime.now();
 
     @Column(name = "deleted_at")
-    private LocalDateTime deleted_at;
+    private LocalDateTime deletedAt;
 
     // relationships => 3
 

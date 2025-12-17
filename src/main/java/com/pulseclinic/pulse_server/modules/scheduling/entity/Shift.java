@@ -36,25 +36,25 @@ public class Shift {
     private ShiftKind kind = ShiftKind.CLINIC;
 
     @Column(nullable = false, name = "start_time")
-    private LocalDateTime start_time;
+    private LocalDateTime startTime;
 
     @Column(nullable = false, name = "end_time")
-    private LocalDateTime end_time;
+    private LocalDateTime endTime;
 
     @Column(nullable = false, name = "slot_minutes")
     @ColumnDefault("30")
-    private Integer slot_minutes;
+    private Integer slotMinutes;
 
     @Column(nullable = false, name = "capacity_per_slot")
     @ColumnDefault("1")
-    private Integer capacity_per_slot; // default 1
+    private Integer capacityPerSlot; // default 1
 
     @Column(nullable = false, name = "created_at")
     @CreationTimestamp
-    private LocalDateTime created_at = LocalDateTime.now();
+    private LocalDateTime createdAt = LocalDateTime.now();
 
     @Column(name = "deleted_at")
-    private LocalDateTime deleted_at;
+    private LocalDateTime deletedAt;
 
     // relationship
 
@@ -64,7 +64,7 @@ public class Shift {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "default_room_id")
-    private Room default_room;
+    private Room defaultRoom;
 
 }
 

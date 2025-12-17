@@ -25,19 +25,19 @@ public class Doctor {
     @Column(name = "id", columnDefinition = "uuid", updatable = false, nullable = false)
     private UUID id;
 
-    @Column(unique=true, nullable=false, length=50)
-    private String license_id;
+    @Column(unique=true, nullable=false, length=50, name = "license_id")
+    private String licenseId;
 
     @Column(name = "is_verified")
     @ColumnDefault("FALSE")
-    private Boolean is_verified = false;
+    private Boolean isVerified = false;
 
     @CreationTimestamp
-    @Column(nullable = false)
-    private LocalDateTime created_at = LocalDateTime.now();
+    @Column(nullable = false, name = "created_at")
+    private LocalDateTime createdAt = LocalDateTime.now();
 
     @Column(name = "deleted_at")
-    private LocalDateTime deleted_at;
+    private LocalDateTime deletedAt;
 
     // relationships => 2
 

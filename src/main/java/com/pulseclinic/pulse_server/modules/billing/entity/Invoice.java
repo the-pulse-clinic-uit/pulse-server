@@ -32,26 +32,26 @@ public class Invoice {
     private InvoiceStatus status = InvoiceStatus.UNPAID;
 
     @Column(nullable = false, name = "due_date")
-    private LocalDate due_date;
+    private LocalDate dueDate;
 
     @ColumnDefault("0.00")
     @Column(nullable = false, name = "amount_paid")
-    private BigDecimal amount_paid = BigDecimal.ZERO;
+    private BigDecimal amountPaid = BigDecimal.ZERO;
 
     @ColumnDefault("0.00")
     @Column(nullable = false, name = "total_amount")
-    private BigDecimal total_amount;
+    private BigDecimal totalAmount;
 
     @Column(nullable = false, name = "created_at")
     @CreationTimestamp
-    private LocalDateTime created_at = LocalDateTime.now();
+    private LocalDateTime createdAt = LocalDateTime.now();
 
     @Column(name = "updated_at")
     @UpdateTimestamp
-    private LocalDateTime updated_at;
+    private LocalDateTime updatedAt;
 
     @Column(name = "deleted_at")
-    private LocalDateTime deleted_at;
+    private LocalDateTime deletedAt;
 
     // relationships => 1
 

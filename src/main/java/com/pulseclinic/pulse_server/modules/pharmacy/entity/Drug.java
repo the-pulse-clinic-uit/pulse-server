@@ -33,7 +33,7 @@ public class Drug {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, name = "dosage_form")
-    private DrugDosageForm dosage_form = DrugDosageForm.CAPSULE;
+    private DrugDosageForm dosageForm = DrugDosageForm.CAPSULE;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -44,12 +44,12 @@ public class Drug {
 
     @Column(nullable = false, name = "created_at")
     @CreationTimestamp
-    private LocalDateTime created_at = LocalDateTime.now();
+    private LocalDateTime createdAt = LocalDateTime.now();
 
     @ColumnDefault("0.00")
     @Column(nullable = false, name = "unit_price")
-    private BigDecimal unit_price;
+    private BigDecimal unitPrice;
 
     @Column(name = "deleted_at")
-    private LocalDateTime deleted_at;
+    private LocalDateTime deletedAt;
 }

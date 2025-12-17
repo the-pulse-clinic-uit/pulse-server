@@ -29,19 +29,21 @@ public class Admission {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    @Builder.Default
     private AdmissionStatus status = AdmissionStatus.ONGOING;
 
-    @Column(columnDefinition = "TEXT",nullable = true)
+    @Column(columnDefinition = "TEXT", nullable = true)
     private String notes;
 
     @Column(nullable = false, name = "admitted_at")
-    private LocalDateTime admitted_at = LocalDateTime.now();
+    @Builder.Default
+    private LocalDateTime admittedAt = LocalDateTime.now();
 
     @Column(name = "discharged_at")
-    private LocalDateTime discharged_at;
+    private LocalDateTime dischargedAt;
 
     @Column(name = "deleted_at")
-    private LocalDateTime deleted_at;
+    private LocalDateTime deletedAt;
 
     // relationships => 4
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
