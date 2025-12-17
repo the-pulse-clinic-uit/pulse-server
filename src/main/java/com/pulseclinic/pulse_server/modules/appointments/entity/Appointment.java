@@ -40,10 +40,12 @@ public class Appointment {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    @Builder.Default
     private AppointmentStatus status = AppointmentStatus.PENDING;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    @Builder.Default
     private AppointmentType type = AppointmentType.NORMAL;
 
     @Column(columnDefinition = "TEXT", nullable = true)
@@ -51,6 +53,7 @@ public class Appointment {
 
     @Column(nullable = false, name = "created_at")
     @CreationTimestamp
+    @Builder.Default
     private LocalDateTime created_at = LocalDateTime.now();
 
     @Column(name = "updated_at")

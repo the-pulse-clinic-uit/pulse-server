@@ -24,4 +24,5 @@ public interface AdmissionService {
     boolean isOngoing(UUID admissionId);
     boolean canTransfer(UUID admissionId);
     boolean canDischarge(UUID admissionId);
+    boolean deleteAdmission(UUID admissionId);
 }

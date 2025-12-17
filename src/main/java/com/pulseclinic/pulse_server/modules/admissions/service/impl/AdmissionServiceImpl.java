@@ -65,26 +65,22 @@ public class AdmissionServiceImpl implements AdmissionService {
     @Override
     @Transactional
     public AdmissionDto admitPatient(AdmissionRequestDto admissionRequestDto) {
-        // Tìm patient
         Optional<Patient> patientOpt = patientRepository.findById(admissionRequestDto.getPatient_dto().getId());
         if (patientOpt.isEmpty()) {
             throw new RuntimeException("Patient not found");
         }
 
-        // Kiểm tra bệnh nhân đã đang nhập viện chưa
-        Optional<Admission> existingAdmission = admissionRepository.findByPatientIdAndStatus(
+        Optional<Admission> existingAdmission = admissionRepository.findByPatientIdAndStatusAndDeletedAtIsNull(
                 admissionRequestDto.getPatient_dto().getId(), AdmissionStatus.ONGOING);
         if (existingAdmission.isPresent()) {
             throw new RuntimeException("Patient already has an ongoing admission");
         }
 
-        // Tìm doctor
         Optional<Doctor> doctorOpt = doctorRepository.findById(admissionRequestDto.getDoctor_dto().getId());
         if (doctorOpt.isEmpty()) {
             throw new RuntimeException("Doctor not found");
         }
 
-        // Tìm room
         Optional<Room> roomOpt = roomRepository.findById(admissionRequestDto.getRoom_dto().getId());
         if (roomOpt.isEmpty()) {
             throw new RuntimeException("Room not found");
@@ -97,7 +93,6 @@ public class AdmissionServiceImpl implements AdmissionService {
                 .room(roomOpt.get())
                 .build();
 
-        // Liên kết với encounter nếu có
         if (admissionRequestDto.getEncounter_dto().getId() != null) {
             Optional<Encounter> encounterOpt = encounterRepository.findById(admissionRequestDto.getEncounter_dto().getId());
             encounterOpt.ifPresent(admission::setEncounter);
@@ -126,6 +121,7 @@ public class AdmissionServiceImpl implements AdmissionService {
             }
 
             Admission admission = admissionOpt.get();
+            admission.setStatus(AdmissionStatus.TRANSFERRED);
             admission.setRoom(newRoomOpt.get());
             admissionRepository.save(admission);
             return true;
@@ -260,14 +256,30 @@ public class AdmissionServiceImpl implements AdmissionService {
     @Override
     @Transactional(readOnly = true)
     public boolean canTransfer(UUID admissionId) {
-        // Chỉ có thể chuyển phòng khi đang nhập viện
         return isOngoing(admissionId);
     }
 
     @Override
     @Transactional(readOnly = true)
     public boolean canDischarge(UUID admissionId) {
-        // Chỉ có thể xuất viện khi đang nhập viện
         return isOngoing(admissionId);
+    }
+
+    @Override
+    @Transactional
+    public boolean deleteAdmission(UUID admissionId) {
+        try {
+            Optional<Admission> admissionOpt = admissionRepository.findById(admissionId);
+            if (admissionOpt.isEmpty()) {
+                return false;
+            }
+
+            Admission admission = admissionOpt.get();
+            admission.setDeleted_at(LocalDateTime.now());
+            admissionRepository.save(admission);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 }
