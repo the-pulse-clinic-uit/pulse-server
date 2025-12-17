@@ -57,6 +57,9 @@ public class Appointment {
     @UpdateTimestamp
     private LocalDateTime updated_at;
 
+    @Column(name = "deleted_at")
+    private LocalDateTime deleted_at;
+
     // relationships => 5
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)

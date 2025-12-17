@@ -45,10 +45,12 @@ public class WaitlistEntry {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    @Builder.Default
     private WaitlistStatus status = WaitlistStatus.WAITING;
 
     @Column(nullable = false, name = "created_at")
     @CreationTimestamp
+    @Builder.Default
     private LocalDateTime created_at = LocalDateTime.now();
 
     @Column(name = "called_at")
@@ -56,6 +58,9 @@ public class WaitlistEntry {
 
     @Column(name = "served_at")
     private LocalDateTime served_at;
+
+    @Column(name = "deleted_at")
+    private LocalDateTime deleted_at;
     // relationships => 3
 
     @OneToOne(fetch = FetchType.EAGER, optional = true)

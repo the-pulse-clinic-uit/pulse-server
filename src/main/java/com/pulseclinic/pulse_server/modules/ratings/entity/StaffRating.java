@@ -48,6 +48,9 @@ public class StaffRating {
 
     @Column(nullable = false)
     private Integer rating; // 0<x<5
+
+    @Column(name = "deleted_at")
+    private LocalDateTime deleted_at;
     // relationships => 3
 
     @ManyToOne(fetch = FetchType.EAGER, optional = false)

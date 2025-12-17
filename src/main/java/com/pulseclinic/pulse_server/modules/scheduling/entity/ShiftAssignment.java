@@ -52,6 +52,9 @@ public class ShiftAssignment {
     @UpdateTimestamp
     private LocalDateTime updated_at;
 
+    @Column(name = "deleted_at")
+    private LocalDateTime deleted_at;
+
     // relationships 3
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)

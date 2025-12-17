@@ -53,6 +53,9 @@ public class Shift {
     @CreationTimestamp
     private LocalDateTime created_at = LocalDateTime.now();
 
+    @Column(name = "deleted_at")
+    private LocalDateTime deleted_at;
+
     // relationship
 
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
