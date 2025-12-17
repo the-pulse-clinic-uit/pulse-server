@@ -1,5 +1,7 @@
 package com.pulseclinic.pulse_server.modules.users.service.impl;
 
+import com.pulseclinic.pulse_server.modules.users.dto.role.RoleDto;
+import com.pulseclinic.pulse_server.modules.users.dto.user.UserDto;
 import com.pulseclinic.pulse_server.modules.users.dto.user.UserRequestDto;
 import com.pulseclinic.pulse_server.modules.users.entity.Role;
 import com.pulseclinic.pulse_server.modules.users.entity.User;
@@ -38,40 +40,34 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User update(String email, UserRequestDto userRequestDto) {
+    public User update(String email, UserDto userDto) {
         Optional<User> user = this.findByEmail(email);
         if (user.isEmpty()){
             throw new RuntimeException("User not found");
         }
-        if (userRequestDto.getGender() != null){
-            user.get().setGender(userRequestDto.getGender());
+        if (userDto.getGender() != null){
+            user.get().setGender(userDto.getGender());
         }
-//        if (userRequestDto.getEmail() != null){
-//            user.get().setEmail(userRequestDto.getEmail());
+//        if (userDto.getEmail() != null){
+//            user.get().setEmail(userDto.getEmail());
 //        }
-        if (userRequestDto.getAddress() != null){
-            user.get().setAddress(userRequestDto.getAddress());
+        if (userDto.getAddress() != null){
+            user.get().setAddress(userDto.getAddress());
         }
-        if (userRequestDto.getPhone() != null){
-            user.get().setPhone(userRequestDto.getPhone());
+        if (userDto.getPhone() != null){
+            user.get().setPhone(userDto.getPhone());
         }
-        if (userRequestDto.getBirth_date() != null){
-            user.get().setBirthDate(userRequestDto.getBirth_date());
+        if (userDto.getBirth_date() != null){
+            user.get().setBirthDate(userDto.getBirth_date());
         }
-        if (userRequestDto.getAvatar_url() != null){
-            user.get().setAvatarUrl(userRequestDto.getAvatar_url());
+        if (userDto.getAvatar_url() != null){
+            user.get().setAvatarUrl(userDto.getAvatar_url());
         }
-        if (userRequestDto.getCitizen_id() != null){
-            user.get().setCitizenId(userRequestDto.getCitizen_id());
+        if (userDto.getCitizen_id() != null){
+            user.get().setCitizenId(userDto.getCitizen_id());
         }
-        if (userRequestDto.getFull_name() != null){
-            user.get().setFullName(userRequestDto.getFull_name());
-        }
-        if (userRequestDto.getRole_id() != null){
-            Optional<Role> role = this.roleRepository.findById(userRequestDto.getRole_id());
-            if (role.isPresent()){
-                user.get().setRole(role.get());
-            }
+        if (userDto.getFull_name() != null){
+            user.get().setFullName(userDto.getFull_name());
         }
         User savedUser = this.userRepository.save(user.get());
         return savedUser;
@@ -106,6 +102,21 @@ public class UserServiceImpl implements UserService {
             throw new RuntimeException("User not found");
         }
         user.get().setIsActive(true);
+        User savedUser = this.userRepository.save(user.get());
+        return savedUser;
+    }
+
+    @Override
+    public User updateRole(UUID id, Role role){
+        Optional<User> user = this.userRepository.findById(id);
+        if (user.isEmpty()){
+            throw new RuntimeException("User not found");
+        }
+        Optional<Role> foundRole = this.roleRepository.findById(role.getId());
+        if (foundRole.isPresent()){
+            user.get().setRole(foundRole.get());
+        }
+        user.get().setRole(role);
         User savedUser = this.userRepository.save(user.get());
         return savedUser;
     }

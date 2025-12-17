@@ -1,9 +1,13 @@
 package com.pulseclinic.pulse_server.modules.users.controller;
 
+import com.pulseclinic.pulse_server.mappers.impl.RoleMapper;
 import com.pulseclinic.pulse_server.mappers.impl.UserMapper;
+import com.pulseclinic.pulse_server.modules.users.dto.role.RoleDto;
 import com.pulseclinic.pulse_server.modules.users.dto.user.UserDto;
 import com.pulseclinic.pulse_server.modules.users.dto.user.UserRequestDto;
+import com.pulseclinic.pulse_server.modules.users.entity.Role;
 import com.pulseclinic.pulse_server.modules.users.entity.User;
+import com.pulseclinic.pulse_server.modules.users.service.RoleService;
 import com.pulseclinic.pulse_server.modules.users.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,13 +21,16 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @RestController
+@RequestMapping("/users")
 public class UserController {
     private final UserService userService;
     private final UserMapper userMapper;
+    private final RoleMapper roleMapper;
 
-    public UserController(UserService userService, UserMapper userMapper) {
+    public UserController(UserService userService, UserMapper userMapper, RoleMapper roleMapper) {
         this.userService = userService;
         this.userMapper = userMapper;
+        this.roleMapper = roleMapper;
 
     }
 
@@ -35,10 +42,17 @@ public class UserController {
     }
 
     @PatchMapping("/me")
-    public ResponseEntity<UserDto> updatePersonalInfo(Authentication authentication,@RequestBody UserRequestDto userRequestDto) {
+    public ResponseEntity<UserDto> updatePersonalInfo(Authentication authentication,@RequestBody UserDto userDto) {
         String email = authentication.getName();
-        User user = userService.update(email, userRequestDto);
-        return new ResponseEntity<>(this.userMapper.mapTo(user), HttpStatus.CREATED);
+        User user = userService.update(email, userDto);
+        return new ResponseEntity<>(this.userMapper.mapTo(user), HttpStatus.OK);
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<UserDto> updateUserRole(@PathVariable UUID id, RoleDto roleDto) {
+        Role role = this.roleMapper.mapFrom(roleDto);
+        User user = this.userService.updateRole(id, role);
+        return new ResponseEntity<>(this.userMapper.mapTo(user), HttpStatus.OK);
     }
 
     @GetMapping("/me")
