@@ -33,24 +33,24 @@ public class StaffRating {
     private String comment;
 
     @Column(nullable = false, name = "guest_contact_type")
-    private String guest_contact_type;
+    private String guestContactType;
 
     @Column(name = "guest_contact_hash")
-    private String guest_contact_hash;
+    private String guestContactHash;
 
     @Column(nullable = false, name = "created_at")
     @CreationTimestamp
-    private LocalDateTime created_at = LocalDateTime.now();
+    private LocalDateTime createdAt = LocalDateTime.now();
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private RatingType rater_type = RatingType.GUEST;
+    private RatingType raterType = RatingType.GUEST;
 
     @Column(nullable = false)
     private Integer rating; // 0<x<5
 
     @Column(name = "deleted_at")
-    private LocalDateTime deleted_at;
+    private LocalDateTime deletedAt;
     // relationships => 3
 
     @ManyToOne(fetch = FetchType.EAGER, optional = false)

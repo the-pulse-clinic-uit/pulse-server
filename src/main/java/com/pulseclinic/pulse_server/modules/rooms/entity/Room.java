@@ -26,23 +26,23 @@ public class Room {
     @Column(name = "id", columnDefinition = "uuid", updatable = false, nullable = false)
     private UUID id;
 
-    @Column(nullable = false, length = 4, unique = true)
-    private String room_number; // etc B104
+    @Column(nullable = false, length = 4, unique = true, name = "room_number")
+    private String roomNumber; // etc B104
 
-    @Column(nullable = false)
+    @Column(nullable = false, name = "bed_amount")
     @ColumnDefault("1")
-    private Integer bed_amount;
+    private Integer bedAmount;
 
     @Column(name = "is_available")
     @ColumnDefault("TRUE")
-    private Boolean is_available;
+    private Boolean isAvailable;
 
     @Column(nullable = false, name = "created_at")
     @CreationTimestamp
-    private LocalDateTime created_at = LocalDateTime.now();
+    private LocalDateTime createdAt = LocalDateTime.now();
 
     @Column(name = "deleted_at")
-    private LocalDateTime deleted_at;
+    private LocalDateTime deletedAt;
 
     // relationships
 

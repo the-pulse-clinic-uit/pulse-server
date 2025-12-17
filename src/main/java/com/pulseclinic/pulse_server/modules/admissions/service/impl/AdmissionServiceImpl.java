@@ -182,7 +182,7 @@ public class AdmissionServiceImpl implements AdmissionService {
 
             Admission admission = admissionOpt.get();
             admission.setStatus(AdmissionStatus.DISCHARGED);
-            admission.setDischarged_at(LocalDateTime.now());
+            admission.setDischargedAt(LocalDateTime.now());
             admissionRepository.save(admission);
             return true;
         } catch (Exception e) {
@@ -199,10 +199,10 @@ public class AdmissionServiceImpl implements AdmissionService {
         }
 
         Admission admission = admissionOpt.get();
-        LocalDateTime endTime = admission.getDischarged_at() != null ? 
-                admission.getDischarged_at() : LocalDateTime.now();
-        
-        return Duration.between(admission.getAdmitted_at(), endTime);
+        LocalDateTime endTime = admission.getDischargedAt() != null ?
+                admission.getDischargedAt() : LocalDateTime.now();
+
+        return Duration.between(admission.getAdmittedAt(), endTime);
     }
 
     @Override
@@ -275,7 +275,7 @@ public class AdmissionServiceImpl implements AdmissionService {
             }
 
             Admission admission = admissionOpt.get();
-            admission.setDeleted_at(LocalDateTime.now());
+            admission.setDeletedAt(LocalDateTime.now());
             admissionRepository.save(admission);
             return true;
         } catch (Exception e) {

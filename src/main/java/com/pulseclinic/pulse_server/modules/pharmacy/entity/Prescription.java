@@ -29,7 +29,7 @@ public class Prescription {
 
     @ColumnDefault("0.00")
     @Column(nullable = false, name = "total_price")
-    private BigDecimal total_price;
+    private BigDecimal totalPrice;
 
     @Column(nullable = false, columnDefinition = "TEXT")
     private String notes;
@@ -37,14 +37,14 @@ public class Prescription {
     @Column(name  = "created_at", nullable = false)
     @CreationTimestamp
     @Builder.Default
-    private LocalDateTime created_at = LocalDateTime.now();
+    private LocalDateTime createdAt = LocalDateTime.now();
 
     @Column(nullable = false)
     @Builder.Default
     private PrescriptionStatus status = PrescriptionStatus.DRAFT;
 
     @Column(name = "deleted_at")
-    private LocalDateTime deleted_at;
+    private LocalDateTime deletedAt;
 
     // relationship
 

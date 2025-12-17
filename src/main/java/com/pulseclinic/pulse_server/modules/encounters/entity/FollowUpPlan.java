@@ -28,7 +28,7 @@ public class FollowUpPlan {
     private UUID id;
 
     @Column(nullable = false, name = "first_due_at")
-    private LocalDateTime first_due_at;
+    private LocalDateTime firstDueAt;
 
     @Column(name = "rrule", nullable = false, columnDefinition = "TEXT")
     private String rrule;
@@ -42,10 +42,10 @@ public class FollowUpPlan {
 
     @Column(nullable = false, name = "created_at")
     @CreationTimestamp
-    private LocalDateTime created_at = LocalDateTime.now();
+    private LocalDateTime createdAt = LocalDateTime.now();
 
     @Column(name = "deleted_at")
-    private LocalDateTime deleted_at;
+    private LocalDateTime deletedAt;
     // relationships
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -58,5 +58,5 @@ public class FollowUpPlan {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "base_encounter_id")
-    private Encounter base_encounter;
+    private Encounter baseEncounter;
 }

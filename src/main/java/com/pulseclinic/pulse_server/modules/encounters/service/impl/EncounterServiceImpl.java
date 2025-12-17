@@ -69,7 +69,7 @@ public class EncounterServiceImpl implements EncounterService {
 
         Encounter encounter = Encounter.builder()
                 .type(encounterRequestDto.getType())
-                .started_at(LocalDateTime.now())
+                .startedAt(LocalDateTime.now())
                 .diagnosis(encounterRequestDto.getDiagnosis() != null ? encounterRequestDto.getDiagnosis() : "")
                 .notes(encounterRequestDto.getNotes() != null ? encounterRequestDto.getNotes() : "")
                 .patient(patientOpt.get())
@@ -133,7 +133,7 @@ public class EncounterServiceImpl implements EncounterService {
             }
 
             Encounter encounter = encounterOpt.get();
-            encounter.setEnded_at(LocalDateTime.now());
+            encounter.setEndedAt(LocalDateTime.now());
             encounterRepository.save(encounter);
             return true;
         } catch (Exception e) {
@@ -173,12 +173,12 @@ public class EncounterServiceImpl implements EncounterService {
         Encounter encounter = encounterOpt.get();
 
         FollowUpPlan followUpPlan = FollowUpPlan.builder()
-                .first_due_at(LocalDateTime.now().plusDays(7)) // Mặc định tái khám sau 7 ngày
+                .firstDueAt(LocalDateTime.now().plusDays(7)) // Mặc định tái khám sau 7 ngày
                 .rrule(rrule)
                 .notes(notes)
                 .patient(encounter.getPatient())
                 .doctor(encounter.getDoctor())
-                .base_encounter(encounter)
+                .baseEncounter(encounter)
                 .build();
 
         FollowUpPlan savedPlan = followUpPlanRepository.save(followUpPlan);
@@ -194,12 +194,12 @@ public class EncounterServiceImpl implements EncounterService {
         }
 
         Encounter encounter = encounterOpt.get();
-        if (encounter.getEnded_at() == null) {
+        if (encounter.getEndedAt() == null) {
             // Nếu chưa kết thúc, tính từ lúc bắt đầu đến hiện tại
-            return Duration.between(encounter.getStarted_at(), LocalDateTime.now());
+            return Duration.between(encounter.getStartedAt(), LocalDateTime.now());
         }
 
-        return Duration.between(encounter.getStarted_at(), encounter.getEnded_at());
+        return Duration.between(encounter.getStartedAt(), encounter.getEndedAt());
     }
 
     @Override
@@ -211,7 +211,7 @@ public class EncounterServiceImpl implements EncounterService {
         }
 
         Encounter encounter = encounterOpt.get();
-        return encounter.getEnded_at() != null;
+        return encounter.getEndedAt() != null;
     }
 
     @Override
@@ -251,10 +251,10 @@ public class EncounterServiceImpl implements EncounterService {
         summary.append("Loại khám: ").append(encounter.getType()).append("\n");
         summary.append("Bệnh nhân: ").append(encounter.getPatient().getUser().getFull_name()).append("\n");
         summary.append("Bác sĩ: ").append(encounter.getDoctor().getStaff().getUser().getFull_name()).append("\n");
-        summary.append("Thời gian bắt đầu: ").append(encounter.getStarted_at()).append("\n");
-        
-        if (encounter.getEnded_at() != null) {
-            summary.append("Thời gian kết thúc: ").append(encounter.getEnded_at()).append("\n");
+        summary.append("Thời gian bắt đầu: ").append(encounter.getStartedAt()).append("\n");
+
+        if (encounter.getEndedAt() != null) {
+            summary.append("Thời gian kết thúc: ").append(encounter.getEndedAt()).append("\n");
             summary.append("Thời lượng: ").append(getDuration(encounterId).toMinutes()).append(" phút\n");
         } else {
             summary.append("Trạng thái: Đang khám\n");

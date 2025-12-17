@@ -42,12 +42,12 @@ public class User implements UserDetails {
     @NotBlank
     @Size(max = 255)
     @Column(name = "hashed_password", nullable = false, length = 255)
-    private String hashed_password;
+    private String hashedPassword;
 
     @NotBlank
     @Size(max = 255)
     @Column(name = "full_name", nullable = false, length = 255)
-    private String full_name;
+    private String fullName;
 
     @Size(max = 500)
     @Column(name = "address", length = 500)
@@ -56,7 +56,7 @@ public class User implements UserDetails {
     @NotBlank
     @Size(max = 32)
     @Column(name = "citizen_id", nullable = false, length = 32, unique = true)
-    private String citizen_id;
+    private String citizenId;
 
     @Size(max = 12)
     @Column(name = "phone", length = 12)
@@ -67,26 +67,26 @@ public class User implements UserDetails {
     private Boolean gender = true;
 
     @Column(name = "birth_date")
-    private LocalDate birth_date;
+    private LocalDate birthDate;
 
     @Size(max = 512)
     @Column(name = "avatar_url", length = 512)
-    private String avatar_url;
+    private String avatarUrl;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime created_at;
+    private LocalDateTime createdAt;
 
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
-    private LocalDateTime updated_at;
+    private LocalDateTime updatedAt;
 
     @Column(name = "is_active", nullable = false)
     @ColumnDefault("TRUE")
-    private Boolean is_active = true;
+    private Boolean isActive = true;
 
     @Column(name = "deleted_at")
-    private LocalDateTime deleted_at;
+    private LocalDateTime deletedAt;
 
     // relationships
     @JoinColumn(name= "role_id")
@@ -100,7 +100,7 @@ public class User implements UserDetails {
 
     @Override
     public String getPassword() {
-        return hashed_password;
+        return hashedPassword;
     }
 
     @Override

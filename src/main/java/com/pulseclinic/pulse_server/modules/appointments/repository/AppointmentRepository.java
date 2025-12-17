@@ -17,11 +17,11 @@ public interface AppointmentRepository extends JpaRepository<Appointment, UUID> 
     
     List<Appointment> findByDoctorIdAndStartsAtBetweenAndDeletedAtIsNull(UUID doctorId, LocalDateTime start, LocalDateTime end);
     
-    @Query("SELECT a FROM Appointment a WHERE a.doctor.id = :doctorId AND a.patient.id = :patientId AND a.starts_at = :startTime AND a.status != 'CANCELLED' AND a.deleted_at IS NULL")
+    @Query("SELECT a FROM Appointment a WHERE a.doctor.id = :doctorId AND a.patient.id = :patientId AND a.startsAt = :startTime AND a.status != 'CANCELLED' AND a.deletedAt IS NULL")
     List<Appointment> findConflicts(@Param("doctorId") UUID doctorId, @Param("patientId") UUID patientId, @Param("startTime") LocalDateTime startTime);
-    
+
     List<Appointment> findByPatientIdAndDeletedAtIsNullOrderByStartsAtDesc(UUID patientId);
-    
-    @Query("SELECT a FROM Appointment a WHERE a.patient.id = :patientId AND a.starts_at > :now AND a.deleted_at IS NULL ORDER BY a.starts_at ASC")
+
+    @Query("SELECT a FROM Appointment a WHERE a.patient.id = :patientId AND a.startsAt > :now AND a.deletedAt IS NULL ORDER BY a.startsAt ASC")
     List<Appointment> findUpcomingByPatient(@Param("patientId") UUID patientId, @Param("now") LocalDateTime now);
 }

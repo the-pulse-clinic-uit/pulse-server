@@ -82,8 +82,8 @@ public class AppointmentServiceImpl implements AppointmentService {
         }
 
         Appointment appointment = Appointment.builder()
-                .starts_at(appointmentRequestDto.getStarts_at())
-                .ends_at(appointmentRequestDto.getEnds_at())
+                .startsAt(appointmentRequestDto.getStarts_at())
+                .endsAt(appointmentRequestDto.getEnds_at())
                 .status(appointmentRequestDto.getStatus())
                 .type(appointmentRequestDto.getType())
                 .description(appointmentRequestDto.getDescription())
@@ -173,8 +173,8 @@ public class AppointmentServiceImpl implements AppointmentService {
                 return false;
             }
 
-            appointment.setStarts_at(newStartTime);
-            appointment.setEnds_at(newEndTime);
+            appointment.setStartsAt(newStartTime);
+            appointment.setEndsAt(newEndTime);
             appointmentRepository.save(appointment);
             return true;
         } catch (Exception e) {
@@ -218,7 +218,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         List<Appointment> conflicts = appointmentRepository.findConflicts(
                 appointment.getDoctor().getId(),
                 appointment.getPatient().getId(),
-                appointment.getStarts_at());
+                appointment.getStartsAt());
 
         conflicts = conflicts.stream()
                 .filter(a -> !a.getId().equals(appointmentId))
@@ -237,7 +237,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 
         Appointment appointment = appointmentOpt.get();
 
-        if (appointment.getStarts_at().isAfter(appointment.getEnds_at())) {
+        if (appointment.getStartsAt().isAfter(appointment.getEndsAt())) {
             return false;
         }
 
@@ -264,7 +264,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         // Tạo Encounter mới
         Encounter encounter = Encounter.builder()
                 .type(EncounterType.APPOINTED)
-                .started_at(LocalDateTime.now())
+                .startedAt(LocalDateTime.now())
                 .diagnosis("") // Chưa có chẩn đoán
                 .notes("Encounter tạo từ appointment #" + appointmentId)
                 .patient(appointment.getPatient())
@@ -292,7 +292,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         com.pulseclinic.pulse_server.modules.appointments.entity.Appointment appointment = appointmentOpt.get();
 
         // Check if appointment is in the future
-        if (appointment.getStarts_at().isBefore(LocalDateTime.now())) {
+        if (appointment.getStartsAt().isBefore(LocalDateTime.now())) {
             return false; // Don't send reminder for past appointments
         }
 
@@ -300,7 +300,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         // Example:
         // String patientEmail = appointment.getPatient().getUser().getEmail();
         // String message = String.format("Reminder: You have an appointment on %s with Dr. %s",
-        //     appointment.getStarts_at(), appointment.getDoctor().getStaff().getUser().getFull_name());
+        //     appointment.getStartsAt(), appointment.getDoctor().getStaff().getUser().getFull_name());
         // emailService.send(patientEmail, "Appointment Reminder", message);
 
         // For now, log the reminder (in production, send actual notification)
@@ -324,7 +324,7 @@ public class AppointmentServiceImpl implements AppointmentService {
             return false;
         }
 
-        return appointment.getStarts_at().isAfter(LocalDateTime.now());
+        return appointment.getStartsAt().isAfter(LocalDateTime.now());
     }
 
     @Override
@@ -343,7 +343,7 @@ public class AppointmentServiceImpl implements AppointmentService {
             return false;
         }
 
-        return appointment.getStarts_at().isAfter(LocalDateTime.now());
+        return appointment.getStartsAt().isAfter(LocalDateTime.now());
     }
 
     @Override
@@ -388,7 +388,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 
             // Soft delete
             Appointment appointment = appointmentOpt.get();
-            appointment.setDeleted_at(LocalDateTime.now());
+            appointment.setDeletedAt(LocalDateTime.now());
             appointmentRepository.save(appointment);
             return true;
         } catch (Exception e) {

@@ -27,7 +27,7 @@ public class Patient {
     private UUID id;
 
     @Column(name = "health_insurance_id", nullable = false, length = 64, unique = true)
-    private String health_insurance_id;
+    private String healthInsuranceId;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -38,10 +38,10 @@ public class Patient {
 
     @Column(nullable = false, name = "created_at")
     @CreationTimestamp
-    private LocalDateTime created_at = LocalDateTime.now();
+    private LocalDateTime createdAt = LocalDateTime.now();
 
     @Column(name = "deleted_at")
-    private LocalDateTime deleted_at;
+    private LocalDateTime deletedAt;
 
     // relationships
 

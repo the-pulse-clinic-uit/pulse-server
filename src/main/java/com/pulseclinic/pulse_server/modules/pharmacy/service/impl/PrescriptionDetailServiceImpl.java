@@ -49,15 +49,15 @@ public class PrescriptionDetailServiceImpl implements PrescriptionDetailService 
         }
 
         Drug drug = drugOpt.get();
-        BigDecimal unitPrice = detailRequestDto.getUnit_price() != null ? 
-                detailRequestDto.getUnit_price() : drug.getUnit_price();
+        BigDecimal unitPrice = detailRequestDto.getUnit_price() != null ?
+                detailRequestDto.getUnit_price() : drug.getUnitPrice();
         BigDecimal itemTotal = unitPrice.multiply(BigDecimal.valueOf(detailRequestDto.getQuantity()));
 
         PrescriptionDetail detail = PrescriptionDetail.builder()
-                .strength_text(detailRequestDto.getStrength_text())
+                .strengthText(detailRequestDto.getStrength_text())
                 .quantity(detailRequestDto.getQuantity())
-                .unit_price(unitPrice)
-                .item_total_price(itemTotal)
+                .unitPrice(unitPrice)
+                .itemTotalPrice(itemTotal)
                 .dose(detailRequestDto.getDose())
                 .timing(detailRequestDto.getTiming())
                 .instructions(detailRequestDto.getInstructions())
@@ -118,7 +118,7 @@ public class PrescriptionDetailServiceImpl implements PrescriptionDetailService 
         }
 
         PrescriptionDetail detail = detailOpt.get();
-        return detail.getUnit_price().multiply(BigDecimal.valueOf(detail.getQuantity()));
+        return detail.getUnitPrice().multiply(BigDecimal.valueOf(detail.getQuantity()));
     }
 
     @Override
@@ -131,7 +131,7 @@ public class PrescriptionDetailServiceImpl implements PrescriptionDetailService 
 
         PrescriptionDetail detail = detailOpt.get();
         BigDecimal lineTotal = calculateLineTotal(detailId);
-        detail.setItem_total_price(lineTotal);
+        detail.setItemTotalPrice(lineTotal);
         prescriptionDetailRepository.save(detail);
     }
 

@@ -31,10 +31,10 @@ public class WaitlistEntry {
     private UUID id;
 
     @Column(nullable = false, name = "duty_date")
-    private LocalDate duty_date; // to get all doctors exactly the moment the patient was added to the list
+    private LocalDate dutyDate; // to get all doctors exactly the moment the patient was added to the list
 
-    @Column(name = "ticket_np")
-    private Integer ticket_no;
+    @Column(name = "ticket_no")
+    private Integer ticketNo;
 
     @Column(columnDefinition = "TEXT")
     private String notes;
@@ -51,16 +51,16 @@ public class WaitlistEntry {
     @Column(nullable = false, name = "created_at")
     @CreationTimestamp
     @Builder.Default
-    private LocalDateTime created_at = LocalDateTime.now();
+    private LocalDateTime createdAt = LocalDateTime.now();
 
     @Column(name = "called_at")
-    private LocalDateTime called_at;
+    private LocalDateTime calledAt;
 
     @Column(name = "served_at")
-    private LocalDateTime served_at;
+    private LocalDateTime servedAt;
 
     @Column(name = "deleted_at")
-    private LocalDateTime deleted_at;
+    private LocalDateTime deletedAt;
     // relationships => 3
 
     @OneToOne(fetch = FetchType.EAGER, optional = true)

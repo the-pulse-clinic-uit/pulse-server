@@ -31,11 +31,11 @@ public class ShiftAssignment {
     private UUID id;
 
     @Column(nullable = false, name = "duty_date")
-    private LocalDate duty_date;
+    private LocalDate dutyDate;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private ShiftAssignmentRole role_in_shift = ShiftAssignmentRole.PRIMARY;
+    @Column(nullable = false, name = "role_in_shift")
+    private ShiftAssignmentRole roleInShift = ShiftAssignmentRole.PRIMARY;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -46,14 +46,14 @@ public class ShiftAssignment {
 
     @Column(nullable = false, name = "created_at")
     @CreationTimestamp
-    private LocalDateTime created_at = LocalDateTime.now();
+    private LocalDateTime createdAt = LocalDateTime.now();
 
     @Column(name = "updated_at")
     @UpdateTimestamp
-    private LocalDateTime updated_at;
+    private LocalDateTime updatedAt;
 
     @Column(name = "deleted_at")
-    private LocalDateTime deleted_at;
+    private LocalDateTime deletedAt;
 
     // relationships 3
 

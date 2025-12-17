@@ -26,7 +26,7 @@ public class PrescriptionDetail {
     private UUID id;
 
     @Column(columnDefinition = "TEXT", name = "strength_text")
-    private String strength_text;
+    private String strengthText;
 
     @ColumnDefault("0")
     @Column(nullable = false, name = "quantity")
@@ -36,12 +36,12 @@ public class PrescriptionDetail {
     @ColumnDefault("0.00")
     @Column(name = "unit_price", nullable = false)
     @Builder.Default
-    private BigDecimal unit_price = BigDecimal.ZERO;
+    private BigDecimal unitPrice = BigDecimal.ZERO;
 
     @ColumnDefault("0.00")
     @Column(name = "item_total_price", nullable = false)
     @Builder.Default
-    private BigDecimal item_total_price = BigDecimal.ZERO;
+    private BigDecimal itemTotalPrice = BigDecimal.ZERO;
 
     @Column(name = "dose", nullable = false)
     private String dose; // eg 1 tablet
@@ -55,13 +55,13 @@ public class PrescriptionDetail {
     @Column(nullable = false, name = "created_at")
     @CreationTimestamp
     @Builder.Default
-    private LocalDateTime created_at = LocalDateTime.now();
+    private LocalDateTime createdAt = LocalDateTime.now();
 
     @Column(nullable = false, name = "frequency")
     private String frequency; // 2 times per day
 
     @Column(name = "deleted_at")
-    private LocalDateTime deleted_at;
+    private LocalDateTime deletedAt;
 
     // relationships => 2
 
