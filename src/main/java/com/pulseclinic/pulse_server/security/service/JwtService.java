@@ -28,12 +28,12 @@ public class JwtService {
     }
 
     // generic
-    private <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
+    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = extractAllClaims(token);
         return claimsResolver.apply(claims);
     }
 
-    private Claims extractAllClaims(String token) {
+    public Claims extractAllClaims(String token) {
         return Jwts
                 .parserBuilder()
                 .setSigningKey(getSignInKey())
@@ -58,10 +58,7 @@ public class JwtService {
 
     public boolean isTokenValid(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
-        if (username.equals(userDetails.getUsername()) && !isTokenExpired(token)) {
-            return false;
-        }
-        return true;
+        return username.equals(userDetails.getUsername()) && !isTokenExpired(token);
     }
 
     public boolean isTokenExpired(String token) {
@@ -71,6 +68,13 @@ public class JwtService {
     private Date extractExpiration(String token) {
         return extractClaim(token, Claims::getExpiration); // get expiration from claims
     }
+
+    public long getRemainingTtlSeconds(String token) {
+        Date exp = extractExpiration(token);
+        long diff = exp.getTime() - System.currentTimeMillis();
+        return diff > 0 ? diff / 1000 : 0;
+    }
+
 
     // create key for signing tokens
     private Key getSignInKey() {
