@@ -47,14 +47,14 @@ public class AuthService {
         var user = User.builder()
                 .address(registerRequest.getAddress())
                 .email(registerRequest.getEmail())
-                .full_name(registerRequest.getFull_name())
-                .birth_date(registerRequest.getBirth_date())
+                .fullName(registerRequest.getFull_name())
+                .birthDate(registerRequest.getBirth_date())
                 .gender(registerRequest.getGender())
-                .hashed_password(passwordEncoder.encode(registerRequest.getPassword()))
+                .hashedPassword(passwordEncoder.encode(registerRequest.getPassword()))
                 .role(roleMapper.mapFrom(registerRequest.getRoleDto()))
-                .citizen_id(registerRequest.getCitizen_id())
+                .citizenId(registerRequest.getCitizen_id())
                 .phone(registerRequest.getPhone())
-                .avatar_url(registerRequest.getAvatar_url())
+                .avatarUrl(registerRequest.getAvatar_url())
                 .build();
         userRepository.save(user);
         var jwtToken = jwtService.generateToken(user);

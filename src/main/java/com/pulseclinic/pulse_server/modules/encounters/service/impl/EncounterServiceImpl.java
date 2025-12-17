@@ -249,8 +249,8 @@ public class EncounterServiceImpl implements EncounterService {
         summary.append("=== BÁO CÁO KHÁM BỆNH ===\n\n");
         summary.append("Mã số: ").append(encounter.getId()).append("\n");
         summary.append("Loại khám: ").append(encounter.getType()).append("\n");
-        summary.append("Bệnh nhân: ").append(encounter.getPatient().getUser().getFull_name()).append("\n");
-        summary.append("Bác sĩ: ").append(encounter.getDoctor().getStaff().getUser().getFull_name()).append("\n");
+        summary.append("Bệnh nhân: ").append(encounter.getPatient().getUser().getFullName()).append("\n");
+        summary.append("Bác sĩ: ").append(encounter.getDoctor().getStaff().getUser().getFullName()).append("\n");
         summary.append("Thời gian bắt đầu: ").append(encounter.getStartedAt()).append("\n");
 
         if (encounter.getEndedAt() != null) {

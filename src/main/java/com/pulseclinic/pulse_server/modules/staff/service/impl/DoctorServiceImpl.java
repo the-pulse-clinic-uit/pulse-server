@@ -67,8 +67,8 @@ public class DoctorServiceImpl implements DoctorService {
         }
 
         Doctor doctor = Doctor.builder()
-                .license_id(doctorRequestDto.getLicense_id())
-                .is_verified(Boolean.TRUE.equals(doctorRequestDto.getIs_verified()))
+                .licenseId(doctorRequestDto.getLicense_id())
+                .isVerified(Boolean.TRUE.equals(doctorRequestDto.getIs_verified()))
                 .staff(staffOpt.get())
                 .department(departmentOpt.get())
                 .build();
@@ -107,7 +107,7 @@ public class DoctorServiceImpl implements DoctorService {
             }
 
             Doctor doctor = doctorOpt.get();
-            doctor.setIs_verified(true);
+            doctor.setIsVerified(true);
             doctorRepository.save(doctor);
             return true;
         } catch (Exception e) {
@@ -124,7 +124,7 @@ public class DoctorServiceImpl implements DoctorService {
         }
 
         Doctor doctor = doctorOpt.get();
-        return doctor.getIs_verified() != null && doctor.getIs_verified();
+        return doctor.getIsVerified() != null && doctor.getIsVerified();
     }
 
     @Override

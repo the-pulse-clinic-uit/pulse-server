@@ -93,12 +93,12 @@ public class AppointmentServiceImpl implements AppointmentService {
 
         if (appointmentRequestDto.getShift_assignment_id() != null) {
             Optional<ShiftAssignment> shiftAssignmentOpt = shiftAssignmentRepository.findById(appointmentRequestDto.getShift_assignment_id());
-            shiftAssignmentOpt.ifPresent(appointment::setShift_assignment);
+            shiftAssignmentOpt.ifPresent(appointment::setShiftAssignment);
         }
 
         if (appointmentRequestDto.getFollow_up_plan_id() != null) {
             Optional<FollowUpPlan> followUpPlanOpt = followUpPlanRepository.findById(appointmentRequestDto.getFollow_up_plan_id());
-            followUpPlanOpt.ifPresent(appointment::setFollow_up_plan);
+            followUpPlanOpt.ifPresent(appointment::setFollowUpPlan);
         }
 
         Appointment savedAppointment = appointmentRepository.save(appointment);
