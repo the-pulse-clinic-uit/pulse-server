@@ -30,15 +30,18 @@ public class PrescriptionDetail {
 
     @ColumnDefault("0")
     @Column(nullable = false, name = "quantity")
-    private Integer quantity;
+    @Builder.Default
+    private Integer quantity = 0;
 
     @ColumnDefault("0.00")
     @Column(name = "unit_price", nullable = false)
-    private BigDecimal unit_price;
+    @Builder.Default
+    private BigDecimal unit_price = BigDecimal.ZERO;
 
     @ColumnDefault("0.00")
     @Column(name = "item_total_price", nullable = false)
-    private BigDecimal item_total_price;
+    @Builder.Default
+    private BigDecimal item_total_price = BigDecimal.ZERO;
 
     @Column(name = "dose", nullable = false)
     private String dose; // eg 1 tablet
@@ -51,6 +54,7 @@ public class PrescriptionDetail {
 
     @Column(nullable = false, name = "created_at")
     @CreationTimestamp
+    @Builder.Default
     private LocalDateTime created_at = LocalDateTime.now();
 
     @Column(nullable = false, name = "frequency")

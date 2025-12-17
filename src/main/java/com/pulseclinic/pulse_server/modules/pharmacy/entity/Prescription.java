@@ -36,9 +36,11 @@ public class Prescription {
 
     @Column(name  = "created_at", nullable = false)
     @CreationTimestamp
+    @Builder.Default
     private LocalDateTime created_at = LocalDateTime.now();
 
     @Column(nullable = false)
+    @Builder.Default
     private PrescriptionStatus status = PrescriptionStatus.DRAFT;
 
     @Column(name = "deleted_at")
