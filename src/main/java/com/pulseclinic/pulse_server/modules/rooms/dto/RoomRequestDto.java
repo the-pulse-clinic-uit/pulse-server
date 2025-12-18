@@ -1,10 +1,8 @@
 package com.pulseclinic.pulse_server.modules.rooms.dto;
 
 import jakarta.validation.constraints.NotBlank;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.validation.constraints.NotNull;
+import lombok.*;
 
 import java.util.UUID;
 
@@ -14,13 +12,13 @@ import java.util.UUID;
 @NoArgsConstructor
 public class RoomRequestDto {
     @NotBlank(message = "Room Number must be provided")
-    private String room_number; // etc B104
+    private String roomNumber; // etc B104
 
-    @NotBlank(message = "Bed amount is required")
-    private Integer bed_amount;
+    @NotNull(message = "Bed amount is required")
+    private Integer bedAmount;
 
-    private Boolean is_available = true;
+    private Boolean isAvailable = true;
 
     // relationships
-    private UUID department_id;
+    private UUID departmentId;
 }

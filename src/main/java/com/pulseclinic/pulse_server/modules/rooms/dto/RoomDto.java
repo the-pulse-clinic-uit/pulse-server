@@ -16,14 +16,14 @@ import java.util.UUID;
 public class RoomDto {
     private UUID id;
 
-    private String room_number; // etc B104
+    private String roomNumber; // etc B104
 
-    private Integer bed_amount;
+    private Integer bedAmount;
 
-    private Boolean is_available;
+    private Boolean isAvailable;
 
-    private LocalDateTime created_at;
+    private LocalDateTime createdAt;
 
     // relationships
-    private DepartmentDto department_dto;
+    private DepartmentDto departmentDto;
 }

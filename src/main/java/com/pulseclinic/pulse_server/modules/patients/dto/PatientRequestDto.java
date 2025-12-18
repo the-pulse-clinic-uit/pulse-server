@@ -18,7 +18,7 @@ import java.util.UUID;
 @NoArgsConstructor
 public class PatientRequestDto {
     @NotNull(message = "Health Insurance ID is required")
-    private String health_insurance_id;
+    private String healthInsuranceId;
 
     private BloodType bloodType;
 
@@ -27,5 +27,5 @@ public class PatientRequestDto {
 
     // relationships
     @NotNull(message = "User ID is required")
-    private UUID user_id;
+    private UUID userId;
 }

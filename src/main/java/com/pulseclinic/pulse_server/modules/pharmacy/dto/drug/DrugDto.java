@@ -20,13 +20,13 @@ public class DrugDto {
 
     private String name;
 
-    private DrugDosageForm dosage_form;
+    private DrugDosageForm dosageForm;
 
     private DrugUnit unit = DrugUnit.CAPSULE;
 
     private String strength;
 
-    private LocalDateTime created_at;
+    private LocalDateTime createdAt;
 
-    private BigDecimal unit_price;
+    private BigDecimal unitPrice;
 }

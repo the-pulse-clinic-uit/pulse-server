@@ -62,28 +62,28 @@ public class AppointmentServiceImpl implements AppointmentService {
     @Override
     @Transactional
     public AppointmentDto scheduleAppointment(AppointmentRequestDto appointmentRequestDto) {
-        Optional<Patient> patientOpt = patientRepository.findById(appointmentRequestDto.getPatient_id());
+        Optional<Patient> patientOpt = patientRepository.findById(appointmentRequestDto.getPatientId());
         if (patientOpt.isEmpty()) {
             throw new RuntimeException("Patient not found");
         }
 
-        Optional<Doctor> doctorOpt = doctorRepository.findById(appointmentRequestDto.getDoctor_id());
+        Optional<Doctor> doctorOpt = doctorRepository.findById(appointmentRequestDto.getDoctorId());
         if (doctorOpt.isEmpty()) {
             throw new RuntimeException("Doctor not found");
         }
 
         List<Appointment> conflicts = appointmentRepository.findConflicts(
-                appointmentRequestDto.getDoctor_id(),
-                appointmentRequestDto.getPatient_id(),
-                appointmentRequestDto.getStarts_at());
+                appointmentRequestDto.getDoctorId(),
+                appointmentRequestDto.getPatientId(),
+                appointmentRequestDto.getStartsAt());
 
         if (!conflicts.isEmpty()) {
             throw new RuntimeException("Time slot conflict detected");
         }
 
         Appointment appointment = Appointment.builder()
-                .startsAt(appointmentRequestDto.getStarts_at())
-                .endsAt(appointmentRequestDto.getEnds_at())
+                .startsAt(appointmentRequestDto.getStartsAt())
+                .endsAt(appointmentRequestDto.getEndsAt())
                 .status(appointmentRequestDto.getStatus())
                 .type(appointmentRequestDto.getType())
                 .description(appointmentRequestDto.getDescription())
@@ -91,13 +91,13 @@ public class AppointmentServiceImpl implements AppointmentService {
                 .doctor(doctorOpt.get())
                 .build();
 
-        if (appointmentRequestDto.getShift_assignment_id() != null) {
-            Optional<ShiftAssignment> shiftAssignmentOpt = shiftAssignmentRepository.findById(appointmentRequestDto.getShift_assignment_id());
+        if (appointmentRequestDto.getShiftAssignmentId() != null) {
+            Optional<ShiftAssignment> shiftAssignmentOpt = shiftAssignmentRepository.findById(appointmentRequestDto.getShiftAssignmentId());
             shiftAssignmentOpt.ifPresent(appointment::setShiftAssignment);
         }
 
-        if (appointmentRequestDto.getFollow_up_plan_id() != null) {
-            Optional<FollowUpPlan> followUpPlanOpt = followUpPlanRepository.findById(appointmentRequestDto.getFollow_up_plan_id());
+        if (appointmentRequestDto.getFollowUpPlanId() != null) {
+            Optional<FollowUpPlan> followUpPlanOpt = followUpPlanRepository.findById(appointmentRequestDto.getFollowUpPlanId());
             followUpPlanOpt.ifPresent(appointment::setFollowUpPlan);
         }
 

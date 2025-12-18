@@ -19,5 +19,5 @@ public class StaffRequestDto {
 
     // relationships
     @NotNull(message = "User ID is required")
-    private UUID user_id;
+    private UUID userId;
 }

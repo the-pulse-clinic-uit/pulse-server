@@ -26,11 +26,11 @@ public class PatientServiceImpl implements PatientService {
 
     @Override
     public Patient registerPatient(PatientRequestDto patientRequestDto) {
-        User user = this.userRepository.findById(patientRequestDto.getUser_id()).orElseThrow(() -> new RuntimeException("User not found"));
+        User user = this.userRepository.findById(patientRequestDto.getUserId()).orElseThrow(() -> new RuntimeException("User not found"));
         Patient patient = Patient.builder()
                 .bloodType(patientRequestDto.getBloodType())
                 .allergies(patientRequestDto.getAllergies())
-                .healthInsuranceId(patientRequestDto.getHealth_insurance_id())
+                .healthInsuranceId(patientRequestDto.getHealthInsuranceId())
                 .user(user)
                 .build();
         return this.patientRepository.save(patient);
@@ -44,14 +44,14 @@ public class PatientServiceImpl implements PatientService {
     @Override
     public List<Patient> search(PatientSearchDto patientSearchDto) {
         // id
-        if (patientSearchDto.getPatient_id() != null) {
-            return patientRepository.findById(patientSearchDto.getPatient_id())
+        if (patientSearchDto.getPatientId() != null) {
+            return patientRepository.findById(patientSearchDto.getPatientId())
                     .map(List::of)
                     .orElse(List.of());
         }
         // citizen ID
-        if (patientSearchDto.getCitizen_id() != null && !patientSearchDto.getCitizen_id().isEmpty()) {
-            return patientRepository.findByUserCitizenId(patientSearchDto.getCitizen_id())
+        if (patientSearchDto.getCitizenId() != null && !patientSearchDto.getCitizenId().isEmpty()) {
+            return patientRepository.findByUserCitizenId(patientSearchDto.getCitizenId())
                     .map(List::of)
                     .orElse(List.of());
         }
@@ -75,8 +75,8 @@ public class PatientServiceImpl implements PatientService {
             if (patientDto.getAllergies() != null) {
                 updatedPatient.setAllergies(patientDto.getAllergies());
             }
-            if (patientDto.getHealth_insurance_id() != null) {
-                updatedPatient.setHealthInsuranceId(patientDto.getHealth_insurance_id());
+            if (patientDto.getHealthInsuranceId() != null) {
+                updatedPatient.setHealthInsuranceId(patientDto.getHealthInsuranceId());
             }
             if (patientDto.getBloodType() != null) {
                 updatedPatient.setBloodType(patientDto.getBloodType());
@@ -101,8 +101,8 @@ public class PatientServiceImpl implements PatientService {
             if (patientDto.getAllergies() != null) {
                 updatedPatient.setAllergies(patientDto.getAllergies());
             }
-            if (patientDto.getHealth_insurance_id() != null) {
-                updatedPatient.setHealthInsuranceId(patientDto.getHealth_insurance_id());
+            if (patientDto.getHealthInsuranceId() != null) {
+                updatedPatient.setHealthInsuranceId(patientDto.getHealthInsuranceId());
             }
             if (patientDto.getBloodType() != null) {
                 updatedPatient.setBloodType(patientDto.getBloodType());

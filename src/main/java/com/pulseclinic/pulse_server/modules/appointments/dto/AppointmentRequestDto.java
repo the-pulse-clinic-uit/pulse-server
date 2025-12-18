@@ -20,9 +20,9 @@ import java.util.UUID;
 @NoArgsConstructor
 @Builder
 public class AppointmentRequestDto {
-    private LocalDateTime starts_at;
+    private LocalDateTime startsAt;
 
-    private LocalDateTime ends_at;
+    private LocalDateTime endsAt;
 
     @NotNull(message = "Appointment Status is required. Valid values: 'PENDING', 'CONFIRMED', 'CANCELLED', 'NO_SHOW', 'DONE'")
     private AppointmentStatus status;
@@ -35,12 +35,12 @@ public class AppointmentRequestDto {
     // relationships => 5
 
     @NotNull(message = "Patient ID is required")
-    private UUID patient_id;
+    private UUID patientId;
 
     @NotNull(message = "Doctor ID is required")
-    private UUID doctor_id;
+    private UUID doctorId;
 
-    private UUID shift_assignment_id;
+    private UUID shiftAssignmentId;
 
-    private UUID follow_up_plan_id;
+    private UUID followUpPlanId;
 }

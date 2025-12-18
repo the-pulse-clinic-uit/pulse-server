@@ -12,8 +12,8 @@ import java.util.UUID;
 @Data
 @Builder
 public class PatientSearchDto {
-    UUID patient_id;
-    String citizen_id;
+    UUID patientId;
+    String citizenId;
     String fullName;
     String email;
 }

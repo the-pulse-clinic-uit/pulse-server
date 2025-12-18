@@ -21,18 +21,18 @@ public class UserRequestDto {
 
     //@NotBlank(message = "Password is required")
     @Size(min = 8, max = 255, message = "Password must be between 8 and 255 characters")
-    private String hashed_password;
+    private String hashedPassword;
 
     //@NotBlank(message = "Full name is required")
     @Size(max = 255, message = "Full name must not exceed 255 characters")
-    private String full_name;
+    private String fullName;
 
     @Size(max = 500, message = "Address must not exceed 500 characters")
     private String address;
 
     @Size(max = 20, message = "Citizen ID must not exceed 20 characters")
     @Pattern(regexp = "^[0-9]*$", message = "Citizen ID must contain only numbers")
-    private String citizen_id;
+    private String citizenId;
 
     @Pattern(regexp = "^[0-9+\\-\\s()]*$", message = "Phone number must be valid")
     @Size(max = 20, message = "Phone number must not exceed 20 characters")
@@ -41,12 +41,12 @@ public class UserRequestDto {
     private Boolean gender;
 
     @Past(message = "Birth date must be in the past")
-    private LocalDate birth_date;
+    private LocalDate birthDate;
 
     @Size(max = 500, message = "Avatar URL must not exceed 500 characters")
-    private String avatar_url;
+    private String avatarUrl;
 
     // relationships
     @NotNull(message = "Role is required")
-    private UUID role_id;
+    private UUID roleId;
 }

@@ -19,7 +19,7 @@ import java.util.UUID;
 @Builder
 public class FollowUpPlanRequestDto {
     @NotNull(message = "First Due At must be provided")
-    private LocalDateTime first_due_at;
+    private LocalDateTime firstDueAt;
 
     private String rrule;
 
@@ -29,11 +29,11 @@ public class FollowUpPlanRequestDto {
 
     // relationships
     @NotNull(message = "Patient ID is required")
-    private UUID patient_id;
+    private UUID patientId;
 
     @NotNull(message = "Doctor ID is required")
-    private UUID doctor_id;
+    private UUID doctorId;
 
     @NotNull(message = "Base Encounter ID is required")
-    private UUID base_encounter_id;
+    private UUID baseEncounterId;
 }

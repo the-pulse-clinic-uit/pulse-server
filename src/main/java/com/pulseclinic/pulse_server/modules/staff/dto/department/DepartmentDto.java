@@ -19,5 +19,5 @@ public class DepartmentDto {
 
     private String description;
 
-    private LocalDateTime created_at;
+    private LocalDateTime createdAt;
 }

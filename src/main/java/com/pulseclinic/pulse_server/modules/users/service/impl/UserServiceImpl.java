@@ -57,17 +57,17 @@ public class UserServiceImpl implements UserService {
         if (userDto.getPhone() != null){
             user.get().setPhone(userDto.getPhone());
         }
-        if (userDto.getBirth_date() != null){
-            user.get().setBirthDate(userDto.getBirth_date());
+        if (userDto.getBirthDate() != null){
+            user.get().setBirthDate(userDto.getBirthDate());
         }
-        if (userDto.getAvatar_url() != null){
-            user.get().setAvatarUrl(userDto.getAvatar_url());
+        if (userDto.getAvatarUrl() != null){
+            user.get().setAvatarUrl(userDto.getAvatarUrl());
         }
-        if (userDto.getCitizen_id() != null){
-            user.get().setCitizenId(userDto.getCitizen_id());
+        if (userDto.getCitizenId() != null){
+            user.get().setCitizenId(userDto.getCitizenId());
         }
-        if (userDto.getFull_name() != null){
-            user.get().setFullName(userDto.getFull_name());
+        if (userDto.getFullName() != null){
+            user.get().setFullName(userDto.getFullName());
         }
         User savedUser = this.userRepository.save(user.get());
         return savedUser;

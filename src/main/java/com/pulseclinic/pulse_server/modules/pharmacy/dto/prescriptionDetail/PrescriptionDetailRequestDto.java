@@ -20,10 +20,10 @@ public class PrescriptionDetailRequestDto {
     private Integer quantity;
 
     @Positive(message = "Unit Price must be Positive")
-    private BigDecimal unit_price;
+    private BigDecimal unitPrice;
 
     @Positive(message = "Unit Price must be Positive")
-    private BigDecimal item_total_price;
+    private BigDecimal itemTotalPrice;
 
     private String dose; // eg 1 tablet
 
@@ -35,8 +35,8 @@ public class PrescriptionDetailRequestDto {
 
     // relationships => 2
     @NotNull(message = "Drug ID is required")
-    private UUID drug_id;
+    private UUID drugId;
 
     @NotNull(message="Prescription ID is required")
-    private UUID prescription_id;
+    private UUID prescriptionId;
 }

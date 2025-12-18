@@ -21,9 +21,9 @@ public class EncounterRequestDto {
     private EncounterType type;
 
     @NotNull(message = "Encounter started_at must be provided")
-    private LocalDateTime started_at;
+    private LocalDateTime startedAt;
 
-    private LocalDateTime ended_at;
+    private LocalDateTime endedAt;
 
     @NotNull(message = "Diagnosis must be provided")
     private String diagnosis;
@@ -31,11 +31,11 @@ public class EncounterRequestDto {
     private String notes;
 
     // relationships => 3
-    private UUID appointment_id;
+    private UUID appointmentId;
 
     @NotNull(message = "Patient ID is required")
-    private UUID patient_id;
+    private UUID patientId;
 
     @NotNull(message = "Doctor ID is required")
-    private UUID doctor_id;
+    private UUID doctorId;
 }

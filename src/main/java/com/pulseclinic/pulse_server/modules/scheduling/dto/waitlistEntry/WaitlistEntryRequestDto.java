@@ -21,9 +21,9 @@ import java.util.UUID;
 @Builder
 public class WaitlistEntryRequestDto {
     @NotNull(message = "Duty Date is required")
-    private LocalDate duty_date; // to get all doctors exactly the moment the patient was added to the list
+    private LocalDate dutyDate; // to get all doctors exactly the moment the patient was added to the list
 
-    private Integer ticket_no;
+    private Integer ticketNo;
 
     private String notes;
 
@@ -32,16 +32,16 @@ public class WaitlistEntryRequestDto {
 
     private WaitlistStatus status;
 
-    private LocalDateTime called_at;
+    private LocalDateTime calledAt;
 
-    private LocalDateTime served_at;
+    private LocalDateTime servedAt;
 
     // relationships => 3
-    private UUID appointment_id; // nullable
+    private UUID appointmentId; // nullable
 
     @NotNull(message = "Patient ID must not be empty")
-    private UUID patient_id;
+    private UUID patientId;
 
     @NotNull(message = "Doctor ID must not be empty")
-    private UUID doctor_id;
+    private UUID doctorId;
 }

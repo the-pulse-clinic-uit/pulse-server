@@ -20,7 +20,7 @@ public class DrugRequestDto {
     @NotNull(message = "Drug's name is required")
     private String name;
 
-    private DrugDosageForm dosage_form;
+    private DrugDosageForm dosageForm;
 
     private DrugUnit unit;
 
@@ -28,5 +28,5 @@ public class DrugRequestDto {
 
     @DecimalMin(value = "0.0", inclusive = false, message = "Unit price must be greater than 0")
     @Positive(message = "Unit price must be positive")
-    private BigDecimal unit_price;
+    private BigDecimal unitPrice;
 }

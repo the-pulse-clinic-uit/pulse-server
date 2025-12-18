@@ -27,23 +27,23 @@ import java.util.UUID;
 public class ShiftAssignmentDto {
     private UUID id;
 
-    private LocalDate duty_date;
+    private LocalDate dutyDate;
 
-    private ShiftAssignmentRole role_in_shift;
+    private ShiftAssignmentRole roleInShift;
 
     private ShiftAssignmentStatus status;
 
     private String notes;
 
-    private LocalDateTime created_at;
+    private LocalDateTime createdAt;
 
-    private LocalDateTime updated_at;
+    private LocalDateTime updatedAt;
 
     // relationships 3
 
-    private DoctorDto doctor_dto;
+    private DoctorDto doctorDto;
 
-    private ShiftDto shift_dto;
+    private ShiftDto shiftDto;
 
-    private RoomDto room_dto; // can override
+    private RoomDto roomDto; // can override
 }

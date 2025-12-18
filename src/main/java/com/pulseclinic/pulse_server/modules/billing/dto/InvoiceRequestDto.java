@@ -21,13 +21,13 @@ public class InvoiceRequestDto {
     private InvoiceStatus status;
 
     // will logically set this to like idk 30 days from created_date
-    private LocalDate due_date;
+    private LocalDate dueDate;
 
-    private BigDecimal amount_paid;
+    private BigDecimal amountPaid;
 
-    private BigDecimal total_amount;
+    private BigDecimal totalAmount;
 
     // relationships => 1
     @NotNull(message = "Encounter ID must be provided")
-    private UUID encounter_id;
+    private UUID encounterId;
 }

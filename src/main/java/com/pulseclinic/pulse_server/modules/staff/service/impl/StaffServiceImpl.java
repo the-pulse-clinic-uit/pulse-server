@@ -27,7 +27,7 @@ public class StaffServiceImpl implements StaffService {
 
     @Override
     public Staff createStaff(StaffRequestDto staffRequestDto) {
-        User user = this.userRepository.findById(staffRequestDto.getUser_id()).orElseThrow(() -> new RuntimeException("User not found"));
+        User user = this.userRepository.findById(staffRequestDto.getUserId()).orElseThrow(() -> new RuntimeException("User not found"));
         Staff staff = Staff.builder()
                 .position(staffRequestDto.getPosition())
                 .user(user)
@@ -60,13 +60,13 @@ public class StaffServiceImpl implements StaffService {
         if (staffDto.getPosition() != null) {
             staff.setPosition(staffDto.getPosition());
         }
-        if (staffDto.getUser_dto() != null) {
-            if (staffDto.getUser_dto().getId() != null) {
-                User user = this.userRepository.findById(staffDto.getUser_dto().getId()).orElseThrow(() -> new RuntimeException("User not found"));
+        if (staffDto.getUserDto() != null) {
+            if (staffDto.getUserDto().getId() != null) {
+                User user = this.userRepository.findById(staffDto.getUserDto().getId()).orElseThrow(() -> new RuntimeException("User not found"));
                 staff.setUser(user);
             }
-            else if (staffDto.getUser_dto().getEmail() != null) {
-                User user = this.userRepository.findByEmail(staffDto.getUser_dto().getEmail()).orElseThrow(() -> new RuntimeException("User not found"));
+            else if (staffDto.getUserDto().getEmail() != null) {
+                User user = this.userRepository.findByEmail(staffDto.getUserDto().getEmail()).orElseThrow(() -> new RuntimeException("User not found"));
                 staff.setUser(user);
             }
         }
@@ -79,13 +79,13 @@ public class StaffServiceImpl implements StaffService {
         if (staffDto.getPosition() != null) {
             staff.setPosition(staffDto.getPosition());
         }
-        if (staffDto.getUser_dto() != null) {
-            if (staffDto.getUser_dto().getId() != null) {
-                User user = this.userRepository.findById(staffDto.getUser_dto().getId()).orElseThrow(() -> new RuntimeException("User not found"));
+        if (staffDto.getUserDto() != null) {
+            if (staffDto.getUserDto().getId() != null) {
+                User user = this.userRepository.findById(staffDto.getUserDto().getId()).orElseThrow(() -> new RuntimeException("User not found"));
                 staff.setUser(user);
             }
-            else if (staffDto.getUser_dto().getEmail() != null) {
-                User user = this.userRepository.findByEmail(staffDto.getUser_dto().getEmail()).orElseThrow(() -> new RuntimeException("User not found"));
+            else if (staffDto.getUserDto().getEmail() != null) {
+                User user = this.userRepository.findByEmail(staffDto.getUserDto().getEmail()).orElseThrow(() -> new RuntimeException("User not found"));
                 staff.setUser(user);
             }
         }
