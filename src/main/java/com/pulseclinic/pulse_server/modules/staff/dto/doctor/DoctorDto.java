@@ -17,15 +17,15 @@ import java.util.UUID;
 public class DoctorDto {
     private UUID id;
 
-    private String license_id;
+    private String licenseId;
 
-    private Boolean is_verified;
+    private Boolean isVerified;
 
-    private LocalDateTime created_at;
+    private LocalDateTime createdAt;
 
     // relationships => 2
 
     private StaffDto staffDto;
 
-    private DepartmentDto department_dto;
+    private DepartmentDto departmentDto;
 }

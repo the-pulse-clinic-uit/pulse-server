@@ -23,14 +23,14 @@ public class AdmissionRequestDto {
     private String notes;
 
     // relationships => 4
-    private EncounterDto encounter_dto; // optional
+    private EncounterDto encounterDto; // optional
 
     @NotNull(message = "Patient ID is required")
-    private PatientDto patient_dto;
+    private PatientDto patientDto;
 
     @NotNull(message = "Doctor ID is required")
-    private DoctorDto doctor_dto;
+    private DoctorDto doctorDto;
 
     @NotNull(message = "Room ID is required")
-    private RoomDto room_dto;
+    private RoomDto roomDto;
 }

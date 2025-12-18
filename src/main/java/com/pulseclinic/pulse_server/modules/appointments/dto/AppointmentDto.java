@@ -28,9 +28,9 @@ import java.util.UUID;
 public class AppointmentDto {
     private UUID id;
 
-    private LocalDateTime starts_at;
+    private LocalDateTime startsAt;
 
-    private LocalDateTime ends_at;
+    private LocalDateTime endsAt;
 
     private AppointmentStatus status;
 
@@ -38,17 +38,17 @@ public class AppointmentDto {
 
     private String description;
 
-    private LocalDateTime created_at;
+    private LocalDateTime createdAt;
 
-    private LocalDateTime updated_at;
+    private LocalDateTime updatedAt;
 
     // relationships => 5
 
-    private PatientDto patient_dto;
+    private PatientDto patientDto;
 
-    private DoctorDto doctor_dto;
+    private DoctorDto doctorDto;
 
-    private ShiftAssignmentDto shift_assignment_dto;
+    private ShiftAssignmentDto shiftAssignmentDto;
 
-    private FollowUpPlanDto follow_up_plan_dto;
+    private FollowUpPlanDto followUpPlanDto;
 }

@@ -24,7 +24,7 @@ import java.util.UUID;
 public class FollowUpPlanDto {
     private UUID id;
 
-    private LocalDateTime first_due_at;
+    private LocalDateTime firstDueAt;
 
     private String rrule;
 
@@ -32,11 +32,11 @@ public class FollowUpPlanDto {
 
     private String notes;
 
-    private LocalDateTime created_at;
+    private LocalDateTime createdAt;
     // relationships
-    private PatientDto patient_dto;
+    private PatientDto patientDto;
 
-    private DoctorDto doctor_dto;
+    private DoctorDto doctorDto;
 
-    private EncounterDto base_encounter_dto;
+    private EncounterDto baseEncounterDto;
 }

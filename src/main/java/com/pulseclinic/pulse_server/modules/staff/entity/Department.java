@@ -10,6 +10,7 @@ import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @AllArgsConstructor
@@ -36,4 +37,9 @@ public class Department {
 
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
+
+    // relationships
+
+    @OneToMany(mappedBy = "department", fetch = FetchType.LAZY)
+    private List<Staff> staff;
 }

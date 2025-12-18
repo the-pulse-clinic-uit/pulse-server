@@ -19,28 +19,28 @@ public class UserDto {
 
     private String email;
 
-    private String hashed_password;
+    private String hashedPassword;
 
-    private String full_name;
+    private String fullName;
 
     private String address;
 
-    private String citizen_id;
+    private String citizenId;
 
     private String phone;
 
     private Boolean gender;
 
-    private LocalDate birth_date;
+    private LocalDate birthDate;
 
-    private String avatar_url;
+    private String avatarUrl;
 
-    private LocalDateTime created_at;
+    private LocalDateTime createdAt;
 
-    private LocalDateTime updated_at;
+    private LocalDateTime updatedAt;
 
-    private Boolean is_active;
+    private Boolean isActive;
 
     // relationships
-    private RoleDto role_dto;
+    private RoleDto roleDto;
 }

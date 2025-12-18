@@ -27,9 +27,9 @@ import java.util.UUID;
 public class WaitlistEntryDto {
     private UUID id;
 
-    private LocalDate duty_date; // to get all doctors exactly the moment the patient was added to the list
+    private LocalDate dutyDate; // to get all doctors exactly the moment the patient was added to the list
 
-    private Integer ticket_no;
+    private Integer ticketNo;
 
     private String notes;
 
@@ -37,16 +37,16 @@ public class WaitlistEntryDto {
 
     private WaitlistStatus status;
 
-    private LocalDateTime created_at;
+    private LocalDateTime createdAt;
 
-    private LocalDateTime called_at;
+    private LocalDateTime calledAt;
 
-    private LocalDateTime served_at;
+    private LocalDateTime servedAt;
 
     // relationships => 3
-    private AppointmentDto appointment_dto; // nullable
+    private AppointmentDto appointmentDto; // nullable
 
-    private PatientDto patient_dto;
+    private PatientDto patientDto;
 
-    private DoctorDto doctor_dto;
+    private DoctorDto doctorDto;
 }

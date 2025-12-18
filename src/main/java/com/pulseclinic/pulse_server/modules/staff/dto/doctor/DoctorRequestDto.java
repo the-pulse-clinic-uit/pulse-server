@@ -14,15 +14,15 @@ import java.util.UUID;
 @NoArgsConstructor
 public class DoctorRequestDto {
     @NotNull(message = "License ID is required")
-    private String license_id;
+    private String licenseId;
 
-    private Boolean is_verified;
+    private Boolean isVerified;
 
     // relationships => 2
 
     @NotNull(message = "Staff ID must not be null")
-    private UUID staff_id;
+    private UUID staffId;
 
     @NotNull(message = "Department ID must not be null")
-    private UUID department_id;
+    private UUID departmentId;
 }

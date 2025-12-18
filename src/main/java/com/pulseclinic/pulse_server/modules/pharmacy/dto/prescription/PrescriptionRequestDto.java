@@ -17,7 +17,7 @@ import java.util.UUID;
 @Builder
 public class PrescriptionRequestDto {
     @Positive(message = "Total price must be provided and positive")
-    private BigDecimal total_price;
+    private BigDecimal totalPrice;
 
     private String notes;
 
@@ -25,5 +25,5 @@ public class PrescriptionRequestDto {
 
     // relationship
     @NotNull(message = "Encounter ID must not be empty")
-    private UUID encounter_id;
+    private UUID encounterId;
 }

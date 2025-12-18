@@ -24,13 +24,13 @@ import java.util.UUID;
 public class PrescriptionDetailDto {
     private UUID id;
 
-    private String strength_text;
+    private String strengthText;
 
     private Integer quantity;
 
-    private BigDecimal unit_price;
+    private BigDecimal unitPrice;
 
-    private BigDecimal item_total_price;
+    private BigDecimal itemTotalPrice;
 
     private String dose; // eg 1 tablet
 
@@ -38,12 +38,12 @@ public class PrescriptionDetailDto {
 
     private String instructions;
 
-    private LocalDateTime created_at = LocalDateTime.now();
+    private LocalDateTime createdAt = LocalDateTime.now();
 
     private String frequency; // 2 times per day
 
     // relationships => 2
-    private DrugDto drug_dto;
+    private DrugDto drugDto;
 
-    private PrescriptionDto prescription_dto;
+    private PrescriptionDto prescriptionDto;
 }

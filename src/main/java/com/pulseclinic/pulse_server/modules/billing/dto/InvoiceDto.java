@@ -21,16 +21,16 @@ public class InvoiceDto {
 
     private InvoiceStatus status;
 
-    private LocalDate due_date;
+    private LocalDate dueDate;
 
-    private BigDecimal amount_paid;
+    private BigDecimal amountPaid;
 
-    private BigDecimal total_amount;
+    private BigDecimal totalAmount;
 
-    private LocalDateTime created_at;
+    private LocalDateTime createdAt;
 
-    private LocalDateTime updated_at;
+    private LocalDateTime updatedAt;
 
     // relationships => 1
-    private EncounterDto encounter_dto;
+    private EncounterDto encounterDto;
 }

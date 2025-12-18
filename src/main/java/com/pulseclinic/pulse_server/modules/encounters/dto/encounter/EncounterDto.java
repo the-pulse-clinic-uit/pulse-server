@@ -21,20 +21,20 @@ public class EncounterDto {
 
     private EncounterType type;
 
-    private LocalDateTime started_at;
+    private LocalDateTime startedAt;
 
-    private LocalDateTime ended_at;
+    private LocalDateTime endedAt;
 
     private String diagnosis;
 
     private String notes;
 
-    private LocalDateTime created_at;
+    private LocalDateTime createdAt;
 
     // relationships => 3
-    private AppointmentDto appointment_dto;
+    private AppointmentDto appointmentDto;
 
-    private PatientDto patient_dto;
+    private PatientDto patientDto;
 
-    private DoctorDto doctor_dto;
+    private DoctorDto doctorDto;
 }

@@ -56,13 +56,13 @@ public class EncounterServiceImpl implements EncounterService {
     @Transactional
     public EncounterDto startEncounter(EncounterRequestDto encounterRequestDto) {
         // Tìm bệnh nhân
-        Optional<Patient> patientOpt = patientRepository.findById(encounterRequestDto.getPatient_id());
+        Optional<Patient> patientOpt = patientRepository.findById(encounterRequestDto.getPatientId());
         if (patientOpt.isEmpty()) {
             throw new RuntimeException("Patient not found");
         }
 
         // Tìm bác sĩ
-        Optional<Doctor> doctorOpt = doctorRepository.findById(encounterRequestDto.getDoctor_id());
+        Optional<Doctor> doctorOpt = doctorRepository.findById(encounterRequestDto.getDoctorId());
         if (doctorOpt.isEmpty()) {
             throw new RuntimeException("Doctor not found");
         }
@@ -77,8 +77,8 @@ public class EncounterServiceImpl implements EncounterService {
                 .build();
 
         // Liên kết với appointment nếu có
-        if (encounterRequestDto.getAppointment_id() != null) {
-            Optional<Appointment> appointmentOpt = appointmentRepository.findById(encounterRequestDto.getAppointment_id());
+        if (encounterRequestDto.getAppointmentId() != null) {
+            Optional<Appointment> appointmentOpt = appointmentRepository.findById(encounterRequestDto.getAppointmentId());
             appointmentOpt.ifPresent(encounter::setAppointment);
         }
 

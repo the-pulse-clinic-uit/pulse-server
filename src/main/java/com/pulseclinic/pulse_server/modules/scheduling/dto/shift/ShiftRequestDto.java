@@ -24,18 +24,18 @@ public class ShiftRequestDto {
     private ShiftKind kind;
 
     @NotNull(message = "Start Time is required")
-    private LocalDateTime start_time;
+    private LocalDateTime startTime;
 
     @NotNull(message = "Start Time is required")
-    private LocalDateTime end_time;
+    private LocalDateTime endTime;
 
     @NotNull(message = "Slot minutes is required")
-    private Integer slot_minutes;
+    private Integer slotMinutes;
 
-    private Integer capacity_per_slot; // default 1
+    private Integer capacityPerSlot; // default 1
 
     // relationship
-    private UUID department_id;
+    private UUID departmentId;
 
-    private UUID default_room_id;
+    private UUID defaultRoomId;
 }

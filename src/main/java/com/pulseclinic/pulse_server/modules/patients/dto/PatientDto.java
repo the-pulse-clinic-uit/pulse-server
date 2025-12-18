@@ -17,14 +17,14 @@ import java.util.UUID;
 public class PatientDto {
     private UUID id;
 
-    private String health_insurance_id;
+    private String healthInsuranceId;
 
     private BloodType bloodType;
 
     private String allergies;
 
-    private LocalDateTime created_at;
+    private LocalDateTime createdAt;
 
     // relationships)
-    private UserDto user_dto;
+    private UserDto userDto;
 }
