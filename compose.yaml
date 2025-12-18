@@ -5,7 +5,6 @@ services:
       - 'POSTGRES_DB=pulse-db'
       - 'POSTGRES_PASSWORD=135792468'
       - 'POSTGRES_USER=user'
-      - 'TZ=Asia/Ho_Chi_Minh'
     ports:
       - '5433:5432'
   redis:

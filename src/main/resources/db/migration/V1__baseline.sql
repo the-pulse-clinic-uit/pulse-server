@@ -286,21 +286,23 @@ CREATE TABLE public.staff (
 
 
 --
--- Name: staff_ratings; Type: TABLE; Schema: public; Owner: -
+-- Name: notifications; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.staff_ratings (
-    rating integer NOT NULL,
-    created_at timestamp(6) without time zone NOT NULL,
-    encounter_id uuid,
+CREATE TABLE public.notifications (
     id uuid NOT NULL,
-    patient_id uuid,
-    staff_id uuid NOT NULL,
-    comment character varying(256) NOT NULL,
-    guest_contact_hash character varying(255),
-    guest_contact_type character varying(255) NOT NULL,
-    rater_type character varying(255) NOT NULL,
-    CONSTRAINT staff_ratings_rater_type_check CHECK (((rater_type)::text = ANY ((ARRAY['PATIENT'::character varying, 'GUEST'::character varying])::text[])))
+    user_id uuid NOT NULL,
+    type character varying(50),
+    channel character varying(20),
+    title character varying(255),
+    content text,
+    is_read boolean DEFAULT false NOT NULL,
+    created_at timestamp(6) without time zone DEFAULT NOW() NOT NULL,
+    sent_at timestamp(6) without time zone,
+    status character varying(20),
+    CONSTRAINT notifications_type_check CHECK ((type::text = ANY ((ARRAY['APPOINTMENT'::character varying, 'INVOICE'::character varying, 'DUNNING'::character varying, 'GENERAL'::character varying])::text[]))),
+    CONSTRAINT notifications_channel_check CHECK ((channel::text = ANY ((ARRAY['EMAIL'::character varying, 'SMS'::character varying, 'APP'::character varying])::text[]))),
+    CONSTRAINT notifications_status_check CHECK ((status::text = ANY ((ARRAY['QUEUED'::character varying, 'SENT'::character varying, 'FAILED'::character varying])::text[])))
 );
 
 
@@ -453,6 +455,14 @@ ALTER TABLE ONLY public.invoices
 
 
 --
+-- Name: notifications notifications_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.notifications
+    ADD CONSTRAINT notifications_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: patients patients_health_insurance_id_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -557,22 +567,6 @@ ALTER TABLE ONLY public.staff
 
 
 --
--- Name: staff_ratings staff_ratings_encounter_id_key; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.staff_ratings
-    ADD CONSTRAINT staff_ratings_encounter_id_key UNIQUE (encounter_id);
-
-
---
--- Name: staff_ratings staff_ratings_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.staff_ratings
-    ADD CONSTRAINT staff_ratings_pkey PRIMARY KEY (id);
-
-
---
 -- Name: staff staff_user_id_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -642,14 +636,6 @@ ALTER TABLE ONLY public.shift_assignments
 
 ALTER TABLE ONLY public.follow_up_plans
     ADD CONSTRAINT fk2uw445rlws8le0xa16lu9yx2h FOREIGN KEY (patient_id) REFERENCES public.patients(id);
-
-
---
--- Name: staff_ratings fk3uejnpftcgyeamcuy02kv6ulp; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.staff_ratings
-    ADD CONSTRAINT fk3uejnpftcgyeamcuy02kv6ulp FOREIGN KEY (patient_id) REFERENCES public.patients(id);
 
 
 --
@@ -755,14 +741,6 @@ ALTER TABLE ONLY public.follow_up_plans
 
 
 --
--- Name: staff_ratings fkdutrkean90b3bf5r9ponip9mx; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.staff_ratings
-    ADD CONSTRAINT fkdutrkean90b3bf5r9ponip9mx FOREIGN KEY (encounter_id) REFERENCES public.encounters(id);
-
-
---
 -- Name: doctors fkdxp9whgsgs0xj66u328li0ye2; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -776,14 +754,6 @@ ALTER TABLE ONLY public.doctors
 
 ALTER TABLE ONLY public.shifts
     ADD CONSTRAINT fkfalfj5kldqkp1mol31gubssrq FOREIGN KEY (department_id) REFERENCES public.departments(id);
-
-
---
--- Name: staff_ratings fkg0a7n5o2xqv1lom85na2jq1u5; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.staff_ratings
-    ADD CONSTRAINT fkg0a7n5o2xqv1lom85na2jq1u5 FOREIGN KEY (staff_id) REFERENCES public.staff(id);
 
 
 --
@@ -896,6 +866,14 @@ ALTER TABLE ONLY public.prescription_details
 
 ALTER TABLE ONLY public.patients
     ADD CONSTRAINT fkuwca24wcd1tg6pjex8lmc0y7 FOREIGN KEY (user_id) REFERENCES public.users(id);
+
+
+--
+-- Name: notifications fknotifications_user_id; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.notifications
+    ADD CONSTRAINT fknotifications_user_id FOREIGN KEY (user_id) REFERENCES public.users(id);
 
 
 --
