@@ -51,7 +51,7 @@ public class DepartmentController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('admin')")
+    @PreAuthorize("hasAuthority('admin')")
     public ResponseEntity<DepartmentDto> create(@RequestBody DepartmentRequestDto departmentRequestDto) {
         Department department = this.departmentService.create(this.departmentMapper.mapFrom(departmentRequestDto));
         return new ResponseEntity<>(this.departmentMapper.mapTo(department), HttpStatus.CREATED);
@@ -79,7 +79,7 @@ public class DepartmentController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('admin', 'staff')")
+    @PreAuthorize("hasAnyAuthority('admin', 'staff')")
     public ResponseEntity<List<DepartmentDto>> getAll() {
         List<Department> departments = this.departmentService.findAll(); // deleted is null
         return new ResponseEntity<>(departments.stream().map(d -> this.departmentMapper.mapTo(d)).collect(Collectors.toList()), HttpStatus.OK);

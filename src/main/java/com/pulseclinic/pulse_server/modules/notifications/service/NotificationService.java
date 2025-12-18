@@ -11,9 +11,13 @@ import java.util.UUID;
 public interface NotificationService {
     Notification create(NotificationRequestDto notificationRequestDto);
     Optional<Notification> findById(UUID id);
+    List<Notification> findByEmail(String email);
     List<Notification> findByUserId(UUID userId);
     List<Notification> findUnreadByUserId(UUID userId);
+    List<Notification> findUnreadByEmail(String email);
     Integer countUnreadByUserId(UUID userId);
+    Integer countUnreadByEmail(String email);
     Notification markAsRead(UUID id);
     void markAllAsRead(UUID userId);
+    void markAllAsReadByEmail(String email);
 }

@@ -29,7 +29,7 @@ public class StaffController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('admin')")
+    @PreAuthorize("hasAuthority('admin')")
     public ResponseEntity<StaffDto> createStaff(@RequestBody StaffRequestDto staffRequestDto) {
         Staff staff = this.staffService.createStaff(staffRequestDto);
         return new ResponseEntity<>(this.staffMapper.mapTo(staff), HttpStatus.CREATED);

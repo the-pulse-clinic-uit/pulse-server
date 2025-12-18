@@ -25,6 +25,11 @@ public class EmailService {
         sendHtml(to, subject, html);
     }
 
+    public void sendNotification(String to, String title, String content) {
+        String html = buildNotificationHtml(title, content);
+        sendHtml(to, title, html);
+    }
+
     private void sendHtml(String to, String subject, String html) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
@@ -52,5 +57,16 @@ public class EmailService {
               <p>If you did not request this, you can ignore this email.</p>
             </div>
             """.formatted(otp);
+    }
+
+    private String buildNotificationHtml(String title, String content) {
+        return """
+            <div style="font-family:Arial,sans-serif;line-height:1.6">
+              <h2>%s</h2>
+              <p>%s</p>
+              <hr style="border:none;border-top:1px solid #ddd;margin:20px 0">
+              <p style="color:#666;font-size:12px">This is an automated notification from Pulse Clinic.</p>
+            </div>
+            """.formatted(title, content);
     }
 }

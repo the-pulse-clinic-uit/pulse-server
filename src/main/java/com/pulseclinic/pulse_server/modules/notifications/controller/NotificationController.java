@@ -17,7 +17,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/notifications")
+@RequestMapping("/notifications")
 public class NotificationController {
     private final NotificationService notificationService;
     private final NotificationMapper notificationMapper;
@@ -29,7 +29,7 @@ public class NotificationController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('admin')")
+    @PreAuthorize("hasAuthority('admin')")
     public ResponseEntity<NotificationDto> createNotification(@RequestBody NotificationRequestDto notificationRequestDto) {
         Notification notification = this.notificationService.create(notificationRequestDto);
         return new ResponseEntity<>(this.notificationMapper.mapTo(notification), HttpStatus.CREATED);
@@ -37,9 +37,7 @@ public class NotificationController {
 
     @GetMapping("/me")
     public ResponseEntity<List<NotificationDto>> getMyNotifications(Authentication authentication) {
-        // Assuming authentication.getName() returns user email or ID
-        // You may need to adjust this based on your auth implementation
-        List<Notification> notifications = this.notificationService.findByUserId(UUID.fromString(authentication.getName()));
+        List<Notification> notifications = this.notificationService.findByEmail(authentication.getName());
         return ResponseEntity.ok(notifications.stream()
                 .map(this.notificationMapper::mapTo)
                 .collect(Collectors.toList()));
@@ -47,7 +45,7 @@ public class NotificationController {
 
     @GetMapping("/me/unread")
     public ResponseEntity<List<NotificationDto>> getMyUnreadNotifications(Authentication authentication) {
-        List<Notification> notifications = this.notificationService.findUnreadByUserId(UUID.fromString(authentication.getName()));
+        List<Notification> notifications = this.notificationService.findUnreadByEmail(authentication.getName());
         return ResponseEntity.ok(notifications.stream()
                 .map(this.notificationMapper::mapTo)
                 .collect(Collectors.toList()));
@@ -55,7 +53,7 @@ public class NotificationController {
 
     @GetMapping("/me/unread/count")
     public ResponseEntity<Integer> getMyUnreadCount(Authentication authentication) {
-        Integer count = this.notificationService.countUnreadByUserId(UUID.fromString(authentication.getName()));
+        Integer count = this.notificationService.countUnreadByEmail(authentication.getName());
         return ResponseEntity.ok(count);
     }
 
@@ -76,12 +74,12 @@ public class NotificationController {
 
     @PatchMapping("/me/read-all")
     public ResponseEntity<Void> markAllAsRead(Authentication authentication) {
-        this.notificationService.markAllAsRead(UUID.fromString(authentication.getName()));
+        this.notificationService.markAllAsReadByEmail(authentication.getName());
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/user/{userId}")
-    @PreAuthorize("hasRole('admin')")
+    @PreAuthorize("hasAuthority('admin')")
     public ResponseEntity<List<NotificationDto>> getNotificationsByUserId(@PathVariable UUID userId) {
         List<Notification> notifications = this.notificationService.findByUserId(userId);
         return ResponseEntity.ok(notifications.stream()
