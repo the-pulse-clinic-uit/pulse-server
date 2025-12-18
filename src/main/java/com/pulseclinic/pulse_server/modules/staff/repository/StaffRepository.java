@@ -1,6 +1,7 @@
 package com.pulseclinic.pulse_server.modules.staff.repository;
 
 import com.pulseclinic.pulse_server.enums.Position;
+import com.pulseclinic.pulse_server.modules.staff.entity.Department;
 import com.pulseclinic.pulse_server.modules.staff.entity.Staff;
 import com.pulseclinic.pulse_server.modules.users.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -17,5 +18,8 @@ public interface StaffRepository extends JpaRepository<Staff, UUID> {
 
     @Query("SELECT s FROM Staff s WHERE s.user = :user")
     Optional<Staff> findByUser(User user);
+
+    @Query("SELECT s FROM Staff s WHERE s.department = :department")
+    List<Staff> findByDepartment(Department department);
 
 }

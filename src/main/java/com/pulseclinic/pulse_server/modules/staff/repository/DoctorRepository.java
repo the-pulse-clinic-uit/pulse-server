@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import com.pulseclinic.pulse_server.modules.staff.entity.Department;
 import com.pulseclinic.pulse_server.modules.staff.entity.Doctor;
 
 @Repository
@@ -20,4 +21,7 @@ public interface DoctorRepository extends JpaRepository<Doctor, UUID> {
     
     @Query("SELECT COUNT(d) FROM Doctor d WHERE d.department.id = :departmentId")
     Integer countByDepartmentId(@Param("departmentId") UUID departmentId);
+
+    @Query("SELECT COUNT(d) FROM Doctor d WHERE d.department = :department")
+    Integer countByDepartment(@Param("department") Department department);
 }

@@ -2,6 +2,7 @@ package com.pulseclinic.pulse_server.modules.appointments.repository;
 
 import com.pulseclinic.pulse_server.enums.AppointmentStatus;
 import com.pulseclinic.pulse_server.modules.appointments.entity.Appointment;
+import com.pulseclinic.pulse_server.modules.staff.entity.Department;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -24,4 +25,7 @@ public interface AppointmentRepository extends JpaRepository<Appointment, UUID> 
 
     @Query("SELECT a FROM Appointment a WHERE a.patient.id = :patientId AND a.startsAt > :now AND a.deletedAt IS NULL ORDER BY a.startsAt ASC")
     List<Appointment> findUpcomingByPatient(@Param("patientId") UUID patientId, @Param("now") LocalDateTime now);
+
+    @Query("SELECT COUNT(a) FROM Appointment a WHERE a.doctor.department = :department AND a.deletedAt IS NULL")
+    Integer countByDoctorDepartment(@Param("department") Department department);
 }
