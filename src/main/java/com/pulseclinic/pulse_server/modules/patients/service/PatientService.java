@@ -12,8 +12,10 @@ import java.util.UUID;
 public interface PatientService {
     Patient registerPatient(PatientRequestDto patientRequestDto);
     Optional<Patient> findById(UUID id);
+    Optional<Patient> findByEmail(String email);
 
     List<Patient> search(PatientSearchDto patientSearchDto);
+    List<Patient> getPatients();
 
     Patient updatePatient(UUID id, PatientDto patientDto);
     Patient updatePatientMe(String email, PatientDto patientDto);

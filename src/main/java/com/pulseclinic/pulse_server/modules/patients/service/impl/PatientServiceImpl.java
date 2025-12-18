@@ -111,4 +111,18 @@ public class PatientServiceImpl implements PatientService {
         }
         throw new RuntimeException("User not found");
     }
+
+    @Override
+    public Optional<Patient> findByEmail(String email) {
+        Optional<User> user =  this.userRepository.findByEmail(email);
+        if (user.isPresent()) {
+            return patientRepository.findByUser(user.get());
+        }
+        throw new RuntimeException("User not found");
+    }
+
+    @Override
+    public List<Patient> getPatients(){
+        return this.patientRepository.findAll();
+    }
 }

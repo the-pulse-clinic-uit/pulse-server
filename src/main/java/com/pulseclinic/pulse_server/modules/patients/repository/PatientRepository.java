@@ -1,6 +1,7 @@
 package com.pulseclinic.pulse_server.modules.patients.repository;
 
 import com.pulseclinic.pulse_server.modules.patients.entity.Patient;
+import com.pulseclinic.pulse_server.modules.users.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -20,4 +21,10 @@ public interface PatientRepository extends JpaRepository<Patient, UUID> {
 
     @Query("SELECT p FROM Patient p WHERE LOWER(p.user.email) LIKE LOWER(CONCAT('%', :email, '%'))")
     List<Patient> findByUserEmailContaining(@Param("email") String email);
+
+    @Query("SELECT p FROM Patient p WHERE p.user = :user")
+    Optional<Patient> findByUser(@Param("user") User user);
+
+    @Query("SELECT p FROM Patient p WHERE p.user.deletedAt IS NULL")
+    List<Patient> findAll();
 }

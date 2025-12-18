@@ -29,6 +29,13 @@ public class PatientController {
         this.patientMapper = patientMapper;
     }
 
+    @PostMapping("/search")
+    public ResponseEntity<List<PatientDto>> searchPatient(@RequestBody PatientSearchDto patientSearchDto) {
+        List<Patient> patients = this.patientService.search(patientSearchDto);
+        return new ResponseEntity<>(patients.stream().map(patient -> patientMapper.mapTo(patient)).collect(Collectors.toList()), HttpStatus.OK);
+    }
+
+
     // for staff
     @PostMapping
     @PreAuthorize("hasAnyRole('staff', 'admin')")
@@ -37,12 +44,26 @@ public class PatientController {
         return new ResponseEntity<>(this.patientMapper.mapTo(patient), HttpStatus.CREATED);
     }
 
-    @PostMapping("/search")
-    public ResponseEntity<List<PatientDto>> searchPatient(@RequestBody PatientSearchDto patientSearchDto) {
-        List<Patient> patients = this.patientService.search(patientSearchDto);
+
+
+    @GetMapping("/me")
+    public ResponseEntity<PatientDto> getPatientMe(Authentication authentication) {
+        String email = authentication.getName();
+        Optional<Patient> patient = this.patientService.findByEmail(email);
+        if (patient.isPresent()) {
+            return new ResponseEntity<>(this.patientMapper.mapTo(patient.get()), HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+
+    @GetMapping
+    @PreAuthorize("hasAnyRole('admin', 'staff')")
+    public ResponseEntity<List<PatientDto>> getPatients() {
+        List<Patient> patients = this.patientService.getPatients();
         return new ResponseEntity<>(patients.stream().map(patient -> patientMapper.mapTo(patient)).collect(Collectors.toList()), HttpStatus.OK);
     }
 
+    @PreAuthorize("hasAnyRole('admin', 'staff', 'doctor')")
     @GetMapping("/{id}")
     public ResponseEntity<PatientDto> getPatientById(@PathVariable("id") UUID id) {
         Optional<Patient> patient = this.patientService.findById(id);
