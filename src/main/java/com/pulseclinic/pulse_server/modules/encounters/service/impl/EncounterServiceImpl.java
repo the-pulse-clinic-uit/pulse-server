@@ -55,13 +55,11 @@ public class EncounterServiceImpl implements EncounterService {
     @Override
     @Transactional
     public EncounterDto startEncounter(EncounterRequestDto encounterRequestDto) {
-        // Tìm bệnh nhân
         Optional<Patient> patientOpt = patientRepository.findById(encounterRequestDto.getPatient_id());
         if (patientOpt.isEmpty()) {
             throw new RuntimeException("Patient not found");
         }
 
-        // Tìm bác sĩ
         Optional<Doctor> doctorOpt = doctorRepository.findById(encounterRequestDto.getDoctor_id());
         if (doctorOpt.isEmpty()) {
             throw new RuntimeException("Doctor not found");
@@ -76,7 +74,6 @@ public class EncounterServiceImpl implements EncounterService {
                 .doctor(doctorOpt.get())
                 .build();
 
-        // Liên kết với appointment nếu có
         if (encounterRequestDto.getAppointment_id() != null) {
             Optional<Appointment> appointmentOpt = appointmentRepository.findById(encounterRequestDto.getAppointment_id());
             appointmentOpt.ifPresent(encounter::setAppointment);
@@ -84,6 +81,13 @@ public class EncounterServiceImpl implements EncounterService {
 
         Encounter savedEncounter = encounterRepository.save(encounter);
         return encounterMapper.mapTo(savedEncounter);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<EncounterDto> getEncounterById(UUID encounterId) {
+        return encounterRepository.findById(encounterId)
+                .map(encounterMapper::mapTo);
     }
 
     @Override
@@ -142,100 +146,6 @@ public class EncounterServiceImpl implements EncounterService {
     }
 
     @Override
-    @Transactional
-    public Object createInvoice(UUID encounterId) {
-        // TODO: Implement với module Invoice (Billing)
-        return null;
-    }
-
-    @Override
-    @Transactional
-    public Object createPrescription(UUID encounterId) {
-        // TODO: Implement với module Prescription (Pharmacy)
-        return null;
-    }
-
-    @Override
-    @Transactional
-    public Object admitPatient(UUID encounterId, UUID roomId) {
-        // TODO: Implement với module Admission
-        return null;
-    }
-
-    @Override
-    @Transactional
-    public FollowUpPlanDto createFollowUpPlan(UUID encounterId, String rrule, String notes) {
-        Optional<Encounter> encounterOpt = encounterRepository.findById(encounterId);
-        if (encounterOpt.isEmpty()) {
-            throw new RuntimeException("Encounter not found");
-        }
-
-        Encounter encounter = encounterOpt.get();
-
-        FollowUpPlan followUpPlan = FollowUpPlan.builder()
-                .firstDueAt(LocalDateTime.now().plusDays(7)) // Mặc định tái khám sau 7 ngày
-                .rrule(rrule)
-                .notes(notes)
-                .patient(encounter.getPatient())
-                .doctor(encounter.getDoctor())
-                .baseEncounter(encounter)
-                .build();
-
-        FollowUpPlan savedPlan = followUpPlanRepository.save(followUpPlan);
-        return followUpPlanMapper.mapTo(savedPlan);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public Duration getDuration(UUID encounterId) {
-        Optional<Encounter> encounterOpt = encounterRepository.findById(encounterId);
-        if (encounterOpt.isEmpty()) {
-            return Duration.ZERO;
-        }
-
-        Encounter encounter = encounterOpt.get();
-        if (encounter.getEndedAt() == null) {
-            // Nếu chưa kết thúc, tính từ lúc bắt đầu đến hiện tại
-            return Duration.between(encounter.getStartedAt(), LocalDateTime.now());
-        }
-
-        return Duration.between(encounter.getStartedAt(), encounter.getEndedAt());
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public boolean isComplete(UUID encounterId) {
-        Optional<Encounter> encounterOpt = encounterRepository.findById(encounterId);
-        if (encounterOpt.isEmpty()) {
-            return false;
-        }
-
-        Encounter encounter = encounterOpt.get();
-        return encounter.getEndedAt() != null;
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<Object> getPrescriptions(UUID encounterId) {
-        // TODO: Implement với module Prescription (Pharmacy)
-        return List.of();
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<Object> getInvoices(UUID encounterId) {
-        // TODO: Implement với module Invoice (Billing)
-        return List.of();
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public Optional<Object> getAdmission(UUID encounterId) {
-        // TODO: Implement với module Admission
-        return Optional.empty();
-    }
-
-    @Override
     @Transactional(readOnly = true)
     public String generateSummary(UUID encounterId) {
         Optional<Encounter> encounterOpt = encounterRepository.findById(encounterId);
@@ -245,7 +155,7 @@ public class EncounterServiceImpl implements EncounterService {
 
         Encounter encounter = encounterOpt.get();
         StringBuilder summary = new StringBuilder();
-        
+
         summary.append("=== BÁO CÁO KHÁM BỆNH ===\n\n");
         summary.append("Mã số: ").append(encounter.getId()).append("\n");
         summary.append("Loại khám: ").append(encounter.getType()).append("\n");
@@ -259,10 +169,25 @@ public class EncounterServiceImpl implements EncounterService {
         } else {
             summary.append("Trạng thái: Đang khám\n");
         }
-        
+
         summary.append("\nCHẨN ĐOÁN:\n").append(encounter.getDiagnosis()).append("\n");
         summary.append("\nGHI CHÚ:\n").append(encounter.getNotes()).append("\n");
-        
+
         return summary.toString();
+    }
+
+    private Duration getDuration(UUID encounterId) {
+        Optional<Encounter> encounterOpt = encounterRepository.findById(encounterId);
+        if (encounterOpt.isEmpty()) {
+            return Duration.ZERO;
+        }
+
+        Encounter encounter = encounterOpt.get();
+        if (encounter.getEndedAt() == null) {
+            // Nếu chưa kết thúc, tính từ lúc bắt đầu đến hiện tại
+            return Duration.between(encounter.getStartedAt(), LocalDateTime.now());
+        }
+
+        return Duration.between(encounter.getStartedAt(), encounter.getEndedAt());
     }
 }

@@ -4,5 +4,6 @@ public enum InvoiceStatus {
     PAID,
     UNPAID,
     VOID,
-    PARTIAL
+    PARTIAL,
+    OVERDUE,
 }

@@ -91,6 +91,13 @@ public class PrescriptionDetailServiceImpl implements PrescriptionDetailService 
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public Optional<PrescriptionDetailDto> getDetailById(UUID detailId) {
+        return prescriptionDetailRepository.findById(detailId)
+                .map(prescriptionDetailMapper::mapTo);
+    }
+
+    @Override
     @Transactional
     public boolean updateQuantity(UUID detailId, Integer quantity) {
         try {
@@ -110,32 +117,28 @@ public class PrescriptionDetailServiceImpl implements PrescriptionDetailService 
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public BigDecimal calculateLineTotal(UUID detailId) {
-        Optional<PrescriptionDetail> detailOpt = prescriptionDetailRepository.findById(detailId);
-        if (detailOpt.isEmpty()) {
-            return BigDecimal.ZERO;
-        }
-
-        PrescriptionDetail detail = detailOpt.get();
-        return detail.getUnitPrice().multiply(BigDecimal.valueOf(detail.getQuantity()));
-    }
-
-    @Override
     @Transactional
-    public void updateLineTotal(UUID detailId) {
-        Optional<PrescriptionDetail> detailOpt = prescriptionDetailRepository.findById(detailId);
-        if (detailOpt.isEmpty()) {
-            return;
-        }
+    public boolean removeDrugItem(UUID detailId) {
+        try {
+            Optional<PrescriptionDetail> detailOpt = prescriptionDetailRepository.findById(detailId);
+            if (detailOpt.isEmpty()) {
+                return false;
+            }
 
-        PrescriptionDetail detail = detailOpt.get();
-        BigDecimal lineTotal = calculateLineTotal(detailId);
-        detail.setItemTotalPrice(lineTotal);
-        prescriptionDetailRepository.save(detail);
+            PrescriptionDetail detail = detailOpt.get();
+            
+            // Kiểm tra prescription có thể modify không (phải ở trạng thái DRAFT)
+            if (detail.getPrescription().getStatus() != com.pulseclinic.pulse_server.enums.PrescriptionStatus.DRAFT) {
+                return false;
+            }
+
+            prescriptionDetailRepository.deleteById(detailId);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
-    @Override
     @Transactional(readOnly = true)
     public String getFormattedDosage(UUID detailId) {
         Optional<PrescriptionDetail> detailOpt = prescriptionDetailRepository.findById(detailId);
@@ -147,23 +150,25 @@ public class PrescriptionDetailServiceImpl implements PrescriptionDetailService 
         return detail.getDose() + " - " + detail.getFrequency() + " - " + detail.getTiming();
     }
 
-    @Override
-    @Transactional(readOnly = true)
-    public String getFormattedInstructions(UUID detailId) {
+    private BigDecimal calculateLineTotal(UUID detailId) {
         Optional<PrescriptionDetail> detailOpt = prescriptionDetailRepository.findById(detailId);
         if (detailOpt.isEmpty()) {
-            return "";
+            return BigDecimal.ZERO;
         }
 
         PrescriptionDetail detail = detailOpt.get();
-        StringBuilder sb = new StringBuilder();
+        return detail.getUnitPrice().multiply(BigDecimal.valueOf(detail.getQuantity()));
+    }
 
-        sb.append(detail.getDrug().getName()).append("\n");
-        sb.append("Dosage: ").append(detail.getDose()).append("\n");
-        sb.append("Frequency: ").append(detail.getFrequency()).append("\n");
-        sb.append("Timing: ").append(detail.getTiming()).append("\n");
-        sb.append("Instructions: ").append(detail.getInstructions());
+    private void updateLineTotal(UUID detailId) {
+        Optional<PrescriptionDetail> detailOpt = prescriptionDetailRepository.findById(detailId);
+        if (detailOpt.isEmpty()) {
+            return;
+        }
 
-        return sb.toString();
+        PrescriptionDetail detail = detailOpt.get();
+        BigDecimal lineTotal = calculateLineTotal(detailId);
+        detail.setItemTotalPrice(lineTotal);
+        prescriptionDetailRepository.save(detail);
     }
 }
