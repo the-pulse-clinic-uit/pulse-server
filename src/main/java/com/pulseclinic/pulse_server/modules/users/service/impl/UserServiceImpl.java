@@ -8,8 +8,11 @@ import com.pulseclinic.pulse_server.modules.users.entity.User;
 import com.pulseclinic.pulse_server.modules.users.repository.RoleRepository;
 import com.pulseclinic.pulse_server.modules.users.repository.UserRepository;
 import com.pulseclinic.pulse_server.modules.users.service.UserService;
+import com.pulseclinic.pulse_server.services.StorageService;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -18,10 +21,13 @@ import java.util.UUID;
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final StorageService storageService;
 
-    public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository) {
+    public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository
+    , StorageService storageService) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
+        this.storageService = storageService;
     }
 
     @Override
@@ -74,15 +80,29 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User updateAvatar(String email, String avatarUrl) {
+    public User updateAvatar(String email, MultipartFile file) throws IOException {
         Optional<User> user = this.findByEmail(email);
         if (user.isEmpty()){
             throw new RuntimeException("User not found");
         }
-        user.get().setAvatarUrl(avatarUrl);
-        User savedUser = this.userRepository.save(user.get());
+        User foundUser = user.get();
+        String avatarUrl = this.storageService.uploadAvatar(file, foundUser.getId());
+
+        foundUser.setAvatarUrl(avatarUrl);
+        User savedUser = this.userRepository.save(foundUser);
         return savedUser;
     }
+
+//    @Override
+//    public User updateAvatar(String email, String avatarUrl) {
+//        Optional<User> user = this.findByEmail(email);
+//        if (user.isEmpty()){
+//            throw new RuntimeException("User not found");
+//        }
+//        user.get().setAvatarUrl(avatarUrl);
+//        User savedUser = this.userRepository.save(user.get());
+//        return savedUser;
+//    }
 
     @Override
     public User deactivateUser(UUID id) {
