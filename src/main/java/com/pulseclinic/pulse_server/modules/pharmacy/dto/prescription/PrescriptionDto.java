@@ -18,14 +18,14 @@ import java.util.UUID;
 public class PrescriptionDto {
     private UUID id;
 
-    private BigDecimal total_price;
+    private BigDecimal totalPrice;
 
     private String notes;
 
-    private LocalDateTime created_at;
+    private LocalDateTime createdAt;
 
     private PrescriptionStatus status;
 
     // relationship
-    private EncounterDto encounter_dto;
+    private EncounterDto encounterDto;
 }

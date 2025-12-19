@@ -19,8 +19,8 @@ public class StaffDto {
 
     private Position position;
 
-    private LocalDateTime created_at;
+    private LocalDateTime createdAt;
 
     // relationships
-    private UserDto user_dto;
+    private UserDto userDto;
 }

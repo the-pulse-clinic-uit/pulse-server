@@ -49,27 +49,23 @@ public class AdmissionServiceImpl implements AdmissionService {
     @Override
     @Transactional
     public AdmissionDto admitPatient(AdmissionRequestDto admissionRequestDto) {
-        UUID patientId = admissionRequestDto.getPatient_dto().getId();
-        UUID doctorId = admissionRequestDto.getDoctor_dto().getId();
-        UUID roomId = admissionRequestDto.getRoom_dto().getId();
-
-        Optional<Patient> patientOpt = patientRepository.findById(patientId);
+        Optional<Patient> patientOpt = patientRepository.findById(admissionRequestDto.getPatientDto().getId());
         if (patientOpt.isEmpty()) {
             throw new RuntimeException("Patient not found");
         }
 
         Optional<Admission> existingAdmission = admissionRepository.findByPatientIdAndStatusAndDeletedAtIsNull(
-                patientId, AdmissionStatus.ONGOING);
+                admissionRequestDto.getPatientDto().getId(), AdmissionStatus.ONGOING);
         if (existingAdmission.isPresent()) {
             throw new RuntimeException("Patient already has an ongoing admission");
         }
 
-        Optional<Doctor> doctorOpt = doctorRepository.findById(doctorId);
+        Optional<Doctor> doctorOpt = doctorRepository.findById(admissionRequestDto.getDoctorDto().getId());
         if (doctorOpt.isEmpty()) {
             throw new RuntimeException("Doctor not found");
         }
 
-        Optional<Room> roomOpt = roomRepository.findById(roomId);
+        Optional<Room> roomOpt = roomRepository.findById(admissionRequestDto.getRoomDto().getId());
         if (roomOpt.isEmpty()) {
             throw new RuntimeException("Room not found");
         }
@@ -81,10 +77,8 @@ public class AdmissionServiceImpl implements AdmissionService {
                 .room(roomOpt.get())
                 .build();
 
-        if (admissionRequestDto.getEncounter_dto() != null && 
-            admissionRequestDto.getEncounter_dto().getId() != null) {
-            Optional<Encounter> encounterOpt = encounterRepository.findById(
-                admissionRequestDto.getEncounter_dto().getId());
+        if (admissionRequestDto.getEncounterDto().getId() != null) {
+            Optional<Encounter> encounterOpt = encounterRepository.findById(admissionRequestDto.getEncounterDto().getId());
             encounterOpt.ifPresent(admission::setEncounter);
         }
 

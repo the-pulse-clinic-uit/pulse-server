@@ -27,18 +27,18 @@ public class ShiftDto {
 
     private ShiftKind kind;
 
-    private LocalDateTime start_time;
+    private LocalDateTime startTime;
 
-    private LocalDateTime end_time;
+    private LocalDateTime endTime;
 
-    private Integer slot_minutes;
+    private Integer slotMinutes;
 
-    private Integer capacity_per_slot; // default 1
+    private Integer capacityPerSlot; // default 1
 
-    private LocalDateTime created_at;
+    private LocalDateTime createdAt;
 
     // relationship
-    private DepartmentDto department_dto;
+    private DepartmentDto departmentDto;
 
-    private RoomDto default_room_dto;
+    private RoomDto defaultRoomDto;
 }

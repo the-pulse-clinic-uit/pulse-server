@@ -43,4 +43,8 @@ public class Staff {
     @OneToOne(fetch = FetchType.EAGER)
     private User user;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "department_id")
+    private Department department;
+
 }

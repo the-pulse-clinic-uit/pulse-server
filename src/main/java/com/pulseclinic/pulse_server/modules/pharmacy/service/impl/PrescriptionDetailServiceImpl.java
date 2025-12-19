@@ -43,14 +43,14 @@ public class PrescriptionDetailServiceImpl implements PrescriptionDetailService 
             throw new RuntimeException("Prescription not found");
         }
 
-        Optional<Drug> drugOpt = drugRepository.findById(detailRequestDto.getDrug_id());
+        Optional<Drug> drugOpt = drugRepository.findById(detailRequestDto.getDrugId());
         if (drugOpt.isEmpty()) {
             throw new RuntimeException("Drug not found");
         }
 
         Drug drug = drugOpt.get();
-        BigDecimal unitPrice = detailRequestDto.getUnit_price() != null ?
-                detailRequestDto.getUnit_price() : drug.getUnitPrice();
+        BigDecimal unitPrice = detailRequestDto.getUnitPrice() != null ?
+                detailRequestDto.getUnitPrice() : drug.getUnitPrice();
         BigDecimal itemTotal = unitPrice.multiply(BigDecimal.valueOf(detailRequestDto.getQuantity()));
 
         PrescriptionDetail detail = PrescriptionDetail.builder()

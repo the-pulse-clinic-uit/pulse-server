@@ -21,10 +21,10 @@ import java.util.UUID;
 @Builder
 public class ShiftAssignmentRequestDto {
     @NotNull(message = "Duty Date is required")
-    private LocalDate duty_date;
+    private LocalDate dutyDate;
 
     @NotNull(message = "Role in Shift is required. Valid values: 'ON_CALL', 'PRIMARY'")
-    private ShiftAssignmentRole role_in_shift;
+    private ShiftAssignmentRole roleInShift;
 
     @NotNull(message = "Shift Assignment Status is required. Valid values: 'ACTIVE', 'CANCELLED'")
     private ShiftAssignmentStatus status;
@@ -33,10 +33,10 @@ public class ShiftAssignmentRequestDto {
 
     // relationships 3
     @NotNull(message = "Doctor ID is required")
-    private UUID doctor_id;
+    private UUID doctorId;
 
     @NotNull(message = "Shift ID is required")
-    private UUID shift_id;
+    private UUID shiftId;
 
-    private UUID room_id; // can override
+    private UUID roomId; // can override
 }

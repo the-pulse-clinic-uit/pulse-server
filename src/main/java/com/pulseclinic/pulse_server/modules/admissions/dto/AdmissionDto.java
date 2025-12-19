@@ -29,16 +29,16 @@ public class AdmissionDto {
 
     private String notes;
 
-    private LocalDateTime admitted_at;
+    private LocalDateTime admittedAt;
 
-    private LocalDateTime discharged_at;
+    private LocalDateTime dischargedAt;
 
     // relationships => 4
-    private EncounterDto encounter_dto; // optional
+    private EncounterDto encounterDto; // optional
 
-    private PatientDto patient_dto;
+    private PatientDto patientDto;
 
-    private DoctorDto doctor_dto;
+    private DoctorDto doctorDto;
 
-    private RoomDto room_dto;
+    private RoomDto roomDto;
 }

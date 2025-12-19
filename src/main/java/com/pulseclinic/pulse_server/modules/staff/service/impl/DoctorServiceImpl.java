@@ -99,29 +99,32 @@ public class DoctorServiceImpl implements DoctorService {
     @Override
     @Transactional
     public DoctorDto createDoctor(DoctorRequestDto doctorRequestDto) {
-        if (doctorRepository.existsByLicenseId(doctorRequestDto.getLicense_id())) {
+        // Kiểm tra license ID đã tồn tại
+        if (doctorRepository.existsByLicenseId(doctorRequestDto.getLicenseId())) {
             throw new RuntimeException("License ID already exists");
         }
 
-        Optional<Staff> staffOpt = staffRepository.findById(doctorRequestDto.getStaff_id());
+        // Tìm staff
+        Optional<Staff> staffOpt = staffRepository.findById(doctorRequestDto.getStaffId());
         if (staffOpt.isEmpty()) {
             throw new RuntimeException("Staff not found");
         }
 
-        Optional<Doctor> existingDoctor = doctorRepository.findByStaffId(doctorRequestDto.getStaff_id());
+        // Kiểm tra staff đã là doctor chưa
+        Optional<Doctor> existingDoctor = doctorRepository.findByStaffId(doctorRequestDto.getStaffId());
         if (existingDoctor.isPresent()) {
             throw new RuntimeException("Staff is already a doctor");
         }
 
         // Tìm department
-        Optional<Department> departmentOpt = departmentRepository.findById(doctorRequestDto.getDepartment_id());
+        Optional<Department> departmentOpt = departmentRepository.findById(doctorRequestDto.getDepartmentId());
         if (departmentOpt.isEmpty()) {
             throw new RuntimeException("Department not found");
         }
 
         Doctor doctor = Doctor.builder()
-                .licenseId(doctorRequestDto.getLicense_id())
-                .isVerified(Boolean.TRUE.equals(doctorRequestDto.getIs_verified()))
+                .licenseId(doctorRequestDto.getLicenseId())
+                .isVerified(Boolean.TRUE.equals(doctorRequestDto.getIsVerified()))
                 .staff(staffOpt.get())
                 .department(departmentOpt.get())
                 .build();
