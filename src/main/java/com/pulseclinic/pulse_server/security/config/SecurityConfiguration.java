@@ -29,7 +29,12 @@ public class SecurityConfiguration {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(
                         auth -> auth
-                                .requestMatchers("/auth/login", "/auth/register", "auth/forgot-password", "auth/reset-password", "roles/**")
+                                .requestMatchers("/auth/login", "/auth/register", "auth/forgot-password", "auth/reset-password", "roles/**",
+                                        "/ws/**", "/ws-raw/**",
+                                        "/v3/api-docs/**",
+                                        "/swagger-ui/**",
+                                        "/swagger-ui.html"
+                                )
                                 .permitAll()
                                 // Admin only
 //                                .requestMatchers("/api/admin/**").hasRole("ADMIN")
