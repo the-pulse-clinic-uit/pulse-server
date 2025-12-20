@@ -23,7 +23,7 @@ import com.pulseclinic.pulse_server.modules.scheduling.service.WaitlistEntryServ
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/api/waitlist")
+@RequestMapping("/waitlist")
 public class WaitlistEntryController {
     private final WaitlistEntryService waitlistEntryService;
 

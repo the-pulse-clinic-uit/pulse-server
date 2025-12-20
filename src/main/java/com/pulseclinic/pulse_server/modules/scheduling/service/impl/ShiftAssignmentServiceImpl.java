@@ -59,33 +59,33 @@ public class ShiftAssignmentServiceImpl implements ShiftAssignmentService {
     @Override
     @Transactional
     public ShiftAssignmentDto assignDoctor(ShiftAssignmentRequestDto shiftAssignmentRequestDto) {
-        Optional<Doctor> doctorOpt = doctorRepository.findById(shiftAssignmentRequestDto.getDoctor_id());
+        Optional<Doctor> doctorOpt = doctorRepository.findById(shiftAssignmentRequestDto.getDoctorId());
         if (doctorOpt.isEmpty()) {
             throw new RuntimeException("Doctor not found");
         }
 
-        Optional<Shift> shiftOpt = shiftRepository.findById(shiftAssignmentRequestDto.getShift_id());
+        Optional<Shift> shiftOpt = shiftRepository.findById(shiftAssignmentRequestDto.getShiftId());
         if (shiftOpt.isEmpty()) {
             throw new RuntimeException("Shift not found");
         }
 
-        if (checkConflicts(shiftAssignmentRequestDto.getDoctor_id(),
-                          shiftAssignmentRequestDto.getShift_id(), 
-                          shiftAssignmentRequestDto.getDuty_date())) {
+        if (checkConflicts(shiftAssignmentRequestDto.getDoctorId(),
+                          shiftAssignmentRequestDto.getShiftId(),
+                          shiftAssignmentRequestDto.getDutyDate())) {
             throw new RuntimeException("Schedule conflict detected");
         }
 
         ShiftAssignment assignment = ShiftAssignment.builder()
-                .dutyDate(shiftAssignmentRequestDto.getDuty_date())
-                .roleInShift(shiftAssignmentRequestDto.getRole_in_shift())
+                .dutyDate(shiftAssignmentRequestDto.getDutyDate())
+                .roleInShift(shiftAssignmentRequestDto.getRoleInShift())
                 .status(shiftAssignmentRequestDto.getStatus())
                 .notes(shiftAssignmentRequestDto.getNotes())
                 .doctor(doctorOpt.get())
                 .shift(shiftOpt.get())
                 .build();
 
-        if (shiftAssignmentRequestDto.getRoom_id() != null) {
-            Optional<Room> roomOpt = roomRepository.findById(shiftAssignmentRequestDto.getRoom_id());
+        if (shiftAssignmentRequestDto.getRoomId() != null) {
+            Optional<Room> roomOpt = roomRepository.findById(shiftAssignmentRequestDto.getRoomId());
             if (roomOpt.isPresent()) {
                 assignment.setRoom(roomOpt.get());
             }

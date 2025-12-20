@@ -15,7 +15,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/rooms")
+@RequestMapping("/rooms")
 public class RoomController {
     private final RoomService roomService;
     private final RoomMapper roomMapper;

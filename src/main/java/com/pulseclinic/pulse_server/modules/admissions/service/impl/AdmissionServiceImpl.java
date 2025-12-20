@@ -96,7 +96,7 @@ public class AdmissionServiceImpl implements AdmissionService {
 
         Encounter encounter = encounterOpt.get();
         Patient patient = encounter.getPatient();
-        UUID roomId = admissionRequestDto.getRoom_dto().getId();
+        UUID roomId = admissionRequestDto.getRoomDto().getId();
 
         Optional<Admission> existingAdmission = admissionRepository.findByPatientIdAndStatusAndDeletedAtIsNull(
                 patient.getId(), AdmissionStatus.ONGOING);

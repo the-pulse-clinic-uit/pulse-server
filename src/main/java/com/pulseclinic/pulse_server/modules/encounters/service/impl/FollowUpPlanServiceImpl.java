@@ -47,23 +47,23 @@ public class FollowUpPlanServiceImpl implements FollowUpPlanService {
     @Override
     @Transactional
     public FollowUpPlanDto createPlan(FollowUpPlanRequestDto followUpPlanRequestDto) {
-        Optional<Patient> patientOpt = patientRepository.findById(followUpPlanRequestDto.getPatient_id());
+        Optional<Patient> patientOpt = patientRepository.findById(followUpPlanRequestDto.getPatientId());
         if (patientOpt.isEmpty()) {
             throw new RuntimeException("Patient not found");
         }
 
-        Optional<Doctor> doctorOpt = doctorRepository.findById(followUpPlanRequestDto.getDoctor_id());
+        Optional<Doctor> doctorOpt = doctorRepository.findById(followUpPlanRequestDto.getDoctorId());
         if (doctorOpt.isEmpty()) {
             throw new RuntimeException("Doctor not found");
         }
 
-        Optional<Encounter> encounterOpt = encounterRepository.findById(followUpPlanRequestDto.getBase_encounter_id());
+        Optional<Encounter> encounterOpt = encounterRepository.findById(followUpPlanRequestDto.getBaseEncounterId());
         if (encounterOpt.isEmpty()) {
             throw new RuntimeException("Base encounter not found");
         }
 
         FollowUpPlan followUpPlan = FollowUpPlan.builder()
-                .firstDueAt(followUpPlanRequestDto.getFirst_due_at())
+                .firstDueAt(followUpPlanRequestDto.getFirstDueAt())
                 .rrule(followUpPlanRequestDto.getRrule())
                 .notes(followUpPlanRequestDto.getNotes())
                 .patient(patientOpt.get())
@@ -86,7 +86,7 @@ public class FollowUpPlanServiceImpl implements FollowUpPlanService {
         Encounter encounter = encounterOpt.get();
 
         FollowUpPlan followUpPlan = FollowUpPlan.builder()
-                .firstDueAt(followUpPlanRequestDto.getFirst_due_at())
+                .firstDueAt(followUpPlanRequestDto.getFirstDueAt())
                 .rrule(followUpPlanRequestDto.getRrule())
                 .notes(followUpPlanRequestDto.getNotes())
                 .patient(encounter.getPatient())
@@ -119,7 +119,7 @@ public class FollowUpPlanServiceImpl implements FollowUpPlanService {
                 return false;
             }
 
-            plan.setFirstDueAt(followUpPlanRequestDto.getFirst_due_at());
+            plan.setFirstDueAt(followUpPlanRequestDto.getFirstDueAt());
             plan.setRrule(followUpPlanRequestDto.getRrule());
             plan.setNotes(followUpPlanRequestDto.getNotes());
 

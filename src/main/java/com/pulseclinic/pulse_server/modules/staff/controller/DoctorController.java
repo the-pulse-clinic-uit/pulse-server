@@ -25,7 +25,7 @@ import com.pulseclinic.pulse_server.modules.staff.service.DoctorService;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/api/doctors")
+@RequestMapping("/doctors")
 public class DoctorController {
     private final DoctorService doctorService;
 

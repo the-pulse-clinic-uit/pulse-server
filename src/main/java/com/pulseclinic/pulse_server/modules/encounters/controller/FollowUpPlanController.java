@@ -21,7 +21,7 @@ import com.pulseclinic.pulse_server.modules.encounters.service.FollowUpPlanServi
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/api/followup/plans")
+@RequestMapping("/followup/plans")
 public class FollowUpPlanController {
     private final FollowUpPlanService followUpPlanService;
     

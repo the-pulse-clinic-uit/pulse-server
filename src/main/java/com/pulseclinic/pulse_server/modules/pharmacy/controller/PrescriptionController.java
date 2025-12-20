@@ -22,7 +22,7 @@ import com.pulseclinic.pulse_server.modules.pharmacy.service.PrescriptionService
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/api/prescriptions")
+@RequestMapping("/prescriptions")
 public class PrescriptionController {
     private final PrescriptionService prescriptionService;
     

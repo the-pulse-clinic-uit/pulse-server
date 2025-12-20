@@ -74,20 +74,20 @@ public class ShiftServiceImpl implements ShiftService {
         Shift shift = Shift.builder()
                 .name(shiftRequestDto.getName())
                 .kind(shiftRequestDto.getKind())
-                .startTime(shiftRequestDto.getStart_time())
-                .endTime(shiftRequestDto.getEnd_time())
-                .slotMinutes(shiftRequestDto.getSlot_minutes())
-                .capacityPerSlot(shiftRequestDto.getCapacity_per_slot() != null ?
-                        shiftRequestDto.getCapacity_per_slot() : 1)
+                .startTime(shiftRequestDto.getStartTime())
+                .endTime(shiftRequestDto.getEndTime())
+                .slotMinutes(shiftRequestDto.getSlotMinutes())
+                .capacityPerSlot(shiftRequestDto.getCapacityPerSlot() != null ?
+                        shiftRequestDto.getCapacityPerSlot() : 1)
                 .build();
 
-        if (shiftRequestDto.getDepartment_id() != null) {
-            departmentRepository.findById(shiftRequestDto.getDepartment_id())
+        if (shiftRequestDto.getDepartmentId() != null) {
+            departmentRepository.findById(shiftRequestDto.getDepartmentId())
                     .ifPresent(shift::setDepartment);
         }
 
-        if (shiftRequestDto.getDefault_room_id() != null) {
-            roomRepository.findById(shiftRequestDto.getDefault_room_id())   
+        if (shiftRequestDto.getDefaultRoomId() != null) {
+            roomRepository.findById(shiftRequestDto.getDefaultRoomId())
                     .ifPresent(shift::setDefaultRoom);
         }
 
@@ -117,17 +117,17 @@ public class ShiftServiceImpl implements ShiftService {
             if (shiftRequestDto.getKind() != null) {
                 shift.setKind(shiftRequestDto.getKind());
             }
-            if (shiftRequestDto.getStart_time() != null) {
-                shift.setStartTime(shiftRequestDto.getStart_time());
+            if (shiftRequestDto.getStartTime() != null) {
+                shift.setStartTime(shiftRequestDto.getStartTime());
             }
-            if (shiftRequestDto.getEnd_time() != null) {
-                shift.setEndTime(shiftRequestDto.getEnd_time());
+            if (shiftRequestDto.getEndTime() != null) {
+                shift.setEndTime(shiftRequestDto.getEndTime());
             }
-            if (shiftRequestDto.getSlot_minutes() != null) {
-                shift.setSlotMinutes(shiftRequestDto.getSlot_minutes());
+            if (shiftRequestDto.getSlotMinutes() != null) {
+                shift.setSlotMinutes(shiftRequestDto.getSlotMinutes());
             }
-            if (shiftRequestDto.getCapacity_per_slot() != null) {
-                shift.setCapacityPerSlot(shiftRequestDto.getCapacity_per_slot());
+            if (shiftRequestDto.getCapacityPerSlot() != null) {
+                shift.setCapacityPerSlot(shiftRequestDto.getCapacityPerSlot());
             }
 
             shiftRepository.save(shift);

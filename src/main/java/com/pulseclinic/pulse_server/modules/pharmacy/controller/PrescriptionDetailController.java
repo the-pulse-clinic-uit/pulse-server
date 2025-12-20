@@ -20,7 +20,7 @@ import com.pulseclinic.pulse_server.modules.pharmacy.service.PrescriptionDetailS
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/api/prescriptions")
+@RequestMapping("/prescriptions")
 public class PrescriptionDetailController {
     private final PrescriptionDetailService prescriptionDetailService;
 

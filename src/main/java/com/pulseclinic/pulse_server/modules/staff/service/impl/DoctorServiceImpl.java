@@ -143,16 +143,15 @@ public class DoctorServiceImpl implements DoctorService {
 
         Doctor doctor = doctorOpt.get();
 
-        // Kiểm tra nếu license_id thay đổi và đã tồn tại
-        if (!doctor.getLicenseId().equals(doctorRequestDto.getLicense_id()) &&
-            doctorRepository.existsByLicenseId(doctorRequestDto.getLicense_id())) {
+        if (!doctor.getLicenseId().equals(doctorRequestDto.getLicenseId()) &&
+            doctorRepository.existsByLicenseId(doctorRequestDto.getLicenseId())) {
             throw new RuntimeException("License ID already exists");
         }
 
         // Cập nhật thông tin cơ bản
-        doctor.setLicenseId(doctorRequestDto.getLicense_id());
-        if (doctorRequestDto.getIs_verified() != null) {
-            doctor.setIsVerified(doctorRequestDto.getIs_verified());
+        doctor.setLicenseId(doctorRequestDto.getLicenseId());
+        if (doctorRequestDto.getIsVerified() != null) {
+            doctor.setIsVerified(doctorRequestDto.getIsVerified());
         }
 
         Doctor updatedDoctor = doctorRepository.save(doctor);

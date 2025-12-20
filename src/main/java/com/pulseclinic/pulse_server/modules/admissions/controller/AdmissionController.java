@@ -20,7 +20,7 @@ import com.pulseclinic.pulse_server.modules.admissions.service.AdmissionService;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/api/admissions")
+@RequestMapping("/admissions")
 public class AdmissionController {
     private final AdmissionService admissionService;
 

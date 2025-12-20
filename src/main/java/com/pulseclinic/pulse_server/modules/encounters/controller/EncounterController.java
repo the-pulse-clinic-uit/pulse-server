@@ -17,7 +17,7 @@ import com.pulseclinic.pulse_server.modules.encounters.service.EncounterService;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/api/encounters")
+@RequestMapping("/encounters")
 public class EncounterController {
     private final EncounterService encounterService;
     

@@ -23,7 +23,7 @@ import com.pulseclinic.pulse_server.modules.appointments.service.AppointmentServ
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/api/appointments")
+@RequestMapping("/appointments")
 public class AppointmentController {
     private final AppointmentService appointmentService;
 

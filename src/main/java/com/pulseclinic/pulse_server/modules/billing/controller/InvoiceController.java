@@ -22,7 +22,7 @@ import com.pulseclinic.pulse_server.modules.billing.service.InvoiceService;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/api/invoices")
+@RequestMapping("/invoices")
 public class InvoiceController {
     private final InvoiceService invoiceService;
 
@@ -86,7 +86,12 @@ public class InvoiceController {
         return voided ? ResponseEntity.ok().build() : ResponseEntity.badRequest().build();
     }
 
-    @PostMapping("/{invoiceId}/payment")
+    @GetMapping("/{invoiceId}/create-payment")
+    public ResponseEntity<String> createPayment() {
+        return "hello world";
+    }
+
+    @PostMapping("/{invoiceId}/record-payment")
     public ResponseEntity<Void> recordPayment(
             @PathVariable UUID invoiceId,
             @RequestParam BigDecimal amount) {

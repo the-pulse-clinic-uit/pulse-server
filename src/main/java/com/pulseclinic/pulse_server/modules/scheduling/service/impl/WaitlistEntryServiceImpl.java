@@ -50,23 +50,23 @@ public class WaitlistEntryServiceImpl implements WaitlistEntryService {
     @Transactional
     public WaitlistEntryDto addToWaitlist(WaitlistEntryRequestDto waitlistEntryRequestDto) {
         // Tìm patient
-        Optional<Patient> patientOpt = patientRepository.findById(waitlistEntryRequestDto.getPatient_id());
+        Optional<Patient> patientOpt = patientRepository.findById(waitlistEntryRequestDto.getPatientId());
         if (patientOpt.isEmpty()) {
             throw new RuntimeException("Patient not found");
         }
 
         // Tìm doctor
-        Optional<Doctor> doctorOpt = doctorRepository.findById(waitlistEntryRequestDto.getDoctor_id());
+        Optional<Doctor> doctorOpt = doctorRepository.findById(waitlistEntryRequestDto.getDoctorId());
         if (doctorOpt.isEmpty()) {
             throw new RuntimeException("Doctor not found");
         }
 
         // Tạo ticket number
-        Integer ticketNo = generateTicketNumber(waitlistEntryRequestDto.getDoctor_id(), 
-                                                waitlistEntryRequestDto.getDuty_date());
+        Integer ticketNo = generateTicketNumber(waitlistEntryRequestDto.getDoctorId(),
+                                                waitlistEntryRequestDto.getDutyDate());
 
         WaitlistEntry entry = WaitlistEntry.builder()
-                .dutyDate(waitlistEntryRequestDto.getDuty_date())
+                .dutyDate(waitlistEntryRequestDto.getDutyDate())
                 .ticketNo(ticketNo)
                 .notes(waitlistEntryRequestDto.getNotes())
                 .priority(waitlistEntryRequestDto.getPriority())
@@ -76,8 +76,8 @@ public class WaitlistEntryServiceImpl implements WaitlistEntryService {
                 .build();
 
         // Set appointment nếu có
-        if (waitlistEntryRequestDto.getAppointment_id() != null) {
-            appointmentRepository.findById(waitlistEntryRequestDto.getAppointment_id())
+        if (waitlistEntryRequestDto.getAppointmentId() != null) {
+            appointmentRepository.findById(waitlistEntryRequestDto.getAppointmentId())
                     .ifPresent(entry::setAppointment);
         }
 
