@@ -129,15 +129,26 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     public AppointmentReportDto getAppointmentReportByDepartment(UUID departmentId, LocalDate startDate, LocalDate endDate) {
-        // This would require joining through Doctor -> Department
-        // For now, return empty report
+        LocalDateTime start = startDate.atStartOfDay();
+        LocalDateTime end = endDate.atTime(23, 59, 59);
+
+        Long total = appointmentRepository.countByDoctorDepartmentIdAndStartsAtBetween(departmentId, start, end);
+        Long confirmed = appointmentRepository.countByDoctorDepartmentIdAndStatusAndStartsAtBetween(
+                departmentId, AppointmentStatus.CONFIRMED, start, end);
+        Long completed = appointmentRepository.countByDoctorDepartmentIdAndStatusAndStartsAtBetween(
+                departmentId, AppointmentStatus.DONE, start, end);
+        Long cancelled = appointmentRepository.countByDoctorDepartmentIdAndStatusAndStartsAtBetween(
+                departmentId, AppointmentStatus.CANCELLED, start, end);
+        Long noShow = appointmentRepository.countByDoctorDepartmentIdAndStatusAndStartsAtBetween(
+                departmentId, AppointmentStatus.NO_SHOW, start, end);
+
         return AppointmentReportDto.builder()
                 .reportDate(startDate)
-                .totalAppointments(0)
-                .confirmed(0)
-                .completed(0)
-                .cancelled(0)
-                .noShow(0)
+                .totalAppointments(total.intValue())
+                .confirmed(confirmed.intValue())
+                .completed(completed.intValue())
+                .cancelled(cancelled.intValue())
+                .noShow(noShow.intValue())
                 .byDepartment(new HashMap<>())
                 .byDoctor(new HashMap<>())
                 .build();
@@ -212,13 +223,19 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     public FinancialReportDto getRevenueByDepartment(UUID departmentId, LocalDate startDate, LocalDate endDate) {
-        // This would require joining through Invoice -> Encounter -> Doctor -> Department
+        LocalDateTime start = startDate.atStartOfDay();
+        LocalDateTime end = endDate.atTime(23, 59, 59);
+
+        BigDecimal totalRevenue = invoiceRepository.sumTotalAmountByDepartmentIdAndCreatedAtBetween(departmentId, start, end);
+        BigDecimal paidAmount = invoiceRepository.sumAmountPaidByDepartmentIdAndCreatedAtBetween(departmentId, start, end);
+        BigDecimal outstandingDebt = invoiceRepository.sumOutstandingDebt();
+
         return FinancialReportDto.builder()
                 .startDate(startDate)
                 .endDate(endDate)
-                .totalRevenue(BigDecimal.ZERO)
-                .paidAmount(BigDecimal.ZERO)
-                .outstandingDebt(BigDecimal.ZERO)
+                .totalRevenue(totalRevenue != null ? totalRevenue : BigDecimal.ZERO)
+                .paidAmount(paidAmount != null ? paidAmount : BigDecimal.ZERO)
+                .outstandingDebt(outstandingDebt != null ? outstandingDebt : BigDecimal.ZERO)
                 .revenueByDepartment(new HashMap<>())
                 .revenueByDoctor(new HashMap<>())
                 .build();
@@ -226,13 +243,19 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     public FinancialReportDto getRevenueByDoctor(UUID doctorId, LocalDate startDate, LocalDate endDate) {
-        // This would require joining through Invoice -> Encounter -> Doctor
+        LocalDateTime start = startDate.atStartOfDay();
+        LocalDateTime end = endDate.atTime(23, 59, 59);
+
+        BigDecimal totalRevenue = invoiceRepository.sumTotalAmountByDoctorIdAndCreatedAtBetween(doctorId, start, end);
+        BigDecimal paidAmount = invoiceRepository.sumAmountPaidByDoctorIdAndCreatedAtBetween(doctorId, start, end);
+        BigDecimal outstandingDebt = invoiceRepository.sumOutstandingDebt();
+
         return FinancialReportDto.builder()
                 .startDate(startDate)
                 .endDate(endDate)
-                .totalRevenue(BigDecimal.ZERO)
-                .paidAmount(BigDecimal.ZERO)
-                .outstandingDebt(BigDecimal.ZERO)
+                .totalRevenue(totalRevenue != null ? totalRevenue : BigDecimal.ZERO)
+                .paidAmount(paidAmount != null ? paidAmount : BigDecimal.ZERO)
+                .outstandingDebt(outstandingDebt != null ? outstandingDebt : BigDecimal.ZERO)
                 .revenueByDepartment(new HashMap<>())
                 .revenueByDoctor(new HashMap<>())
                 .build();
