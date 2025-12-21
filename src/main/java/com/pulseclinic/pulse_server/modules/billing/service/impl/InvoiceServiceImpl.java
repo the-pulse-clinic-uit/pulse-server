@@ -21,6 +21,7 @@ import com.pulseclinic.pulse_server.modules.billing.repository.InvoiceRepository
 import com.pulseclinic.pulse_server.modules.billing.service.InvoiceService;
 import com.pulseclinic.pulse_server.modules.encounters.entity.Encounter;
 import com.pulseclinic.pulse_server.modules.encounters.repository.EncounterRepository;
+import org.springframework.web.reactive.function.client.WebClient;
 
 @Service
 public class InvoiceServiceImpl implements InvoiceService {
@@ -28,13 +29,15 @@ public class InvoiceServiceImpl implements InvoiceService {
     private final InvoiceRepository invoiceRepository;
     private final EncounterRepository encounterRepository;
     private final InvoiceMapper invoiceMapper;
+    private final WebClient webClient;
 
     public InvoiceServiceImpl(InvoiceRepository invoiceRepository,
                               EncounterRepository encounterRepository,
-                              InvoiceMapper invoiceMapper) {
+                              InvoiceMapper invoiceMapper, WebClient webClient) {
         this.invoiceRepository = invoiceRepository;
         this.encounterRepository = encounterRepository;
         this.invoiceMapper = invoiceMapper;
+        this.webClient = webClient;
     }
 
     @Override
@@ -51,8 +54,8 @@ public class InvoiceServiceImpl implements InvoiceService {
         }
 
         Invoice invoice = Invoice.builder()
-                .dueDate(invoiceRequestDto.getDue_date())
-                .totalAmount(invoiceRequestDto.getTotal_amount())
+                .dueDate(invoiceRequestDto.getDueDate())
+                .totalAmount(invoiceRequestDto.getTotalAmount())
                 .encounter(encounterOpt.get())
                 .build();
 
@@ -154,6 +157,16 @@ public class InvoiceServiceImpl implements InvoiceService {
         } catch (Exception e) {
             return false;
         }
+    }
+
+    @Transactional
+    @Override
+    public String createPayment(BigDecimal amount) {
+        return webClient.get()
+                .uri("http://localhost:8081/api/v1/vn-pay?amount=" + amount)
+                .retrieve()
+                .bodyToMono(String.class)
+                .block(); // giống await fetch()
     }
 
     @Override

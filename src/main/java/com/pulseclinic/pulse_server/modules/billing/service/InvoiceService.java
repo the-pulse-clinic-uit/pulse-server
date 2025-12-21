@@ -17,5 +17,6 @@ public interface InvoiceService {
     boolean addLineItem(UUID invoiceId, String description, BigDecimal amount);
     boolean applyDiscount(UUID invoiceId, BigDecimal discount);
     boolean voidInvoice(UUID invoiceId, String reason);
+    String createPayment(BigDecimal amount);
     boolean recordPayment(UUID invoiceId, BigDecimal amount);
 }

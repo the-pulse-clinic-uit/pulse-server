@@ -225,7 +225,13 @@ public class AppointmentServiceImpl implements AppointmentService {
                 return false;
             }
 
+
             Appointment appointment = appointmentOpt.get();
+
+            if (appointment.getStatus() == AppointmentStatus.CANCELLED) {
+                throw new IllegalStateException("Cannot update a cancelled appointment");
+            }
+
             appointment.setStatus(newStatus);
             appointmentRepository.save(appointment);
             return true;

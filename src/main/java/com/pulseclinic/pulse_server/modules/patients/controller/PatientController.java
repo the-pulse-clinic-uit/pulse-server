@@ -38,7 +38,7 @@ public class PatientController {
 
     // for staff
     @PostMapping
-    @PreAuthorize("hasAnyRole('staff', 'admin')")
+    @PreAuthorize("hasAnyAuthority('staff', 'admin')")
     public ResponseEntity<PatientDto> registerPatient(@RequestBody PatientRequestDto patientRequestDto) {
         Patient patient = this.patientService.registerPatient(patientRequestDto);
         return new ResponseEntity<>(this.patientMapper.mapTo(patient), HttpStatus.CREATED);

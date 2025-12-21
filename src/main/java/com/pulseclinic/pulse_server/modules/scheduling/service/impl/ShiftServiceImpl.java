@@ -9,6 +9,9 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import com.pulseclinic.pulse_server.enums.ShiftKind;
+import com.pulseclinic.pulse_server.modules.rooms.entity.Room;
+import com.pulseclinic.pulse_server.modules.staff.entity.Department;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -69,6 +72,48 @@ public class ShiftServiceImpl implements ShiftService {
     public ShiftDto createShift(ShiftRequestDto shiftRequestDto) {
         if (shiftRepository.existsByName(shiftRequestDto.getName())) {
             throw new RuntimeException("Shift name already exists");
+        }
+
+        if (shiftRequestDto.getStartTime().isAfter(shiftRequestDto.getEndTime())) {
+            throw new RuntimeException("Start time must be before end time");
+        }
+
+        if (shiftRequestDto.getSlotMinutes() <= 0) {
+            throw new RuntimeException("Slot minutes must be greater than 0");
+        }
+
+        if (shiftRequestDto.getCapacityPerSlot() != null && shiftRequestDto.getCapacityPerSlot() <= 0) {
+            throw new RuntimeException("Capacity per slot must be greater than 0");
+        }
+
+        if (shiftRequestDto.getKind() == ShiftKind.CLINIC) {
+            if (shiftRequestDto.getSlotMinutes() == null || shiftRequestDto.getSlotMinutes() <= 0) {
+                throw new RuntimeException("Slot minutes must be greater than 0 for clinic shift");
+            }
+        }
+
+        if (shiftRequestDto.getKind() == ShiftKind.ER) {
+            if (shiftRequestDto.getSlotMinutes() != null) {
+                throw new RuntimeException("ER shift must not have slot minutes");
+            }
+        }
+
+        Department department = null;
+        if (shiftRequestDto.getDepartmentId() != null) {
+            department = departmentRepository.findById(shiftRequestDto.getDepartmentId())
+                    .orElseThrow(() -> new RuntimeException("Department not found"));
+        }
+
+        Room defaultRoom = null;
+        if (shiftRequestDto.getDefaultRoomId() != null) {
+            defaultRoom = roomRepository.findById(shiftRequestDto.getDefaultRoomId())
+                    .orElseThrow(() -> new RuntimeException("Room not found"));
+        }
+
+        if (department != null && defaultRoom != null &&
+                defaultRoom.getDepartment() != null &&
+                !defaultRoom.getDepartment().getId().equals(department.getId())) {
+            throw new RuntimeException("Default room does not belong to the selected department");
         }
 
         Shift shift = Shift.builder()

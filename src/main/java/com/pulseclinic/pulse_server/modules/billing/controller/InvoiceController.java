@@ -87,8 +87,9 @@ public class InvoiceController {
     }
 
     @GetMapping("/{invoiceId}/create-payment")
-    public ResponseEntity<String> createPayment() {
-        return "hello world";
+    public ResponseEntity<String> createPayment(@RequestParam BigDecimal amount) {
+        String result = invoiceService.createPayment(amount);
+        return ResponseEntity.ok(result);
     }
 
     @PostMapping("/{invoiceId}/record-payment")
