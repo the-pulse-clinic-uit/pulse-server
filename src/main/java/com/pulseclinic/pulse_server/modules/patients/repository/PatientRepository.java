@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -27,4 +28,7 @@ public interface PatientRepository extends JpaRepository<Patient, UUID> {
 
     @Query("SELECT p FROM Patient p WHERE p.user.deletedAt IS NULL")
     List<Patient> findAll();
+
+    // For reports
+    Long countByCreatedAtBetween(LocalDateTime startDate, LocalDateTime endDate);
 }
