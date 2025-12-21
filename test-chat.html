@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebSocket Chat Test</title>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7/bundles/stomp.umd.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .section {
+            border: 1px solid #ccc;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 3px;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .log {
+            background: #f5f5f5;
+            padding: 10px;
+            height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+            border: 1px solid #ddd;
+        }
+        .log-entry {
+            margin: 5px 0;
+            padding: 5px;
+        }
+        .log-entry.received {
+            background: #e3f2fd;
+        }
+        .log-entry.sent {
+            background: #fff3e0;
+        }
+        .log-entry.system {
+            background: #f1f8e9;
+        }
+        input[type="text"] {
+            width: 300px;
+            padding: 8px;
+            margin: 5px;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 3px;
+        }
+        .status.connected {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status.disconnected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <h1>WebSocket Chat Test</h1>
+
+    <div class="section">
+        <h2>Connection</h2>
+        <input type="text" id="jwtToken" placeholder="Paste your JWT token here" style="width: 500px;">
+        <br>
+        <input type="text" id="userId" placeholder="Your Email (from JWT)">
+        <input type="text" id="userName" placeholder="Your Display Name">
+        <br>
+        <button id="connectBtn" onclick="connect()">Connect</button>
+        <button id="disconnectBtn" onclick="disconnect()" disabled>Disconnect</button>
+        <div id="status" class="status disconnected">Disconnected</div>
+    </div>
+
+    <div class="section">
+        <h2>Patient Actions</h2>
+        <button id="requestStaffBtn" onclick="requestStaff()" disabled>Request Staff</button>
+        <button id="endSessionBtn" onclick="endSession()" disabled>End Session</button>
+    </div>
+
+    <div class="section">
+        <h2>Staff Actions</h2>
+        <button id="setAvailableBtn" onclick="setAvailable()" disabled>Set Available</button>
+        <button id="setUnavailableBtn" onclick="setUnavailable()" disabled>Set Unavailable</button>
+    </div>
+
+    <div class="section">
+        <h2>Send Message</h2>
+        <input type="text" id="recipientId" placeholder="Recipient User ID">
+        <input type="text" id="messageContent" placeholder="Message content">
+        <button id="sendMessageBtn" onclick="sendMessage()" disabled>Send Message</button>
+    </div>
+
+    <div class="section">
+        <h2>Message Log</h2>
+        <button onclick="clearLog()">Clear Log</button>
+        <div id="log" class="log"></div>
+    </div>
+
+    <script>
+        let stompClient = null;
+        let currentUserId = null;
+        let currentUserName = null;
+
+        function addLog(message, type = 'system') {
+            const log = document.getElementById('log');
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            log.appendChild(entry);
+            log.scrollTop = log.scrollHeight;
+        }
+
+        function clearLog() {
+            document.getElementById('log').innerHTML = '';
+        }
+
+        function updateStatus(connected) {
+            const status = document.getElementById('status');
+            const buttons = ['connectBtn', 'disconnectBtn', 'requestStaffBtn', 'endSessionBtn',
+                            'setAvailableBtn', 'setUnavailableBtn', 'sendMessageBtn'];
+
+            if (connected) {
+                status.className = 'status connected';
+                status.textContent = 'Connected';
+                document.getElementById('connectBtn').disabled = true;
+                document.getElementById('disconnectBtn').disabled = false;
+                document.getElementById('requestStaffBtn').disabled = false;
+                document.getElementById('endSessionBtn').disabled = false;
+                document.getElementById('setAvailableBtn').disabled = false;
+                document.getElementById('setUnavailableBtn').disabled = false;
+                document.getElementById('sendMessageBtn').disabled = false;
+            } else {
+                status.className = 'status disconnected';
+                status.textContent = 'Disconnected';
+                document.getElementById('connectBtn').disabled = false;
+                document.getElementById('disconnectBtn').disabled = true;
+                document.getElementById('requestStaffBtn').disabled = true;
+                document.getElementById('endSessionBtn').disabled = true;
+                document.getElementById('setAvailableBtn').disabled = true;
+                document.getElementById('setUnavailableBtn').disabled = true;
+                document.getElementById('sendMessageBtn').disabled = true;
+            }
+        }
+
+        function connect() {
+            const jwtToken = document.getElementById('jwtToken').value;
+            const userId = document.getElementById('userId').value;
+            const userName = document.getElementById('userName').value;
+
+            if (!jwtToken || !userId || !userName) {
+                alert('Please fill in JWT token, User ID, and Name');
+                return;
+            }
+
+            currentUserId = userId;
+            currentUserName = userName;
+
+            addLog('Connecting to WebSocket...', 'system');
+
+            const socket = new SockJS('http://localhost:8080/ws');
+            stompClient = new StompJs.Client({
+                webSocketFactory: () => socket,
+                connectHeaders: {
+                    Authorization: `Bearer ${jwtToken}`
+                },
+                debug: (str) => {
+                    console.log('STOMP:', str);
+                },
+                reconnectDelay: 5000,
+                heartbeatIncoming: 4000,
+                heartbeatOutgoing: 4000,
+            });
+
+            stompClient.onConnect = (frame) => {
+                addLog('✓ Connected successfully!', 'system');
+                updateStatus(true);
+
+                // Subscribe to private messages (Spring automatically routes to authenticated user)
+                stompClient.subscribe('/user/queue/messages', (message) => {
+                    const chatMessage = JSON.parse(message.body);
+                    addLog(`📩 RECEIVED: ${JSON.stringify(chatMessage, null, 2)}`, 'received');
+                });
+
+                // Subscribe to typing indicators
+                stompClient.subscribe('/user/queue/typing', (message) => {
+                    const typingMessage = JSON.parse(message.body);
+                    addLog(`⌨️ TYPING: ${typingMessage.senderName} is typing...`, 'received');
+                });
+
+                // Subscribe to staff notifications
+                stompClient.subscribe('/topic/staff', (message) => {
+                    const notification = JSON.parse(message.body);
+                    addLog(`📢 STAFF NOTIFICATION: ${notification.content}`, 'received');
+                });
+            };
+
+            stompClient.onStompError = (frame) => {
+                addLog(`❌ ERROR: ${frame.headers['message']}`, 'system');
+                addLog(`Details: ${frame.body}`, 'system');
+                updateStatus(false);
+            };
+
+            stompClient.activate();
+        }
+
+        function disconnect() {
+            if (stompClient) {
+                stompClient.deactivate();
+                addLog('Disconnected', 'system');
+                updateStatus(false);
+            }
+        }
+
+        function requestStaff() {
+            if (stompClient && stompClient.connected) {
+                const message = {
+                    senderId: currentUserId,
+                    senderName: currentUserName,
+                    senderRole: 'PATIENT',
+                    type: 'PATIENT_CONNECTED'
+                };
+
+                addLog(`📤 SENDING: Request Staff - ${JSON.stringify(message)}`, 'sent');
+
+                stompClient.publish({
+                    destination: '/app/chat.requestStaff',
+                    body: JSON.stringify(message)
+                });
+            }
+        }
+
+        function setAvailable() {
+            if (stompClient && stompClient.connected) {
+                const message = {
+                    senderId: currentUserId,
+                    senderName: currentUserName,
+                    senderRole: 'STAFF',
+                    type: 'STAFF_AVAILABLE'
+                };
+
+                addLog(`📤 SENDING: Set Available - ${JSON.stringify(message)}`, 'sent');
+
+                stompClient.publish({
+                    destination: '/app/staff.setAvailable',
+                    body: JSON.stringify(message)
+                });
+            }
+        }
+
+        function setUnavailable() {
+            if (stompClient && stompClient.connected) {
+                const message = {
+                    senderId: currentUserId,
+                    senderName: currentUserName,
+                    senderRole: 'STAFF',
+                    type: 'STAFF_UNAVAILABLE'
+                };
+
+                addLog(`📤 SENDING: Set Unavailable - ${JSON.stringify(message)}`, 'sent');
+
+                stompClient.publish({
+                    destination: '/app/staff.setUnavailable',
+                    body: JSON.stringify(message)
+                });
+            }
+        }
+
+        function sendMessage() {
+            const recipientId = document.getElementById('recipientId').value;
+            const content = document.getElementById('messageContent').value;
+
+            if (!recipientId || !content) {
+                alert('Please fill in recipient ID and message content');
+                return;
+            }
+
+            if (stompClient && stompClient.connected) {
+                const message = {
+                    senderId: currentUserId,
+                    senderName: currentUserName,
+                    senderRole: 'PATIENT',
+                    recipientId: recipientId,
+                    content: content,
+                    type: 'CHAT'
+                };
+
+                addLog(`📤 SENDING: Message - ${JSON.stringify(message)}`, 'sent');
+
+                stompClient.publish({
+                    destination: '/app/chat.sendMessage',
+                    body: JSON.stringify(message)
+                });
+
+                document.getElementById('messageContent').value = '';
+            }
+        }
+
+        function endSession() {
+            if (stompClient && stompClient.connected) {
+                const message = {
+                    senderId: currentUserId,
+                    type: 'PATIENT_DISCONNECTED'
+                };
+
+                addLog(`📤 SENDING: End Session - ${JSON.stringify(message)}`, 'sent');
+
+                stompClient.publish({
+                    destination: '/app/chat.endSession',
+                    body: JSON.stringify(message)
+                });
+            }
+        }
+    </script>
+</body>
+</html>

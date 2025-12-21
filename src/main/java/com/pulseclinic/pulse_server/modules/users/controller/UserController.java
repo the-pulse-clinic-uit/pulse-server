@@ -14,7 +14,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -34,11 +36,18 @@ public class UserController {
 
     }
 
+//    @PatchMapping("/me/avatar")
+//    public ResponseEntity<UserDto> updateAvatar(Authentication authentication, @RequestParam("avatar") String avatarUrl) {
+//        String email = authentication.getName();
+//        User user = userService.updateAvatar(email, avatarUrl);
+//        return new ResponseEntity<>(this.userMapper.mapTo(user), HttpStatus.OK);
+//    }
+
     @PatchMapping("/me/avatar")
-    public ResponseEntity<UserDto> updateAvatar(Authentication authentication, @RequestParam("avatar") String avatarUrl) {
-        String email = authentication.getName();
-        User user = userService.updateAvatar(email, avatarUrl);
+    public ResponseEntity<UserDto> updateAvatar(Authentication authentication, @RequestParam("file") MultipartFile file) throws IOException {
+        User user = this.userService.updateAvatar(authentication.getName(), file);
         return new ResponseEntity<>(this.userMapper.mapTo(user), HttpStatus.OK);
+
     }
 
     @PatchMapping("/me")
