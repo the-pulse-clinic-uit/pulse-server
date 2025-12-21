@@ -1,6 +1,7 @@
 package com.pulseclinic.pulse_server.modules.appointments.repository;
 
 import com.pulseclinic.pulse_server.enums.AppointmentStatus;
+import com.pulseclinic.pulse_server.enums.AppointmentType;
 import com.pulseclinic.pulse_server.modules.appointments.entity.Appointment;
 import com.pulseclinic.pulse_server.modules.staff.entity.Department;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -41,4 +42,21 @@ public interface AppointmentRepository extends JpaRepository<Appointment, UUID> 
 
     @Query("SELECT COUNT(a) FROM Appointment a WHERE a.doctor.department = :department AND a.deletedAt IS NULL")
     Integer countByDoctorDepartment(@Param("department") Department department);
+
+    // Report query methods
+    Long countByStartsAtBetween(LocalDateTime start, LocalDateTime end);
+
+    Long countByStatusAndStartsAtBetween(AppointmentStatus status, LocalDateTime start, LocalDateTime end);
+
+    Long countByTypeAndStartsAtBetween(AppointmentType type, LocalDateTime start, LocalDateTime end);
+
+    Long countByDoctorIdAndStartsAtBetween(UUID doctorId, LocalDateTime start, LocalDateTime end);
+
+    Long countByDoctorIdAndStatusAndStartsAtBetween(UUID doctorId, AppointmentStatus status, LocalDateTime start, LocalDateTime end);
+
+    @Query("SELECT COUNT(a) FROM Appointment a WHERE a.doctor.department.id = :departmentId AND a.startsAt BETWEEN :start AND :end AND a.deletedAt IS NULL")
+    Long countByDoctorDepartmentIdAndStartsAtBetween(@Param("departmentId") UUID departmentId, @Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
+
+    @Query("SELECT COUNT(a) FROM Appointment a WHERE a.doctor.department.id = :departmentId AND a.status = :status AND a.startsAt BETWEEN :start AND :end AND a.deletedAt IS NULL")
+    Long countByDoctorDepartmentIdAndStatusAndStartsAtBetween(@Param("departmentId") UUID departmentId, @Param("status") AppointmentStatus status, @Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
 }
