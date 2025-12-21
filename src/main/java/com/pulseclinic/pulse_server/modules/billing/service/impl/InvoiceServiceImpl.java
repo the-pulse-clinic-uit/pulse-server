@@ -51,8 +51,8 @@ public class InvoiceServiceImpl implements InvoiceService {
         }
 
         Invoice invoice = Invoice.builder()
-                .dueDate(invoiceRequestDto.getDue_date())
-                .totalAmount(invoiceRequestDto.getTotal_amount())
+                .dueDate(invoiceRequestDto.getDueDate())
+                .totalAmount(invoiceRequestDto.getTotalAmount())
                 .encounter(encounterOpt.get())
                 .build();
 

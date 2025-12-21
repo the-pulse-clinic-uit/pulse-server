@@ -88,7 +88,7 @@ public class InvoiceController {
 
     @GetMapping("/{invoiceId}/create-payment")
     public ResponseEntity<String> createPayment() {
-        return "hello world";
+        return ResponseEntity.ok("hello world");
     }
 
     @PostMapping("/{invoiceId}/record-payment")
