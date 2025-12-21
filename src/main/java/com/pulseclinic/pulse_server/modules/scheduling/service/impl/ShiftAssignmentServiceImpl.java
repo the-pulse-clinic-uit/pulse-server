@@ -41,12 +41,12 @@ public class ShiftAssignmentServiceImpl implements ShiftAssignmentService {
     private final AppointmentMapper appointmentMapper;
 
     public ShiftAssignmentServiceImpl(ShiftAssignmentRepository shiftAssignmentRepository,
-                                     DoctorRepository doctorRepository,
-                                     ShiftRepository shiftRepository,
-                                     ShiftAssignmentMapper shiftAssignmentMapper,
-                                     RoomRepository roomRepository,
-                                     AppointmentRepository appointmentRepository,
-                                     AppointmentMapper appointmentMapper) {
+                                      DoctorRepository doctorRepository,
+                                      ShiftRepository shiftRepository,
+                                      ShiftAssignmentMapper shiftAssignmentMapper,
+                                      RoomRepository roomRepository,
+                                      AppointmentRepository appointmentRepository,
+                                      AppointmentMapper appointmentMapper) {
         this.shiftAssignmentRepository = shiftAssignmentRepository;
         this.doctorRepository = doctorRepository;
         this.shiftRepository = shiftRepository;
@@ -58,42 +58,71 @@ public class ShiftAssignmentServiceImpl implements ShiftAssignmentService {
 
     @Override
     @Transactional
-    public ShiftAssignmentDto assignDoctor(ShiftAssignmentRequestDto shiftAssignmentRequestDto) {
-        Optional<Doctor> doctorOpt = doctorRepository.findById(shiftAssignmentRequestDto.getDoctorId());
-        if (doctorOpt.isEmpty()) {
-            throw new RuntimeException("Doctor not found");
+    public ShiftAssignmentDto assignDoctor(ShiftAssignmentRequestDto dto) {
+
+        if (dto.getDutyDate() == null || dto.getDutyDate().isBefore(LocalDate.now())) {
+            throw new RuntimeException("Invalid duty date");
         }
 
-        Optional<Shift> shiftOpt = shiftRepository.findById(shiftAssignmentRequestDto.getShiftId());
-        if (shiftOpt.isEmpty()) {
-            throw new RuntimeException("Shift not found");
-        }
+        Doctor doctor = doctorRepository.findById(dto.getDoctorId())
+                .orElseThrow(() -> new RuntimeException("Doctor not found"));
 
-        if (checkConflicts(shiftAssignmentRequestDto.getDoctorId(),
-                          shiftAssignmentRequestDto.getShiftId(),
-                          shiftAssignmentRequestDto.getDutyDate())) {
-            throw new RuntimeException("Schedule conflict detected");
-        }
+        Shift shift = shiftRepository.findById(dto.getShiftId())
+                .orElseThrow(() -> new RuntimeException("Shift not found"));
 
-        ShiftAssignment assignment = ShiftAssignment.builder()
-                .dutyDate(shiftAssignmentRequestDto.getDutyDate())
-                .roleInShift(shiftAssignmentRequestDto.getRoleInShift())
-                .status(shiftAssignmentRequestDto.getStatus())
-                .notes(shiftAssignmentRequestDto.getNotes())
-                .doctor(doctorOpt.get())
-                .shift(shiftOpt.get())
-                .build();
-
-        if (shiftAssignmentRequestDto.getRoomId() != null) {
-            Optional<Room> roomOpt = roomRepository.findById(shiftAssignmentRequestDto.getRoomId());
-            if (roomOpt.isPresent()) {
-                assignment.setRoom(roomOpt.get());
+        if (shift.getDepartment() != null) {
+            if (doctor.getStaff() == null || doctor.getStaff().getDepartment() == null) {
+                throw new RuntimeException("Doctor has no department");
+            }
+            if (!shift.getDepartment().getId()
+                    .equals(doctor.getStaff().getDepartment().getId())) {
+                throw new RuntimeException("Doctor does not belong to shift department");
             }
         }
 
-        ShiftAssignment savedAssignment = shiftAssignmentRepository.save(assignment);
-        return shiftAssignmentMapper.mapTo(savedAssignment);
+        if (shiftAssignmentRepository.existsByDoctorIdAndShiftIdAndDutyDate(
+                doctor.getId(), shift.getId(), dto.getDutyDate())) {
+            throw new RuntimeException("Duplicate shift assignment");
+        }
+
+        if (checkConflicts(dto.getDoctorId(), dto.getShiftId(), dto.getDutyDate())) {
+            throw new RuntimeException("Schedule conflict detected");
+        }
+
+        ShiftAssignmentRole role =
+                dto.getRoleInShift() != null ? dto.getRoleInShift() : ShiftAssignmentRole.PRIMARY;
+
+        ShiftAssignmentStatus status =
+                dto.getStatus() != null ? dto.getStatus() : ShiftAssignmentStatus.ACTIVE;
+
+        ShiftAssignment assignment = ShiftAssignment.builder()
+                .dutyDate(dto.getDutyDate())
+                .roleInShift(role)
+                .status(status)
+                .notes(dto.getNotes())
+                .doctor(doctor)
+                .shift(shift)
+                .build();
+
+        if (dto.getRoomId() != null) {
+            Room room = roomRepository.findById(dto.getRoomId())
+                    .orElseThrow(() -> new RuntimeException("Room not found"));
+
+            if (shift.getDepartment() != null && room.getDepartment() != null) {
+                if (!shift.getDepartment().getId().equals(room.getDepartment().getId())) {
+                    throw new RuntimeException("Room does not belong to shift department");
+                }
+            }
+
+            assignment.setRoom(room);
+        } else if (shift.getDefaultRoom() != null) {
+            assignment.setRoom(shift.getDefaultRoom());
+        }
+
+        ShiftAssignment saved = shiftAssignmentRepository.save(assignment);
+        return shiftAssignmentMapper.mapTo(saved);
     }
+
 
     @Override
     @Transactional
@@ -123,13 +152,13 @@ public class ShiftAssignmentServiceImpl implements ShiftAssignmentService {
             }
 
             ShiftAssignment assignment = assignmentOpt.get();
-            
+
             // Find and set room
             Optional<Room> roomOpt = roomRepository.findById(roomId);
             if (roomOpt.isEmpty()) {
                 return false;
             }
-            
+
             assignment.setRoom(roomOpt.get());
             shiftAssignmentRepository.save(assignment);
 

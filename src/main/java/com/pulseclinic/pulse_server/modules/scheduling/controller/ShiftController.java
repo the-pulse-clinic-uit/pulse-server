@@ -26,7 +26,7 @@ import com.pulseclinic.pulse_server.modules.scheduling.service.ShiftService;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/api/shifts")
+@RequestMapping("/shifts")
 public class ShiftController {
     private final ShiftService shiftService;
 
