@@ -10,8 +10,8 @@ import java.util.UUID;
 
 @Repository
 public interface EncounterRepository extends JpaRepository<Encounter, UUID> {
-    List<Encounter> findByPatientIdOrderByStartedAtDesc(UUID patientId);
-    List<Encounter> findByDoctorIdOrderByStartedAtDesc(UUID doctorId);
-    List<Encounter> findByPatientIdAndDoctorId(UUID patientId, UUID doctorId);
-    Optional<Encounter> findByAppointmentId(UUID appointmentId);
+    List<Encounter> findByPatientIdAndDeletedAtIsNullOrderByStartedAtDesc(UUID patientId);
+    List<Encounter> findByDoctorIdAndDeletedAtIsNullOrderByStartedAtDesc(UUID doctorId);
+    List<Encounter> findByPatientIdAndDoctorIdAndDeletedAtIsNull(UUID patientId, UUID doctorId);
+    Optional<Encounter> findByAppointmentIdAndDeletedAtIsNull(UUID appointmentId);
 }

@@ -1,14 +1,15 @@
 package com.pulseclinic.pulse_server.modules.staff.service;
 
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+import org.springframework.web.bind.annotation.PathVariable;
+
 import com.pulseclinic.pulse_server.enums.Position;
 import com.pulseclinic.pulse_server.modules.staff.dto.staff.StaffDto;
 import com.pulseclinic.pulse_server.modules.staff.dto.staff.StaffRequestDto;
 import com.pulseclinic.pulse_server.modules.staff.entity.Staff;
-import org.springframework.web.bind.annotation.PathVariable;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 
 public interface StaffService {
     Staff createStaff(StaffRequestDto staffRequestDto);

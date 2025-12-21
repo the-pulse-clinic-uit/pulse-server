@@ -67,5 +67,3 @@ public class Shift {
     private Room defaultRoom;
 
 }
-
-

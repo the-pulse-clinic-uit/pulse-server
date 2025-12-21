@@ -1,21 +1,20 @@
 package com.pulseclinic.pulse_server.modules.users.service.impl;
 
-import com.pulseclinic.pulse_server.modules.users.dto.role.RoleDto;
+import java.io.IOException;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
 import com.pulseclinic.pulse_server.modules.users.dto.user.UserDto;
-import com.pulseclinic.pulse_server.modules.users.dto.user.UserRequestDto;
 import com.pulseclinic.pulse_server.modules.users.entity.Role;
 import com.pulseclinic.pulse_server.modules.users.entity.User;
 import com.pulseclinic.pulse_server.modules.users.repository.RoleRepository;
 import com.pulseclinic.pulse_server.modules.users.repository.UserRepository;
 import com.pulseclinic.pulse_server.modules.users.service.UserService;
 import com.pulseclinic.pulse_server.services.StorageService;
-import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 
 @Service
 public class UserServiceImpl implements UserService {

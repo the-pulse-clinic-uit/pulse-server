@@ -4,6 +4,7 @@
 
 -- Dumped from database version 18.0 (Debian 18.0-1.pgdg13+3)
 -- Dumped by pg_dump version 18.0 (Debian 18.0-1.pgdg13+3)
+--ALTER DATABASE "pulse-db" SET timezone TO 'Asia/Ho_Chi_Minh';
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -28,6 +29,7 @@ SET default_table_access_method = heap;
 CREATE TABLE public.admissions (
     admitted_at timestamp(6) without time zone NOT NULL,
     discharged_at timestamp(6) without time zone,
+    deleted_at timestamp(6) without time zone,
     doctor_id uuid NOT NULL,
     encounter_id uuid,
     id uuid NOT NULL,
@@ -45,6 +47,7 @@ CREATE TABLE public.admissions (
 
 CREATE TABLE public.appointments (
     created_at timestamp(6) without time zone NOT NULL,
+    deleted_at timestamp(6) without time zone,
     ends_at timestamp(6) without time zone NOT NULL,
     starts_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone,
@@ -67,6 +70,7 @@ CREATE TABLE public.appointments (
 
 CREATE TABLE public.departments (
     created_at timestamp(6) without time zone NOT NULL,
+    deleted_at timestamp(6) without time zone,
     id uuid NOT NULL,
     name character varying(50) NOT NULL,
     description text NOT NULL
@@ -80,6 +84,7 @@ CREATE TABLE public.departments (
 CREATE TABLE public.doctors (
     is_verified boolean DEFAULT false,
     created_at timestamp(6) without time zone NOT NULL,
+    deleted_at timestamp(6) without time zone,
     department_id uuid,
     id uuid NOT NULL,
     staff_id uuid,
@@ -94,6 +99,7 @@ CREATE TABLE public.doctors (
 CREATE TABLE public.drugs (
     unit_price numeric(38,2) DEFAULT 0.00 NOT NULL,
     created_at timestamp(6) without time zone NOT NULL,
+    deleted_at timestamp(6) without time zone,
     id uuid NOT NULL,
     dosage_form character varying(255) NOT NULL,
     name character varying(255) NOT NULL,
@@ -110,6 +116,7 @@ CREATE TABLE public.drugs (
 
 CREATE TABLE public.encounters (
     created_at timestamp(6) without time zone NOT NULL,
+    deleted_at timestamp(6) without time zone,
     ended_at timestamp(6) without time zone NOT NULL,
     started_at timestamp(6) without time zone NOT NULL,
     appointment_id uuid,
@@ -129,6 +136,7 @@ CREATE TABLE public.encounters (
 
 CREATE TABLE public.follow_up_plans (
     created_at timestamp(6) without time zone NOT NULL,
+    deleted_at timestamp(6) without time zone,
     first_due_at timestamp(6) without time zone NOT NULL,
     base_encounter_id uuid NOT NULL,
     doctor_id uuid NOT NULL,
@@ -150,6 +158,7 @@ CREATE TABLE public.invoices (
     due_date date NOT NULL,
     total_amount numeric(38,2) DEFAULT 0.00 NOT NULL,
     created_at timestamp(6) without time zone NOT NULL,
+    deleted_at timestamp(6) without time zone,
     updated_at timestamp(6) without time zone,
     encounter_id uuid NOT NULL,
     id uuid NOT NULL,
@@ -164,6 +173,7 @@ CREATE TABLE public.invoices (
 
 CREATE TABLE public.patients (
     created_at timestamp(6) without time zone NOT NULL,
+    deleted_at timestamp(6) without time zone,
     id uuid NOT NULL,
     user_id uuid,
     health_insurance_id character varying(64) NOT NULL,
@@ -182,6 +192,7 @@ CREATE TABLE public.prescription_details (
     quantity integer DEFAULT 0 NOT NULL,
     unit_price numeric(38,2) DEFAULT 0.00 NOT NULL,
     created_at timestamp(6) without time zone NOT NULL,
+    deleted_at timestamp(6) without time zone,
     drug_id uuid NOT NULL,
     id uuid NOT NULL,
     prescription_id uuid NOT NULL,
@@ -201,6 +212,7 @@ CREATE TABLE public.prescriptions (
     status smallint NOT NULL,
     total_price numeric(38,2) DEFAULT 0.00 NOT NULL,
     created_at timestamp(6) without time zone NOT NULL,
+    deleted_at timestamp(6) without time zone,
     encounter_id uuid NOT NULL,
     id uuid NOT NULL,
     notes text NOT NULL,
@@ -214,6 +226,7 @@ CREATE TABLE public.prescriptions (
 
 CREATE TABLE public.roles (
     created_at timestamp(6) without time zone NOT NULL,
+    deleted_at timestamp(6) without time zone,
     id uuid NOT NULL,
     name character varying(50) NOT NULL
 );
@@ -228,6 +241,7 @@ CREATE TABLE public.rooms (
     is_available boolean DEFAULT true,
     room_number character varying(4) NOT NULL,
     created_at timestamp(6) without time zone NOT NULL,
+    deleted_at timestamp(6) without time zone,
     department_id uuid,
     id uuid NOT NULL
 );
@@ -240,6 +254,7 @@ CREATE TABLE public.rooms (
 CREATE TABLE public.shift_assignments (
     duty_date date NOT NULL,
     created_at timestamp(6) without time zone NOT NULL,
+    deleted_at timestamp(6) without time zone,
     updated_at timestamp(6) without time zone,
     doctor_id uuid NOT NULL,
     id uuid NOT NULL,
@@ -261,6 +276,7 @@ CREATE TABLE public.shifts (
     capacity_per_slot integer DEFAULT 1 NOT NULL,
     slot_minutes integer DEFAULT 30 NOT NULL,
     created_at timestamp(6) without time zone NOT NULL,
+    deleted_at timestamp(6) without time zone,
     end_time timestamp(6) without time zone NOT NULL,
     start_time timestamp(6) without time zone NOT NULL,
     default_room_id uuid,
@@ -277,8 +293,7 @@ CREATE TABLE public.shifts (
 --
 
 CREATE TABLE public.staff (
-    created_at timestamp(6) without time zone NOT NULL,
-    id uuid NOT NULL,
+    created_at timestamp(6) without time zone NOT NULL,    deleted_at timestamp(6) without time zone,    id uuid NOT NULL,
     user_id uuid,
     "position" character varying(255) NOT NULL,
     CONSTRAINT staff_position_check CHECK ((("position")::text = ANY ((ARRAY['DOCTOR'::character varying, 'STAFF'::character varying])::text[])))
@@ -315,6 +330,7 @@ CREATE TABLE public.users (
     gender boolean DEFAULT true,
     is_active boolean DEFAULT true NOT NULL,
     created_at timestamp(6) without time zone NOT NULL,
+    deleted_at timestamp(6) without time zone,
     updated_at timestamp(6) without time zone NOT NULL,
     phone character varying(12),
     id uuid NOT NULL,
@@ -337,6 +353,7 @@ CREATE TABLE public.waitlist_entries (
     ticket_np integer,
     called_at timestamp(6) without time zone,
     created_at timestamp(6) without time zone NOT NULL,
+    deleted_at timestamp(6) without time zone,
     served_at timestamp(6) without time zone,
     appointment_id uuid,
     doctor_id uuid NOT NULL,

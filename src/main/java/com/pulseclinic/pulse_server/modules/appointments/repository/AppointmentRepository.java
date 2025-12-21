@@ -15,15 +15,28 @@ import java.util.UUID;
 @Repository
 public interface AppointmentRepository extends JpaRepository<Appointment, UUID> {
     List<Appointment> findByPatientIdAndStatusAndDeletedAtIsNull(UUID patientId, AppointmentStatus status);
-    
+
     List<Appointment> findByDoctorIdAndStartsAtBetweenAndDeletedAtIsNull(UUID doctorId, LocalDateTime start, LocalDateTime end);
-    
-    @Query("SELECT a FROM Appointment a WHERE a.doctor.id = :doctorId AND a.patient.id = :patientId AND a.startsAt = :startTime AND a.status != 'CANCELLED' AND a.deletedAt IS NULL")
+
+    @Query("""
+            SELECT a FROM Appointment a
+            WHERE a.doctor.id = :doctorId
+              AND a.patient.id = :patientId
+              AND a.startsAt = :startTime
+              AND a.status <> :cancelled
+              AND a.deletedAt IS NULL
+            """)
     List<Appointment> findConflicts(@Param("doctorId") UUID doctorId, @Param("patientId") UUID patientId, @Param("startTime") LocalDateTime startTime);
 
     List<Appointment> findByPatientIdAndDeletedAtIsNullOrderByStartsAtDesc(UUID patientId);
 
-    @Query("SELECT a FROM Appointment a WHERE a.patient.id = :patientId AND a.startsAt > :now AND a.deletedAt IS NULL ORDER BY a.startsAt ASC")
+    @Query("""
+            SELECT a FROM Appointment a
+            WHERE a.patient.id = :patientId
+              AND a.startsAt > :now
+              AND a.deletedAt IS NULL
+            ORDER BY a.startsAt ASC
+            """)
     List<Appointment> findUpcomingByPatient(@Param("patientId") UUID patientId, @Param("now") LocalDateTime now);
 
     @Query("SELECT COUNT(a) FROM Appointment a WHERE a.doctor.department = :department AND a.deletedAt IS NULL")

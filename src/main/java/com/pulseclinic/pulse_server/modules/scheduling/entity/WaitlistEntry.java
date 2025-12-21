@@ -41,6 +41,7 @@ public class WaitlistEntry {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    @Builder.Default
     private WaitlistPriority priority = WaitlistPriority.NORMAL;
 
     @Enumerated(EnumType.STRING)

@@ -2,7 +2,6 @@ package com.pulseclinic.pulse_server.modules.staff.service.impl;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -11,7 +10,25 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.pulseclinic.pulse_server.enums.AdmissionStatus;
+import com.pulseclinic.pulse_server.mappers.impl.AdmissionMapper;
+import com.pulseclinic.pulse_server.mappers.impl.AppointmentMapper;
 import com.pulseclinic.pulse_server.mappers.impl.DoctorMapper;
+import com.pulseclinic.pulse_server.mappers.impl.EncounterMapper;
+import com.pulseclinic.pulse_server.mappers.impl.FollowUpPlanMapper;
+import com.pulseclinic.pulse_server.mappers.impl.PatientMapper;
+import com.pulseclinic.pulse_server.mappers.impl.PrescriptionMapper;
+import com.pulseclinic.pulse_server.mappers.impl.ShiftAssignmentMapper;
+import com.pulseclinic.pulse_server.modules.admissions.entity.Admission;
+import com.pulseclinic.pulse_server.modules.admissions.repository.AdmissionRepository;
+import com.pulseclinic.pulse_server.modules.appointments.entity.Appointment;
+import com.pulseclinic.pulse_server.modules.appointments.repository.AppointmentRepository;
+import com.pulseclinic.pulse_server.modules.encounters.entity.Encounter;
+import com.pulseclinic.pulse_server.modules.encounters.repository.EncounterRepository;
+import com.pulseclinic.pulse_server.modules.pharmacy.entity.Prescription;
+import com.pulseclinic.pulse_server.modules.pharmacy.repository.PrescriptionRepository;
+import com.pulseclinic.pulse_server.modules.scheduling.entity.ShiftAssignment;
+import com.pulseclinic.pulse_server.modules.scheduling.repository.ShiftAssignmentRepository;
 import com.pulseclinic.pulse_server.modules.staff.dto.doctor.DoctorDto;
 import com.pulseclinic.pulse_server.modules.staff.dto.doctor.DoctorRequestDto;
 import com.pulseclinic.pulse_server.modules.staff.entity.Department;
@@ -29,15 +46,54 @@ public class DoctorServiceImpl implements DoctorService {
     private final StaffRepository staffRepository;
     private final DepartmentRepository departmentRepository;
     private final DoctorMapper doctorMapper;
+    private final ShiftAssignmentRepository shiftAssignmentRepository;
+    private final ShiftAssignmentMapper shiftAssignmentMapper;
+    private final AppointmentRepository appointmentRepository;
+    private final AppointmentMapper appointmentMapper;
+    private final EncounterRepository encounterRepository;
+    private final AdmissionRepository admissionRepository;
+    private final AdmissionMapper admissionMapper;
+    private final PrescriptionMapper prescriptionMapper;
+    private final PrescriptionRepository prescriptionRepository;
+    private final EncounterMapper encounterMapper;
+    private final PatientMapper patientMapper;
+    private final com.pulseclinic.pulse_server.modules.encounters.repository.FollowUpPlanRepository followUpPlanRepository;
+    private final FollowUpPlanMapper followUpPlanMapper;
 
     public DoctorServiceImpl(DoctorRepository doctorRepository,
-                            StaffRepository staffRepository,
-                            DepartmentRepository departmentRepository,
-                            DoctorMapper doctorMapper) {
+                           StaffRepository staffRepository,
+                           DepartmentRepository departmentRepository,
+                           DoctorMapper doctorMapper,
+                           ShiftAssignmentRepository shiftAssignmentRepository,
+                           ShiftAssignmentMapper shiftAssignmentMapper,
+                           AppointmentRepository appointmentRepository,
+                           AppointmentMapper appointmentMapper,
+                           EncounterRepository encounterRepository,
+                           AdmissionRepository admissionRepository,
+                           AdmissionMapper admissionMapper,
+                           PrescriptionMapper prescriptionMapper,
+                           PrescriptionRepository prescriptionRepository,
+                           EncounterMapper encounterMapper,
+                           PatientMapper patientMapper,
+                           com.pulseclinic.pulse_server.modules.encounters.repository.FollowUpPlanRepository followUpPlanRepository,
+                           FollowUpPlanMapper followUpPlanMapper) {
         this.doctorRepository = doctorRepository;
         this.staffRepository = staffRepository;
         this.departmentRepository = departmentRepository;
         this.doctorMapper = doctorMapper;
+        this.shiftAssignmentRepository = shiftAssignmentRepository;
+        this.shiftAssignmentMapper = shiftAssignmentMapper;
+        this.appointmentRepository = appointmentRepository;
+        this.appointmentMapper = appointmentMapper;
+        this.encounterRepository = encounterRepository;
+        this.admissionRepository = admissionRepository;
+        this.admissionMapper = admissionMapper;
+        this.prescriptionMapper = prescriptionMapper;
+        this.prescriptionRepository = prescriptionRepository;
+        this.encounterMapper = encounterMapper;
+        this.patientMapper = patientMapper;
+        this.followUpPlanRepository = followUpPlanRepository;
+        this.followUpPlanMapper = followUpPlanMapper;
     }
 
     @Override
@@ -79,6 +135,31 @@ public class DoctorServiceImpl implements DoctorService {
 
     @Override
     @Transactional
+    public DoctorDto updateDoctor(UUID doctorId, DoctorRequestDto doctorRequestDto) {
+        Optional<Doctor> doctorOpt = doctorRepository.findById(doctorId);
+        if (doctorOpt.isEmpty()) {
+            throw new RuntimeException("Doctor not found");
+        }
+
+        Doctor doctor = doctorOpt.get();
+
+        if (!doctor.getLicenseId().equals(doctorRequestDto.getLicenseId()) &&
+            doctorRepository.existsByLicenseId(doctorRequestDto.getLicenseId())) {
+            throw new RuntimeException("License ID already exists");
+        }
+
+        // Cập nhật thông tin cơ bản
+        doctor.setLicenseId(doctorRequestDto.getLicenseId());
+        if (doctorRequestDto.getIsVerified() != null) {
+            doctor.setIsVerified(doctorRequestDto.getIsVerified());
+        }
+
+        Doctor updatedDoctor = doctorRepository.save(doctor);
+        return doctorMapper.mapTo(updatedDoctor);
+    }
+
+    @Override
+    @Transactional
     public boolean updateSpecialization(UUID doctorId, UUID departmentId) {
         try {
             Optional<Doctor> doctorOpt = doctorRepository.findById(doctorId);
@@ -98,125 +179,58 @@ public class DoctorServiceImpl implements DoctorService {
     }
 
     @Override
-    @Transactional
-    public boolean verifyLicense(UUID doctorId) {
-        try {
-            Optional<Doctor> doctorOpt = doctorRepository.findById(doctorId);
-            if (doctorOpt.isEmpty()) {
-                return false;
-            }
-
-            Doctor doctor = doctorOpt.get();
-            doctor.setIsVerified(true);
-            doctorRepository.save(doctor);
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public boolean checkLicenseValidity(UUID doctorId) {
-        Optional<Doctor> doctorOpt = doctorRepository.findById(doctorId);
-        if (doctorOpt.isEmpty()) {
-            return false;
-        }
-
-        Doctor doctor = doctorOpt.get();
-        return doctor.getIsVerified() != null && doctor.getIsVerified();
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<Object> getAppointments(UUID doctorId, LocalDate date) {
-        // TODO: Implement logic lấy các cuộc hẹn cho ngày cụ thể
-        // Cần kết hợp với module appointments
-        return new ArrayList<>();
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<Object> getUpcomingAppointments(UUID doctorId) {
-        // TODO: Implement logic lấy các cuộc hẹn sắp tới
-        // Cần kết hợp với module appointments
-        return new ArrayList<>();
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<Object> getEncounters(UUID doctorId, LocalDate startDate, LocalDate endDate) {
-        // TODO: Implement logic lấy các bệnh án trong khoảng thời gian
-        // Cần kết hợp với module encounters
-        return new ArrayList<>();
-    }
-
-    @Override
-    @Transactional
-    public Object prescribeMedication(UUID doctorId, UUID encounterId) {
-        // TODO: Implement logic tạo đơn thuốc cho bệnh án
-        // Cần kết hợp với module pharmacy
-        return null;
-    }
-
-    @Override
-    @Transactional
-    public boolean recordDiagnosis(UUID doctorId, UUID encounterId, String diagnosis) {
-        // TODO: Implement logic ghi lại chẩn đoán cho bệnh án
-        // Cần kết hợp với module encounters
-        return false;
-    }
-
-    @Override
-    @Transactional
-    public Object createFollowUpPlan(UUID doctorId, UUID encounterId) {
-        // TODO: Implement logic tạo kế hoạch tái khám
-        // Cần kết hợp với module encounters
-        return null;
-    }
-
-    @Override
     @Transactional(readOnly = true)
     public List<Object> getShiftSchedule(UUID doctorId, LocalDate date) {
-        // TODO: Implement logic lấy lịch ca làm việc cho ngày cụ thể
-        // Cần kết hợp với module scheduling
-        return new ArrayList<>();
+        List<ShiftAssignment> assignments = shiftAssignmentRepository
+                .findByDoctorIdAndDutyDate(doctorId, date);
+
+        return assignments.stream()
+                .map(shiftAssignmentMapper::mapTo)
+                .collect(Collectors.toList());
     }
 
     @Override
     @Transactional(readOnly = true)
     public boolean checkAvailability(UUID doctorId, LocalDateTime dateTime) {
-        // TODO: Implement logic kiểm tra bác sĩ có sẵn sàng hay không
-        // Cần kết hợp với module scheduling và appointments
-        return false;
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public Optional<Object> getDepartment(UUID doctorId) {
-        Optional<Doctor> doctorOpt = doctorRepository.findById(doctorId);
-        if (doctorOpt.isEmpty()) {
-            return Optional.empty();
+        LocalDate date = dateTime.toLocalDate();
+        
+        List<ShiftAssignment> assignments = shiftAssignmentRepository
+                .findByDoctorIdAndDutyDate(doctorId, date);
+        
+        if (assignments.isEmpty()) {
+            return false;
+        }
+        
+        boolean isInShift = assignments.stream()
+                .anyMatch(assignment -> {
+                    LocalDateTime shiftStart = assignment.getShift().getStartTime();
+                    LocalDateTime shiftEnd = assignment.getShift().getEndTime();
+                    return !dateTime.isBefore(shiftStart) && !dateTime.isAfter(shiftEnd);
+                });
+        
+        if (!isInShift) {
+            return false;
         }
 
-        Doctor doctor = doctorOpt.get();
-        return Optional.ofNullable(doctor.getDepartment());
+        LocalDateTime endTime = dateTime.plusMinutes(30);
+        List<com.pulseclinic.pulse_server.modules.appointments.entity.Appointment> appointments = 
+                appointmentRepository.findByDoctorIdAndStartsAtBetweenAndDeletedAtIsNull(
+                        doctorId, dateTime.minusMinutes(30), endTime);
+        
+        return appointments.isEmpty();
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<Object> getPatients(UUID doctorId) {
-        // TODO: Implement logic lấy tất cả bệnh nhân đã được bác sĩ khám
-        // Cần kết hợp với module encounters
-        return new ArrayList<>();
-    }
+        List<Encounter> encounters = encounterRepository
+                .findByDoctorIdAndDeletedAtIsNullOrderByStartedAtDesc(doctorId);
 
-    @Override
-    @Transactional(readOnly = true)
-    public List<Object> getActiveAdmissions(UUID doctorId) {
-        // TODO: Implement logic lấy bệnh nhân hiện đang nhập viện dưới quyền bác sĩ
-        // Cần kết hợp với module admissions
-        return new ArrayList<>();
+        return encounters.stream()
+                .map(Encounter::getPatient)
+                .distinct()
+                .map(patientMapper::mapTo)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -226,18 +240,9 @@ public class DoctorServiceImpl implements DoctorService {
                 .map(doctorMapper::mapTo);
     }
 
-    @Override
     @Transactional(readOnly = true)
-    public List<DoctorDto> findAll() {
+    public List<DoctorDto> getAllDoctors() {
         return doctorRepository.findAll().stream()
-                .map(doctorMapper::mapTo)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<DoctorDto> findByDepartment(UUID departmentId) {
-        return doctorRepository.findByDepartmentId(departmentId).stream()
                 .map(doctorMapper::mapTo)
                 .collect(Collectors.toList());
     }
