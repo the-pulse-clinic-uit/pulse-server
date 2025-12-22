@@ -49,16 +49,8 @@ public class DoctorServiceImpl implements DoctorService {
     private final ShiftAssignmentRepository shiftAssignmentRepository;
     private final ShiftAssignmentMapper shiftAssignmentMapper;
     private final AppointmentRepository appointmentRepository;
-    private final AppointmentMapper appointmentMapper;
     private final EncounterRepository encounterRepository;
-    private final AdmissionRepository admissionRepository;
-    private final AdmissionMapper admissionMapper;
-    private final PrescriptionMapper prescriptionMapper;
-    private final PrescriptionRepository prescriptionRepository;
-    private final EncounterMapper encounterMapper;
     private final PatientMapper patientMapper;
-    private final com.pulseclinic.pulse_server.modules.encounters.repository.FollowUpPlanRepository followUpPlanRepository;
-    private final FollowUpPlanMapper followUpPlanMapper;
 
     public DoctorServiceImpl(DoctorRepository doctorRepository,
                            StaffRepository staffRepository,
@@ -84,16 +76,8 @@ public class DoctorServiceImpl implements DoctorService {
         this.shiftAssignmentRepository = shiftAssignmentRepository;
         this.shiftAssignmentMapper = shiftAssignmentMapper;
         this.appointmentRepository = appointmentRepository;
-        this.appointmentMapper = appointmentMapper;
         this.encounterRepository = encounterRepository;
-        this.admissionRepository = admissionRepository;
-        this.admissionMapper = admissionMapper;
-        this.prescriptionMapper = prescriptionMapper;
-        this.prescriptionRepository = prescriptionRepository;
-        this.encounterMapper = encounterMapper;
         this.patientMapper = patientMapper;
-        this.followUpPlanRepository = followUpPlanRepository;
-        this.followUpPlanMapper = followUpPlanMapper;
     }
 
     @Override

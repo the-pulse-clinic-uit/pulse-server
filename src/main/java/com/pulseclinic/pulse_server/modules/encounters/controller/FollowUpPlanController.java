@@ -32,6 +32,9 @@ public class FollowUpPlanController {
     @PostMapping
     public ResponseEntity<FollowUpPlanDto> createPlan(@Valid @RequestBody FollowUpPlanRequestDto requestDto) {
         try {
+            if (requestDto.getBaseEncounterId() == null) {
+                throw new Exception("BaseEncounterId is required");
+            }
             FollowUpPlanDto plan = followUpPlanService.createPlan(requestDto);
             return ResponseEntity.status(HttpStatus.CREATED).body(plan);
         } catch (Exception e) {

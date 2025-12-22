@@ -39,8 +39,8 @@ public class PrescriptionServiceImpl implements PrescriptionService {
 
     @Override
     @Transactional
-    public PrescriptionDto createPrescription(UUID encounterId, PrescriptionRequestDto prescriptionRequestDto) {
-        var encounterOpt = encounterRepository.findById(encounterId);
+    public PrescriptionDto createPrescription(PrescriptionRequestDto prescriptionRequestDto) {
+        var encounterOpt = encounterRepository.findById(prescriptionRequestDto.getEncounterId());
         if (encounterOpt.isEmpty()) {
             throw new RuntimeException("Encounter not found");
         }

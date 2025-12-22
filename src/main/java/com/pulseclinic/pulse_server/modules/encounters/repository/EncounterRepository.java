@@ -14,4 +14,6 @@ public interface EncounterRepository extends JpaRepository<Encounter, UUID> {
     List<Encounter> findByDoctorIdAndDeletedAtIsNullOrderByStartedAtDesc(UUID doctorId);
     List<Encounter> findByPatientIdAndDoctorIdAndDeletedAtIsNull(UUID patientId, UUID doctorId);
     Optional<Encounter> findByAppointmentIdAndDeletedAtIsNull(UUID appointmentId);
+
+    boolean existsByAppointmentId(UUID appointmentId);
 }

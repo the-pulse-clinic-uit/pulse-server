@@ -16,7 +16,7 @@ import java.util.UUID;
 public class PrescriptionDetailRequestDto {
     private String strength_text;
 
-    @NotNull(message = "QUantity is required")
+    @NotNull(message = "Quantity is required")
     private Integer quantity;
 
     @Positive(message = "Unit Price must be Positive")

@@ -37,8 +37,8 @@ public class PrescriptionDetailServiceImpl implements PrescriptionDetailService 
 
     @Override
     @Transactional
-    public PrescriptionDetailDto createDetail(UUID prescriptionId, PrescriptionDetailRequestDto detailRequestDto) {
-        Optional<Prescription> prescriptionOpt = prescriptionRepository.findById(prescriptionId);
+    public PrescriptionDetailDto createDetail(PrescriptionDetailRequestDto detailRequestDto) {
+        Optional<Prescription> prescriptionOpt = prescriptionRepository.findById(detailRequestDto.getPrescriptionId());
         if (prescriptionOpt.isEmpty()) {
             throw new RuntimeException("Prescription not found");
         }

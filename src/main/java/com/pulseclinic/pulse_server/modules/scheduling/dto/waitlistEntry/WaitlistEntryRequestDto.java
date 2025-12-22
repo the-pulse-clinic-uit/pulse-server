@@ -1,5 +1,6 @@
 package com.pulseclinic.pulse_server.modules.scheduling.dto.waitlistEntry;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.pulseclinic.pulse_server.enums.WaitlistPriority;
 import com.pulseclinic.pulse_server.enums.WaitlistStatus;
 import com.pulseclinic.pulse_server.modules.appointments.dto.AppointmentDto;
@@ -20,6 +21,7 @@ import java.util.UUID;
 @Data
 @Builder
 public class WaitlistEntryRequestDto {
+    @JsonFormat(pattern = "yyyy-MM-dd")
     @NotNull(message = "Duty Date is required")
     private LocalDate dutyDate; // to get all doctors exactly the moment the patient was added to the list
 

@@ -1,5 +1,6 @@
 package com.pulseclinic.pulse_server.modules.encounters.dto.followUpPlan;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.pulseclinic.pulse_server.enums.FollowUpPlanStatus;
 import com.pulseclinic.pulse_server.modules.encounters.dto.encounter.EncounterDto;
 import com.pulseclinic.pulse_server.modules.patients.dto.PatientDto;
@@ -18,6 +19,7 @@ import java.util.UUID;
 @Data
 @Builder
 public class FollowUpPlanRequestDto {
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm")
     @NotNull(message = "First Due At must be provided")
     private LocalDateTime firstDueAt;
 
@@ -34,6 +36,6 @@ public class FollowUpPlanRequestDto {
     @NotNull(message = "Doctor ID is required")
     private UUID doctorId;
 
-    @NotNull(message = "Base Encounter ID is required")
+//    @NotNull(message = "Base Encounter ID is required")
     private UUID baseEncounterId;
 }

@@ -27,6 +27,7 @@ import java.util.UUID;
 public class WaitlistEntryDto {
     private UUID id;
 
+    @NotNull(message = "Duty date is required")
     private LocalDate dutyDate; // to get all doctors exactly the moment the patient was added to the list
 
     private Integer ticketNo;

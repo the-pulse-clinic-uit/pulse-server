@@ -24,7 +24,7 @@ public interface AppointmentRepository extends JpaRepository<Appointment, UUID> 
             WHERE a.doctor.id = :doctorId
               AND a.patient.id = :patientId
               AND a.startsAt = :startTime
-              AND a.status <> :cancelled
+              AND a.status <> 'CANCELLED'
               AND a.deletedAt IS NULL
             """)
     List<Appointment> findConflicts(@Param("doctorId") UUID doctorId, @Param("patientId") UUID patientId, @Param("startTime") LocalDateTime startTime);

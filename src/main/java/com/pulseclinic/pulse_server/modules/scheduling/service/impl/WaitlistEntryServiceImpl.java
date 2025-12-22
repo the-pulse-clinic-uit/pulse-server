@@ -61,9 +61,14 @@ public class WaitlistEntryServiceImpl implements WaitlistEntryService {
             throw new RuntimeException("Doctor not found");
         }
 
+        if (waitlistEntryRequestDto.getDutyDate().isBefore(LocalDate.now())) {
+            throw new RuntimeException("Duty date must not be before now");
+        }
+
         // Tạo ticket number
         Integer ticketNo = generateTicketNumber(waitlistEntryRequestDto.getDoctorId(),
                                                 waitlistEntryRequestDto.getDutyDate());
+
 
         WaitlistEntry entry = WaitlistEntry.builder()
                 .dutyDate(waitlistEntryRequestDto.getDutyDate())

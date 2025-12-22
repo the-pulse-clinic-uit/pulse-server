@@ -23,6 +23,8 @@ import com.pulseclinic.pulse_server.modules.patients.repository.PatientRepositor
 import com.pulseclinic.pulse_server.modules.staff.entity.Doctor;
 import com.pulseclinic.pulse_server.modules.staff.repository.DoctorRepository;
 
+import javax.print.Doc;
+
 @Service
 public class FollowUpPlanServiceImpl implements FollowUpPlanService {
 
@@ -47,20 +49,12 @@ public class FollowUpPlanServiceImpl implements FollowUpPlanService {
     @Override
     @Transactional
     public FollowUpPlanDto createPlan(FollowUpPlanRequestDto followUpPlanRequestDto) {
+
         Optional<Patient> patientOpt = patientRepository.findById(followUpPlanRequestDto.getPatientId());
-        if (patientOpt.isEmpty()) {
-            throw new RuntimeException("Patient not found");
-        }
-
         Optional<Doctor> doctorOpt = doctorRepository.findById(followUpPlanRequestDto.getDoctorId());
-        if (doctorOpt.isEmpty()) {
-            throw new RuntimeException("Doctor not found");
-        }
-
         Optional<Encounter> encounterOpt = encounterRepository.findById(followUpPlanRequestDto.getBaseEncounterId());
-        if (encounterOpt.isEmpty()) {
-            throw new RuntimeException("Base encounter not found");
-        }
+
+        validation(followUpPlanRequestDto, patientOpt, doctorOpt, encounterOpt);
 
         FollowUpPlan followUpPlan = FollowUpPlan.builder()
                 .firstDueAt(followUpPlanRequestDto.getFirstDueAt())
@@ -68,6 +62,7 @@ public class FollowUpPlanServiceImpl implements FollowUpPlanService {
                 .notes(followUpPlanRequestDto.getNotes())
                 .patient(patientOpt.get())
                 .doctor(doctorOpt.get())
+                .status(followUpPlanRequestDto.getStatus() != null ? followUpPlanRequestDto.getStatus() : FollowUpPlanStatus.ACTIVE)
                 .baseEncounter(encounterOpt.get())
                 .build();
 
@@ -78,10 +73,11 @@ public class FollowUpPlanServiceImpl implements FollowUpPlanService {
     @Override
     @Transactional
     public FollowUpPlanDto createFromEncounter(UUID encounterId, FollowUpPlanRequestDto followUpPlanRequestDto) {
+        Optional<Patient> patientOpt = patientRepository.findById(followUpPlanRequestDto.getPatientId());
+        Optional<Doctor> doctorOpt = doctorRepository.findById(followUpPlanRequestDto.getDoctorId());
         Optional<Encounter> encounterOpt = encounterRepository.findById(encounterId);
-        if (encounterOpt.isEmpty()) {
-            throw new RuntimeException("Encounter not found");
-        }
+
+        validation(followUpPlanRequestDto, patientOpt, doctorOpt, encounterOpt);
 
         Encounter encounter = encounterOpt.get();
 
@@ -90,6 +86,7 @@ public class FollowUpPlanServiceImpl implements FollowUpPlanService {
                 .rrule(followUpPlanRequestDto.getRrule())
                 .notes(followUpPlanRequestDto.getNotes())
                 .patient(encounter.getPatient())
+                .status(followUpPlanRequestDto.getStatus() != null ? followUpPlanRequestDto.getStatus() : FollowUpPlanStatus.ACTIVE)
                 .doctor(encounter.getDoctor())
                 .baseEncounter(encounter)
                 .build();
@@ -217,5 +214,26 @@ public class FollowUpPlanServiceImpl implements FollowUpPlanService {
     private boolean canModify(FollowUpPlan plan) {
         return plan.getStatus() == FollowUpPlanStatus.ACTIVE ||
                plan.getStatus() == FollowUpPlanStatus.PAUSED;
+    }
+
+    private void validation(FollowUpPlanRequestDto followUpPlanRequestDto,
+                            Optional<Patient> patientOpt,
+                            Optional<Doctor> doctorOpt,
+                            Optional<Encounter> encounterOpt) {
+        if (patientOpt.isEmpty()) {
+            throw new RuntimeException("Patient not found");
+        }
+
+        if (doctorOpt.isEmpty()) {
+            throw new RuntimeException("Doctor not found");
+        }
+
+        if (encounterOpt.isEmpty()) {
+            throw new RuntimeException("Base encounter not found");
+        }
+
+        if (followUpPlanRepository.existsByBaseEncounterId(followUpPlanRequestDto.getBaseEncounterId())) {
+            throw new RuntimeException("Follow-up plan already exists for this encounter");
+        }
     }
 }
