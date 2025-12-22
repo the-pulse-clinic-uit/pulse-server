@@ -100,17 +100,20 @@ public class DoctorServiceImpl implements DoctorService {
             throw new RuntimeException("Staff is already a doctor");
         }
 
-        // Tìm department
+        // Tìm department và gán cho staff
         Optional<Department> departmentOpt = departmentRepository.findById(doctorRequestDto.getDepartmentId());
         if (departmentOpt.isEmpty()) {
             throw new RuntimeException("Department not found");
         }
 
+        Staff staff = staffOpt.get();
+        staff.setDepartment(departmentOpt.get());
+        staffRepository.save(staff);
+
         Doctor doctor = Doctor.builder()
                 .licenseId(doctorRequestDto.getLicenseId())
                 .isVerified(Boolean.TRUE.equals(doctorRequestDto.getIsVerified()))
-                .staff(staffOpt.get())
-                .department(departmentOpt.get())
+                .staff(staff)
                 .build();
 
         Doctor savedDoctor = doctorRepository.save(doctor);
@@ -154,8 +157,13 @@ public class DoctorServiceImpl implements DoctorService {
             }
 
             Doctor doctor = doctorOpt.get();
-            doctor.setDepartment(departmentOpt.get());
-            doctorRepository.save(doctor);
+            Staff staff = doctor.getStaff();
+            if (staff == null) {
+                return false;
+            }
+
+            staff.setDepartment(departmentOpt.get());
+            staffRepository.save(staff);
             return true;
         } catch (Exception e) {
             return false;

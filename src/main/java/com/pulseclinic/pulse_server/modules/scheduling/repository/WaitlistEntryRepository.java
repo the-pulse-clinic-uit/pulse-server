@@ -23,9 +23,9 @@ public interface WaitlistEntryRepository extends JpaRepository<WaitlistEntry, UU
     Integer countWaiting(@Param("doctorId") UUID doctorId, @Param("dutyDate") LocalDate dutyDate);
     
     // Query by department instead of doctor
-    @Query("SELECT we FROM WaitlistEntry we WHERE we.doctor.department.id = :departmentId AND we.dutyDate = :dutyDate AND we.status = :status ORDER BY we.priority DESC, we.createdAt ASC")
+    @Query("SELECT we FROM WaitlistEntry we WHERE we.doctor.staff.department.id = :departmentId AND we.dutyDate = :dutyDate AND we.status = :status ORDER BY we.priority DESC, we.createdAt ASC")
     List<WaitlistEntry> findNextInQueueByDepartment(@Param("departmentId") UUID departmentId, @Param("dutyDate") LocalDate dutyDate, @Param("status") WaitlistStatus status);
-    
-    @Query("SELECT COUNT(we) FROM WaitlistEntry we WHERE we.doctor.department.id = :departmentId AND we.dutyDate = :dutyDate AND we.status = 'WAITING'")
+
+    @Query("SELECT COUNT(we) FROM WaitlistEntry we WHERE we.doctor.staff.department.id = :departmentId AND we.dutyDate = :dutyDate AND we.status = 'WAITING'")
     Integer countWaitingByDepartment(@Param("departmentId") UUID departmentId, @Param("dutyDate") LocalDate dutyDate);
 }

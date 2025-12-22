@@ -40,7 +40,7 @@ public interface AppointmentRepository extends JpaRepository<Appointment, UUID> 
             """)
     List<Appointment> findUpcomingByPatient(@Param("patientId") UUID patientId, @Param("now") LocalDateTime now);
 
-    @Query("SELECT COUNT(a) FROM Appointment a WHERE a.doctor.department = :department AND a.deletedAt IS NULL")
+    @Query("SELECT COUNT(a) FROM Appointment a WHERE a.doctor.staff.department = :department AND a.deletedAt IS NULL")
     Integer countByDoctorDepartment(@Param("department") Department department);
 
     // Report query methods
@@ -54,9 +54,9 @@ public interface AppointmentRepository extends JpaRepository<Appointment, UUID> 
 
     Long countByDoctorIdAndStatusAndStartsAtBetween(UUID doctorId, AppointmentStatus status, LocalDateTime start, LocalDateTime end);
 
-    @Query("SELECT COUNT(a) FROM Appointment a WHERE a.doctor.department.id = :departmentId AND a.startsAt BETWEEN :start AND :end AND a.deletedAt IS NULL")
+    @Query("SELECT COUNT(a) FROM Appointment a WHERE a.doctor.staff.department.id = :departmentId AND a.startsAt BETWEEN :start AND :end AND a.deletedAt IS NULL")
     Long countByDoctorDepartmentIdAndStartsAtBetween(@Param("departmentId") UUID departmentId, @Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
 
-    @Query("SELECT COUNT(a) FROM Appointment a WHERE a.doctor.department.id = :departmentId AND a.status = :status AND a.startsAt BETWEEN :start AND :end AND a.deletedAt IS NULL")
+    @Query("SELECT COUNT(a) FROM Appointment a WHERE a.doctor.staff.department.id = :departmentId AND a.status = :status AND a.startsAt BETWEEN :start AND :end AND a.deletedAt IS NULL")
     Long countByDoctorDepartmentIdAndStatusAndStartsAtBetween(@Param("departmentId") UUID departmentId, @Param("status") AppointmentStatus status, @Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
 }

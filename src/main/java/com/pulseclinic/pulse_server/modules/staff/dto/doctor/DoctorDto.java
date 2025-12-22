@@ -23,9 +23,9 @@ public class DoctorDto {
 
     private LocalDateTime createdAt;
 
-    // relationships => 2
+    // relationships => 1 (department is derived from staff.department)
 
     private StaffDto staffDto;
 
-    private DepartmentDto departmentDto;
+    private DepartmentDto departmentDto; // Derived from staff.department
 }

@@ -22,7 +22,7 @@ public interface InvoiceRepository extends JpaRepository<Invoice, UUID> {
     List<Invoice> findByPatientId(@Param("patientId") UUID patientId);
     @Query("SELECT i FROM Invoice i WHERE i.status = :status AND i.dueDate < :date AND i.deletedAt IS NULL")
     List<Invoice> findOverdueInvoices(@Param("status") com.pulseclinic.pulse_server.enums.InvoiceStatus status, @Param("date") java.time.LocalDate date);
-    @Query("SELECT COALESCE(SUM(i.totalAmount), 0) FROM Invoice i WHERE i.encounter.doctor.department = :department AND i.deletedAt IS NULL")
+    @Query("SELECT COALESCE(SUM(i.totalAmount), 0) FROM Invoice i WHERE i.encounter.doctor.staff.department = :department AND i.deletedAt IS NULL")
     BigDecimal sumTotalAmountByDoctorDepartment(@Param("department") Department department);
 
     // Report query methods
@@ -43,9 +43,9 @@ public interface InvoiceRepository extends JpaRepository<Invoice, UUID> {
     BigDecimal sumAmountPaidByDoctorIdAndCreatedAtBetween(@Param("doctorId") UUID doctorId, @Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
 
     // Revenue by department
-    @Query("SELECT COALESCE(SUM(i.totalAmount), 0) FROM Invoice i WHERE i.encounter.doctor.department.id = :departmentId AND i.createdAt BETWEEN :start AND :end AND i.status != com.pulseclinic.pulse_server.enums.InvoiceStatus.VOID AND i.deletedAt IS NULL")
+    @Query("SELECT COALESCE(SUM(i.totalAmount), 0) FROM Invoice i WHERE i.encounter.doctor.staff.department.id = :departmentId AND i.createdAt BETWEEN :start AND :end AND i.status != com.pulseclinic.pulse_server.enums.InvoiceStatus.VOID AND i.deletedAt IS NULL")
     BigDecimal sumTotalAmountByDepartmentIdAndCreatedAtBetween(@Param("departmentId") UUID departmentId, @Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
 
-    @Query("SELECT COALESCE(SUM(i.amountPaid), 0) FROM Invoice i WHERE i.encounter.doctor.department.id = :departmentId AND i.createdAt BETWEEN :start AND :end AND i.deletedAt IS NULL")
+    @Query("SELECT COALESCE(SUM(i.amountPaid), 0) FROM Invoice i WHERE i.encounter.doctor.staff.department.id = :departmentId AND i.createdAt BETWEEN :start AND :end AND i.deletedAt IS NULL")
     BigDecimal sumAmountPaidByDepartmentIdAndCreatedAtBetween(@Param("departmentId") UUID departmentId, @Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
 }
