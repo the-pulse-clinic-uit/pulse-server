@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,7 +16,7 @@ import com.pulseclinic.pulse_server.modules.encounters.dto.followUpPlan.FollowUp
 import com.pulseclinic.pulse_server.modules.encounters.service.EncounterService;
 
 import jakarta.validation.Valid;
-
+@Slf4j
 @RestController
 @RequestMapping("/encounters")
 public class EncounterController {
@@ -32,6 +33,7 @@ public class EncounterController {
             EncounterDto encounter = encounterService.startEncounter(requestDto);
             return ResponseEntity.status(HttpStatus.CREATED).body(encounter);
         } catch (Exception e) {
+            log.info("Error starting encounter controller", e);
             return ResponseEntity.badRequest().build();
         }
     }

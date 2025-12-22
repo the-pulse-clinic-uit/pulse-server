@@ -8,7 +8,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface PrescriptionDetailService {
-    PrescriptionDetailDto createDetail(UUID prescriptionId, PrescriptionDetailRequestDto detailRequestDto);
+    PrescriptionDetailDto createDetail(PrescriptionDetailRequestDto detailRequestDto);
     Optional<PrescriptionDetailDto> getDetailById(UUID detailId);
     boolean updateDosage(UUID detailId, String dose, String frequency, String timing);
     boolean updateQuantity(UUID detailId, Integer quantity);

@@ -2,6 +2,7 @@ package com.pulseclinic.pulse_server.modules.pharmacy.controller;
 
 import java.util.UUID;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,9 +19,9 @@ import com.pulseclinic.pulse_server.modules.pharmacy.dto.prescriptionDetail.Pres
 import com.pulseclinic.pulse_server.modules.pharmacy.service.PrescriptionDetailService;
 
 import jakarta.validation.Valid;
-
+@Slf4j
 @RestController
-@RequestMapping("/prescriptions")
+@RequestMapping("/prescriptions/details")
 public class PrescriptionDetailController {
     private final PrescriptionDetailService prescriptionDetailService;
 
@@ -29,20 +30,20 @@ public class PrescriptionDetailController {
     }
 
     // Add drug item to prescription
-    @PostMapping("/{prescriptionId}/details")
+    @PostMapping
     public ResponseEntity<PrescriptionDetailDto> createDetail(
-            @PathVariable UUID prescriptionId,
             @Valid @RequestBody PrescriptionDetailRequestDto detailRequestDto) {
         try {
-            PrescriptionDetailDto detail = prescriptionDetailService.createDetail(prescriptionId, detailRequestDto);
+            PrescriptionDetailDto detail = prescriptionDetailService.createDetail(detailRequestDto);
             return ResponseEntity.status(HttpStatus.CREATED).body(detail);
         } catch (Exception e) {
+            log.info("Error: {}", e);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
 
     // Get prescription detail by ID
-    @GetMapping("/details/{itemId}")
+    @GetMapping("/{itemId}")
     public ResponseEntity<PrescriptionDetailDto> getDetailById(@PathVariable UUID itemId) {
         java.util.Optional<PrescriptionDetailDto> detail = prescriptionDetailService.getDetailById(itemId);
         return detail.map(ResponseEntity::ok)
@@ -50,7 +51,7 @@ public class PrescriptionDetailController {
     }
 
     // Update dosage information
-    @PutMapping("/details/{itemId}/dosage")
+    @PutMapping("/{itemId}/dosage")
     public ResponseEntity<Void> updateDosage(
             @PathVariable UUID itemId,
             @RequestParam String dose,
@@ -61,7 +62,7 @@ public class PrescriptionDetailController {
     }
 
     // Update quantity
-    @PutMapping("/details/{itemId}/quantity")
+    @PutMapping("/{itemId}/quantity")
     public ResponseEntity<Void> updateQuantity(
             @PathVariable UUID itemId,
             @RequestParam Integer quantity) {

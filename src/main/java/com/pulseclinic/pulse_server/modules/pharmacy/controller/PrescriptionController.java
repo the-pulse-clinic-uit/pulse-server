@@ -31,12 +31,11 @@ public class PrescriptionController {
     }
 
     // Create new prescription from encounter
-    @PostMapping("/from_encounter/{encounterId}")
+    @PostMapping
     public ResponseEntity<PrescriptionDto> createPrescription(
-            @PathVariable UUID encounterId,
             @Valid @RequestBody PrescriptionRequestDto prescriptionRequestDto) {
         try {
-            PrescriptionDto prescription = prescriptionService.createPrescription(encounterId, prescriptionRequestDto);
+            PrescriptionDto prescription = prescriptionService.createPrescription(prescriptionRequestDto);
             return ResponseEntity.status(HttpStatus.CREATED).body(prescription);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();

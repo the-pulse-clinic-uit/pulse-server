@@ -13,4 +13,6 @@ public interface FollowUpPlanRepository extends JpaRepository<FollowUpPlan, UUID
     List<FollowUpPlan> findByDoctorIdAndDeletedAtIsNullOrderByCreatedAtDesc(UUID doctorId);
     List<FollowUpPlan> findByBaseEncounterIdAndDeletedAtIsNull(UUID encounterId);
     List<FollowUpPlan> findByPatientIdAndStatusAndDeletedAtIsNull(UUID patientId, com.pulseclinic.pulse_server.enums.FollowUpPlanStatus status);
+
+    boolean existsByBaseEncounterId(UUID baseEncounterId);
 }

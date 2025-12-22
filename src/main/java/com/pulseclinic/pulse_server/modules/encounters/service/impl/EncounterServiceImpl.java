@@ -67,9 +67,24 @@ public class EncounterServiceImpl implements EncounterService {
             throw new RuntimeException("Doctor not found");
         }
 
+        if (encounterRequestDto.getEndedAt() != null &&
+                encounterRequestDto.getEndedAt().isBefore(encounterRequestDto.getStartedAt())) {
+            throw new RuntimeException("Ended time must be after started time");
+        }
+
+        if (encounterRequestDto.getStartedAt().isAfter(LocalDateTime.now())) {
+            throw new RuntimeException("Encounter cannot start in the future");
+        }
+
+        if (encounterRequestDto.getAppointmentId() != null &&
+                encounterRepository.existsByAppointmentId(encounterRequestDto.getAppointmentId())) {
+            throw new RuntimeException("Encounter already exists for this appointment");
+        }
+
         Encounter encounter = Encounter.builder()
                 .type(encounterRequestDto.getType())
-                .startedAt(LocalDateTime.now())
+                .startedAt(encounterRequestDto.getStartedAt() != null ? encounterRequestDto.getStartedAt() : LocalDateTime.now())
+                .endedAt(encounterRequestDto.getEndedAt())
                 .diagnosis(encounterRequestDto.getDiagnosis() != null ? encounterRequestDto.getDiagnosis() : "")
                 .notes(encounterRequestDto.getNotes() != null ? encounterRequestDto.getNotes() : "")
                 .patient(patientOpt.get())
@@ -79,7 +94,17 @@ public class EncounterServiceImpl implements EncounterService {
         // Liên kết với appointment nếu có
         if (encounterRequestDto.getAppointmentId() != null) {
             Optional<Appointment> appointmentOpt = appointmentRepository.findById(encounterRequestDto.getAppointmentId());
-            appointmentOpt.ifPresent(encounter::setAppointment);
+            if (appointmentOpt.isPresent()) {
+                Appointment appt = appointmentOpt.get();
+
+                if (!appt.getDoctor().getId().equals(encounterRequestDto.getDoctorId())) {
+                    throw new RuntimeException("Doctor does not match appointment");
+                }
+
+                if (!appt.getPatient().getId().equals(encounterRequestDto.getPatientId())) {
+                    throw new RuntimeException("Patient does not match appointment");
+                }
+            }
         }
 
         Encounter savedEncounter = encounterRepository.save(encounter);

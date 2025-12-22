@@ -1,5 +1,6 @@
 package com.pulseclinic.pulse_server.modules.encounters.dto.encounter;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.pulseclinic.pulse_server.enums.EncounterType;
 import com.pulseclinic.pulse_server.modules.appointments.dto.AppointmentDto;
 import com.pulseclinic.pulse_server.modules.patients.dto.PatientDto;
@@ -20,9 +21,11 @@ import java.util.UUID;
 public class EncounterRequestDto {
     private EncounterType type;
 
-    @NotNull(message = "Encounter started_at must be provided")
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm")
     private LocalDateTime startedAt;
 
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm")
+    @NotNull(message = "Encounter ended_at must be provided")
     private LocalDateTime endedAt;
 
     @NotNull(message = "Diagnosis must be provided")

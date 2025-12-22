@@ -8,6 +8,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,6 +30,7 @@ import com.pulseclinic.pulse_server.modules.scheduling.service.ShiftAssignmentSe
 import com.pulseclinic.pulse_server.modules.staff.entity.Doctor;
 import com.pulseclinic.pulse_server.modules.staff.repository.DoctorRepository;
 
+@Slf4j
 @Service
 public class ShiftAssignmentServiceImpl implements ShiftAssignmentService {
 
@@ -60,6 +62,8 @@ public class ShiftAssignmentServiceImpl implements ShiftAssignmentService {
     @Transactional
     public ShiftAssignmentDto assignDoctor(ShiftAssignmentRequestDto dto) {
 
+        LocalDate date =  dto.getDutyDate() == null ? null :  dto.getDutyDate();
+        log.info("Duty date received: {}", date.isBefore(LocalDate.now()) );
         if (dto.getDutyDate() == null || dto.getDutyDate().isBefore(LocalDate.now())) {
             throw new RuntimeException("Invalid duty date");
         }
@@ -70,12 +74,15 @@ public class ShiftAssignmentServiceImpl implements ShiftAssignmentService {
         Shift shift = shiftRepository.findById(dto.getShiftId())
                 .orElseThrow(() -> new RuntimeException("Shift not found"));
 
+        String debug = doctor.getDepartment().toString();
+        log.info("Debugging: {}", debug);
+
         if (shift.getDepartment() != null) {
-            if (doctor.getStaff() == null || doctor.getStaff().getDepartment() == null) {
+            if (doctor.getDepartment() == null || doctor.getDepartment() == null) {
                 throw new RuntimeException("Doctor has no department");
             }
             if (!shift.getDepartment().getId()
-                    .equals(doctor.getStaff().getDepartment().getId())) {
+                    .equals(doctor.getDepartment().getId())) {
                 throw new RuntimeException("Doctor does not belong to shift department");
             }
         }

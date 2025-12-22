@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,8 +25,9 @@ import com.pulseclinic.pulse_server.modules.scheduling.service.ShiftAssignmentSe
 
 import jakarta.validation.Valid;
 
+@Slf4j
 @RestController
-@RequestMapping("/api/shifts")
+@RequestMapping("/shifts")
 public class ShiftAssignmentController {
     private final ShiftAssignmentService shiftAssignmentService;
 
@@ -40,6 +42,7 @@ public class ShiftAssignmentController {
             ShiftAssignmentDto assignment = shiftAssignmentService.assignDoctor(requestDto);
             return ResponseEntity.status(HttpStatus.CREATED).body(assignment);
         } catch (Exception e) {
+            log.error("Error assigning doctor: {}", e.getMessage(), e);
             return ResponseEntity.badRequest().build();
         }
     }

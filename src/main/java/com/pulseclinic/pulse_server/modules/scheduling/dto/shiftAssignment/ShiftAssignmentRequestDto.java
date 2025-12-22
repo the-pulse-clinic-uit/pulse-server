@@ -1,5 +1,6 @@
 package com.pulseclinic.pulse_server.modules.scheduling.dto.shiftAssignment;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.pulseclinic.pulse_server.enums.ShiftAssignmentRole;
 import com.pulseclinic.pulse_server.enums.ShiftAssignmentStatus;
 import com.pulseclinic.pulse_server.modules.rooms.dto.RoomDto;
@@ -20,6 +21,7 @@ import java.util.UUID;
 @Data
 @Builder
 public class ShiftAssignmentRequestDto {
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     @NotNull(message = "Duty Date is required")
     private LocalDate dutyDate;
 
