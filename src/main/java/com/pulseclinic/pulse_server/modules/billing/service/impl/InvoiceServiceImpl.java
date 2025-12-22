@@ -42,20 +42,22 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     @Override
     @Transactional
-    public InvoiceDto createInvoice(UUID encounterId, InvoiceRequestDto invoiceRequestDto) {
-        Optional<Encounter> encounterOpt = encounterRepository.findById(encounterId);
+    public InvoiceDto createInvoice(InvoiceRequestDto invoiceRequestDto) {
+        Optional<Encounter> encounterOpt = encounterRepository.findById(invoiceRequestDto.getEncounterId());
         if (encounterOpt.isEmpty()) {
             throw new RuntimeException("Encounter not found");
         }
 
-        Optional<Invoice> existingInvoice = invoiceRepository.findByEncounterIdAndDeletedAtIsNull(encounterId);
+        Optional<Invoice> existingInvoice = invoiceRepository.findByEncounterIdAndDeletedAtIsNull(invoiceRequestDto.getEncounterId());
         if (existingInvoice.isPresent()) {
             throw new RuntimeException("Invoice already exists for this encounter");
         }
 
         Invoice invoice = Invoice.builder()
                 .dueDate(invoiceRequestDto.getDueDate())
+                .amountPaid(invoiceRequestDto.getAmountPaid())
                 .totalAmount(invoiceRequestDto.getTotalAmount())
+                .status(invoiceRequestDto.getStatus())
                 .encounter(encounterOpt.get())
                 .build();
 
@@ -161,9 +163,10 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     @Transactional
     @Override
-    public String createPayment(BigDecimal amount) {
+    public String createPayment(UUID invoiceId, BigDecimal amount) {
         return webClient.get()
-                .uri("http://localhost:8081/api/v1/vn-pay?amount=" + amount)
+                .uri("http://localhost:8081/api/v1/payment/vn-pay?amount=" + amount)
+                .header("X-INVOICE-ID", String.valueOf(invoiceId))
                 .retrieve()
                 .bodyToMono(String.class)
                 .block(); // giống await fetch()

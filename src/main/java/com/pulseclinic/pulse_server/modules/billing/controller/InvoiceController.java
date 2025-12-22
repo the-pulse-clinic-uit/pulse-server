@@ -30,12 +30,11 @@ public class InvoiceController {
         this.invoiceService = invoiceService;
     }
 
-    @PostMapping("/from_encounter/{encounterId}")
+    @PostMapping
     public ResponseEntity<InvoiceDto> createInvoice(
-            @PathVariable UUID encounterId,
             @Valid @RequestBody InvoiceRequestDto invoiceRequestDto) {
         try {
-            InvoiceDto invoice = invoiceService.createInvoice(encounterId, invoiceRequestDto);
+            InvoiceDto invoice = invoiceService.createInvoice(invoiceRequestDto);
             return ResponseEntity.status(HttpStatus.CREATED).body(invoice);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
@@ -87,8 +86,11 @@ public class InvoiceController {
     }
 
     @GetMapping("/{invoiceId}/create-payment")
-    public ResponseEntity<String> createPayment(@RequestParam BigDecimal amount) {
-        String result = invoiceService.createPayment(amount);
+    public ResponseEntity<String> createPayment(
+            @PathVariable UUID invoiceId,
+            @RequestParam BigDecimal amount
+        ) {
+        String result = invoiceService.createPayment(invoiceId, amount);
         return ResponseEntity.ok(result);
     }
 
