@@ -16,12 +16,15 @@ import com.pulseclinic.pulse_server.modules.staff.entity.Doctor;
 public interface DoctorRepository extends JpaRepository<Doctor, UUID> {
     Optional<Doctor> findByLicenseId(String licenseId);
     Optional<Doctor> findByStaffId(UUID staffId);
-    List<Doctor> findByDepartmentId(UUID departmentId);
+
+    @Query("SELECT d FROM Doctor d WHERE d.staff.department.id = :departmentId")
+    List<Doctor> findByDepartmentId(@Param("departmentId") UUID departmentId);
+
     boolean existsByLicenseId(String licenseId);
-    
-    @Query("SELECT COUNT(d) FROM Doctor d WHERE d.department.id = :departmentId")
+
+    @Query("SELECT COUNT(d) FROM Doctor d WHERE d.staff.department.id = :departmentId")
     Integer countByDepartmentId(@Param("departmentId") UUID departmentId);
 
-    @Query("SELECT COUNT(d) FROM Doctor d WHERE d.department = :department")
+    @Query("SELECT COUNT(d) FROM Doctor d WHERE d.staff.department = :department")
     Integer countByDepartment(@Param("department") Department department);
 }

@@ -39,13 +39,14 @@ public class Doctor {
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
-    // relationships => 2
+    // relationships => 1
 
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name ="staff_id")
     private Staff staff;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "department_id")
-    private Department department;
+    // helper method to get department through staff
+    public Department getDepartment() {
+        return staff != null ? staff.getDepartment() : null;
+    }
 }
