@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -37,6 +38,7 @@ public class ShiftAssignmentController {
 
     // Assign doctor to shift
     @PostMapping("/assignments")
+    @PreAuthorize("hasAuthority('admin')")
     public ResponseEntity<ShiftAssignmentDto> assignDoctor(@Valid @RequestBody ShiftAssignmentRequestDto requestDto) {
         try {
             ShiftAssignmentDto assignment = shiftAssignmentService.assignDoctor(requestDto);
@@ -49,6 +51,7 @@ public class ShiftAssignmentController {
 
     // Get assignment by ID
     @GetMapping("/assignments/{assignmentId}")
+    @PreAuthorize("hasAnyAuthority('admin', 'staff')")
     public ResponseEntity<ShiftAssignmentDto> getAssignmentById(@PathVariable UUID assignmentId) {
         Optional<ShiftAssignmentDto> assignment = shiftAssignmentService.getAssignmentById(assignmentId);
         return assignment.map(ResponseEntity::ok)
@@ -57,6 +60,7 @@ public class ShiftAssignmentController {
 
     // Update assignment status
     @PutMapping("/assignments/{assignmentId}/status")
+    @PreAuthorize("hasAuthority('admin')")
     public ResponseEntity<Void> updateStatus(
             @PathVariable UUID assignmentId,
             @RequestParam ShiftAssignmentStatus status) {
@@ -66,6 +70,7 @@ public class ShiftAssignmentController {
 
     // Update assignment room
     @PutMapping("/assignments/{assignmentId}/room")
+    @PreAuthorize("hasAuthority('admin')")
     public ResponseEntity<Void> updateRoom(
             @PathVariable UUID assignmentId,
             @RequestParam UUID roomId) {
@@ -75,6 +80,7 @@ public class ShiftAssignmentController {
 
     // Get all assignments for a shift on a specific date
     @GetMapping("/{shiftId}/assignments")
+    @PreAuthorize("hasAuthority('admin')")
     public ResponseEntity<List<ShiftAssignmentDto>> findByShift(
             @PathVariable UUID shiftId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
@@ -84,6 +90,7 @@ public class ShiftAssignmentController {
 
     // Get assignments by doctor within date range
     @GetMapping("/assignments/by_doctor/{doctorId}")
+    @PreAuthorize("hasAuthority('admin')")
     public ResponseEntity<List<ShiftAssignmentDto>> findByDoctor(
             @PathVariable UUID doctorId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,

@@ -2,8 +2,10 @@ package com.pulseclinic.pulse_server.modules.admissions.controller;
 
 import java.util.UUID;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,6 +21,7 @@ import com.pulseclinic.pulse_server.modules.admissions.service.AdmissionService;
 
 import jakarta.validation.Valid;
 
+@Slf4j
 @RestController
 @RequestMapping("/admissions")
 public class AdmissionController {
@@ -29,6 +32,7 @@ public class AdmissionController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAnyAuthority('admin','staff')")
     public ResponseEntity<AdmissionDto> admitPatient(@Valid @RequestBody AdmissionRequestDto requestDto) {
         try {
             AdmissionDto admission = admissionService.admitPatient(requestDto);
@@ -38,40 +42,36 @@ public class AdmissionController {
         }
     }
 
-    @PostMapping("/from_encounter/{encounterId}")
-    public ResponseEntity<AdmissionDto> createFromEncounter(
-            @PathVariable UUID encounterId,
-            @Valid @RequestBody AdmissionRequestDto requestDto) {
-        try {
-            AdmissionDto admission = admissionService.createFromEncounter(encounterId, requestDto);
-            return ResponseEntity.status(HttpStatus.CREATED).body(admission);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
-        }
-    }
-
     @GetMapping("/{admissionId}")
+    @PreAuthorize("hasAnyAuthority('admin','staff')")
     public ResponseEntity<AdmissionDto> getAdmissionById(@PathVariable UUID admissionId) {
         return admissionService.getAdmissionById(admissionId)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @PutMapping("/{admissionId}/transfer")
-    public ResponseEntity<Void> transferRoom(
-            @PathVariable UUID admissionId,
-            @RequestParam UUID newRoomId) {
-        boolean success = admissionService.transferRoom(admissionId, newRoomId);
-        return success ? ResponseEntity.ok().build() : ResponseEntity.badRequest().build();
-    }
+//    @PutMapping("/{admissionId}/transfer")
+//    public ResponseEntity<Void> transferRoom(
+//            @PathVariable UUID admissionId,
+//            @RequestParam UUID newRoomId) {
+//        boolean success = admissionService.transferRoom(admissionId, newRoomId);
+//        return success ? ResponseEntity.ok().build() : ResponseEntity.badRequest().build();
+//    }
 
-    @PostMapping("/{admissionId}/discharge")
+    @PutMapping("/{admissionId}/discharge")
+    @PreAuthorize("hasAnyAuthority('admin','staff')")
     public ResponseEntity<Void> dischargePatient(@PathVariable UUID admissionId) {
-        boolean success = admissionService.dischargePatient(admissionId);
-        return success ? ResponseEntity.ok().build() : ResponseEntity.badRequest().build();
+        try {
+            boolean success = admissionService.dischargePatient(admissionId);
+            return success ? ResponseEntity.ok().build() : ResponseEntity.badRequest().build();
+        } catch (Exception e) {
+//            log.info("Exception caught: {}", e);
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     @PutMapping("/{admissionId}/notes")
+    @PreAuthorize("hasAnyAuthority('admin','staff')")
     public ResponseEntity<Void> updateNotes(
             @PathVariable UUID admissionId,
             @RequestParam String notes) {

@@ -87,72 +87,38 @@ public class AdmissionServiceImpl implements AdmissionService {
     }
 
     @Override
-    @Transactional
-    public AdmissionDto createFromEncounter(UUID encounterId, AdmissionRequestDto admissionRequestDto) {
-        Optional<Encounter> encounterOpt = encounterRepository.findById(encounterId);
-        if (encounterOpt.isEmpty()) {
-            throw new RuntimeException("Encounter not found");
-        }
-
-        Encounter encounter = encounterOpt.get();
-        Patient patient = encounter.getPatient();
-        UUID roomId = admissionRequestDto.getRoomDto().getId();
-
-        Optional<Admission> existingAdmission = admissionRepository.findByPatientIdAndStatusAndDeletedAtIsNull(
-                patient.getId(), AdmissionStatus.ONGOING);
-        if (existingAdmission.isPresent()) {
-            throw new RuntimeException("Patient already has an ongoing admission");
-        }
-
-        Optional<Room> roomOpt = roomRepository.findById(roomId);
-        if (roomOpt.isEmpty()) {
-            throw new RuntimeException("Room not found");
-        }
-
-        Admission admission = Admission.builder()
-                .notes(admissionRequestDto.getNotes())
-                .patient(patient)
-                .doctor(encounter.getDoctor())
-                .room(roomOpt.get())
-                .encounter(encounter)
-                .build();
-
-        Admission savedAdmission = admissionRepository.save(admission);
-        return admissionMapper.mapTo(savedAdmission);
-    }
-
-    @Override
     public Optional<AdmissionDto> getAdmissionById(UUID admissionId) {
         Optional<Admission> admissionOpt = admissionRepository.findById(admissionId);
         return admissionOpt.map(admissionMapper::mapTo);
     }
 
-    @Override
-    @Transactional
-    public boolean transferRoom(UUID admissionId, UUID newRoomId) {
-        try {
-            Optional<Admission> admissionOpt = admissionRepository.findById(admissionId);
-            if (admissionOpt.isEmpty()) {
-                return false;
-            }
-
-            Admission admission = admissionOpt.get();
-            if (!isOngoing(admission)) {
-                return false;
-            }
-
-            Optional<Room> newRoomOpt = roomRepository.findById(newRoomId);
-            if (newRoomOpt.isEmpty()) {
-                return false;
-            }
-
-            admission.setRoom(newRoomOpt.get());
-            admissionRepository.save(admission);
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
-    }
+//    @Override
+//    @Transactional
+//    public boolean transferRoom(UUID admissionId, UUID newRoomId) {
+//        try {
+//            Optional<Admission> admissionOpt = admissionRepository.findById(admissionId);
+//            if (admissionOpt.isEmpty()) {
+//                return false;
+//            }
+//
+//            Admission admission = admissionOpt.get();
+//            if (!isOngoing(admission)) {
+//                return false;
+//            }
+//
+//            Optional<Room> newRoomOpt = roomRepository.findById(newRoomId);
+//            if (newRoomOpt.isEmpty()) {
+//                return false;
+//            }
+//
+//            admission.setRoom(newRoomOpt.get());
+//            admission.setStatus(AdmissionStatus.TRANSFERRED);
+//            admissionRepository.save(admission);
+//            return true;
+//        } catch (Exception e) {
+//            return false;
+//        }
+//    }
 
     @Override
     @Transactional

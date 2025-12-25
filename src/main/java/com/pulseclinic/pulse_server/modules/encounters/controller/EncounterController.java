@@ -8,6 +8,7 @@ import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import com.pulseclinic.pulse_server.modules.encounters.dto.encounter.EncounterDto;
@@ -28,6 +29,7 @@ public class EncounterController {
 
     // Start new encounter
     @PostMapping
+    @PreAuthorize("hasAnyAuthority('admin', 'staff')")
     public ResponseEntity<EncounterDto> startEncounter(@Valid @RequestBody EncounterRequestDto requestDto) {
         try {
             EncounterDto encounter = encounterService.startEncounter(requestDto);
@@ -40,6 +42,7 @@ public class EncounterController {
 
     // Get encounter by ID
     @GetMapping("/{encounterId}")
+    @PreAuthorize("hasAnyAuthority('admin', 'staff')")
     public ResponseEntity<EncounterDto> getEncounterById(@PathVariable UUID encounterId) {
         Optional<EncounterDto> encounter = encounterService.getEncounterById(encounterId);
         return encounter.map(ResponseEntity::ok)
@@ -48,6 +51,7 @@ public class EncounterController {
 
     // Record diagnosis
     @PutMapping("/{encounterId}/diagnosis")
+    @PreAuthorize("hasAnyAuthority('admin', 'staff')")
     public ResponseEntity<Void> recordDiagnosis(
             @PathVariable UUID encounterId,
             @RequestParam String diagnosis) {
@@ -57,6 +61,7 @@ public class EncounterController {
 
     // Add notes
     @PutMapping("/{encounterId}/notes")
+    @PreAuthorize("hasAnyAuthority('admin', 'staff')")
     public ResponseEntity<Void> addNotes(
             @PathVariable UUID encounterId,
             @RequestParam String notes) {
@@ -66,6 +71,7 @@ public class EncounterController {
 
     // End encounter
     @PostMapping("/{encounterId}/end")
+    @PreAuthorize("hasAnyAuthority('admin', 'staff')")
     public ResponseEntity<Void> endEncounter(@PathVariable UUID encounterId) {
         boolean success = encounterService.endEncounter(encounterId);
         return success ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
@@ -73,6 +79,7 @@ public class EncounterController {
 
     // Generate summary
     @GetMapping("/{encounterId}/summary")
+    @PreAuthorize("hasAnyAuthority('admin', 'staff')")
     public ResponseEntity<String> generateSummary(@PathVariable UUID encounterId) {
         String summary = encounterService.generateSummary(encounterId);
         return ResponseEntity.ok(summary);

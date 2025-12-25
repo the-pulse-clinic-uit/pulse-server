@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -35,6 +36,7 @@ public class AppointmentController {
 
     // Schedule new appointment
     @PostMapping
+    @PreAuthorize("hasAnyAuthority('admin', 'staff')")
     public ResponseEntity<AppointmentDto> scheduleAppointment(
             @Valid @RequestBody AppointmentRequestDto appointmentRequestDto) {
         try {
@@ -55,6 +57,7 @@ public class AppointmentController {
     }
 
     // Reschedule appointment
+    @PreAuthorize("hasAnyAuthority('admin', 'staff')")
     @PutMapping("/{appointmentId}/reschedule")
     public ResponseEntity<Void> rescheduleAppointment(
             @PathVariable UUID appointmentId,
@@ -75,6 +78,7 @@ public class AppointmentController {
 
     // Confirm appointment
     @PutMapping("/{appointmentId}/confirm")
+    @PreAuthorize("hasAnyAuthority('admin', 'staff')")
     public ResponseEntity<Void> confirmAppointment(@PathVariable UUID appointmentId) {
         boolean confirmed = appointmentService.confirmAppointment(appointmentId);
         return confirmed ? ResponseEntity.ok().build() : ResponseEntity.badRequest().build();
@@ -89,6 +93,7 @@ public class AppointmentController {
 
     // Mark appointment as done
     @PutMapping("/{appointmentId}/done")
+    @PreAuthorize("hasAnyAuthority('admin', 'staff')")
     public ResponseEntity<Void> markAsDone(@PathVariable UUID appointmentId) {
         boolean marked = appointmentService.markAsDone(appointmentId);
         return marked ? ResponseEntity.ok().build() : ResponseEntity.badRequest().build();
@@ -96,6 +101,7 @@ public class AppointmentController {
 
     // Create encounter from appointment
     @PostMapping("/{appointmentId}/encounter")
+    @PreAuthorize("hasAnyAuthority('admin', 'staff')")
     public ResponseEntity<Object> createEncounter(@PathVariable UUID appointmentId) {
         try {
             Object encounter = appointmentService.createEncounter(appointmentId);

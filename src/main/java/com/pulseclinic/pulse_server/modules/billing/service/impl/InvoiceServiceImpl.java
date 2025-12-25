@@ -165,7 +165,7 @@ public class InvoiceServiceImpl implements InvoiceService {
     @Override
     public String createPayment(UUID invoiceId, BigDecimal amount) {
         return webClient.get()
-                .uri("http://localhost:8081/api/v1/payment/vn-pay?amount=" + amount)
+                .uri("http://localhost:8080/api/v1/payment/vn-pay?amount=" + amount)
                 .header("X-INVOICE-ID", String.valueOf(invoiceId))
                 .retrieve()
                 .bodyToMono(String.class)
@@ -232,7 +232,6 @@ public class InvoiceServiceImpl implements InvoiceService {
         }
 
         Invoice invoice = invoiceOpt.get();
-        // Kiểm tra quá hạn nếu chưa thanh toán và đã qua ngày đến hạn
         if (invoice.getStatus() != InvoiceStatus.PAID &&
                 invoice.getStatus() != InvoiceStatus.VOID) {
             return invoice.getDueDate().isBefore(LocalDate.now());
