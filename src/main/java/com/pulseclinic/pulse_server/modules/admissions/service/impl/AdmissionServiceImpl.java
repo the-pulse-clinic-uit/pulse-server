@@ -162,6 +162,48 @@ public class AdmissionServiceImpl implements AdmissionService {
         }
     }
 
+    @Override
+    @Transactional
+    public boolean transferRoom(UUID admissionId, UUID newRoomId) {
+        try {
+            Optional<Admission> admissionOpt = admissionRepository.findById(admissionId);
+            if (admissionOpt.isEmpty()) {
+                return false;
+            }
+
+            Admission admission = admissionOpt.get();
+            if (!isOngoing(admission)) {
+                return false;
+            }
+
+            Optional<Room> newRoomOpt = roomRepository.findById(newRoomId);
+            if (newRoomOpt.isEmpty()) {
+                return false;
+            }
+
+            Room newRoom = newRoomOpt.get();
+            if (!newRoom.getIsAvailable()) {
+                return false; // Room not available
+            }
+
+            Room oldRoom = admission.getRoom();
+
+            // Update room availability
+            oldRoom.setIsAvailable(true);
+            newRoom.setIsAvailable(false);
+            roomRepository.save(oldRoom);
+            roomRepository.save(newRoom);
+
+            // Update admission
+            admission.setRoom(newRoom);
+            admissionRepository.save(admission);
+
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     private boolean isOngoing(Admission admission) {
         return admission.getStatus() == AdmissionStatus.ONGOING;
     }

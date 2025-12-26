@@ -50,13 +50,19 @@ public class AdmissionController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-//    @PutMapping("/{admissionId}/transfer")
-//    public ResponseEntity<Void> transferRoom(
-//            @PathVariable UUID admissionId,
-//            @RequestParam UUID newRoomId) {
-//        boolean success = admissionService.transferRoom(admissionId, newRoomId);
-//        return success ? ResponseEntity.ok().build() : ResponseEntity.badRequest().build();
-//    }
+    @PutMapping("/{admissionId}/transfer-room")
+    @PreAuthorize("hasAnyAuthority('admin','staff')")
+    public ResponseEntity<Void> transferRoom(
+            @PathVariable UUID admissionId,
+            @RequestParam UUID newRoomId) {
+        try {
+            boolean success = admissionService.transferRoom(admissionId, newRoomId);
+            return success ? ResponseEntity.ok().build() : ResponseEntity.badRequest().build();
+        } catch (Exception e) {
+            log.error("Failed to transfer room: {}", e.getMessage());
+            return ResponseEntity.badRequest().build();
+        }
+    }
 
     @PutMapping("/{admissionId}/discharge")
     @PreAuthorize("hasAnyAuthority('admin','staff')")
