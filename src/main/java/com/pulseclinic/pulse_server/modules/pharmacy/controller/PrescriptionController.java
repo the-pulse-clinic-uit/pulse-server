@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -32,6 +33,7 @@ public class PrescriptionController {
 
     // Create new prescription from encounter
     @PostMapping
+    @PreAuthorize("hasAnyAuthority('admin', 'staff')")
     public ResponseEntity<PrescriptionDto> createPrescription(
             @Valid @RequestBody PrescriptionRequestDto prescriptionRequestDto) {
         try {
@@ -44,6 +46,7 @@ public class PrescriptionController {
 
     // Get prescription by ID
     @GetMapping("/{prescriptionId}")
+    @PreAuthorize("hasAnyAuthority('admin', 'staff')")
     public ResponseEntity<PrescriptionDto> getPrescriptionById(@PathVariable UUID prescriptionId) {
         java.util.Optional<PrescriptionDto> prescription = prescriptionService.getPrescriptionById(prescriptionId);
         return prescription.map(ResponseEntity::ok)
@@ -52,6 +55,7 @@ public class PrescriptionController {
 
     // Get prescription details (drug items)
     @GetMapping("/{prescriptionId}/details")
+    @PreAuthorize("hasAnyAuthority('admin', 'staff')")
     public ResponseEntity<List<PrescriptionDetailDto>> getDetails(@PathVariable UUID prescriptionId) {
         List<PrescriptionDetailDto> details = prescriptionService.getDetails(prescriptionId);
         return ResponseEntity.ok(details);
@@ -59,6 +63,7 @@ public class PrescriptionController {
 
     // Finalize prescription (DRAFT -> FINAL)
     @PutMapping("/{prescriptionId}/finalize")
+    @PreAuthorize("hasAnyAuthority('admin', 'staff')")
     public ResponseEntity<Void> finalizePrescription(@PathVariable UUID prescriptionId) {
         boolean finalized = prescriptionService.finalizePrescription(prescriptionId);
         return finalized ? ResponseEntity.ok().build() : ResponseEntity.badRequest().build();
@@ -66,6 +71,7 @@ public class PrescriptionController {
 
     // Dispense medication (FINAL -> DISPENSED)
     @PutMapping("/{prescriptionId}/dispense")
+    @PreAuthorize("hasAnyAuthority('admin', 'staff')")
     public ResponseEntity<Void> dispenseMedication(@PathVariable UUID prescriptionId) {
         boolean dispensed = prescriptionService.dispenseMedication(prescriptionId);
         return dispensed ? ResponseEntity.ok().build() : ResponseEntity.badRequest().build();
@@ -73,6 +79,7 @@ public class PrescriptionController {
 
     // Calculate prescription total
     @GetMapping("/{prescriptionId}/total")
+    @PreAuthorize("hasAnyAuthority('admin', 'staff')")
     public ResponseEntity<BigDecimal> calculateTotal(@PathVariable UUID prescriptionId) {
         BigDecimal total = prescriptionService.calculateTotal(prescriptionId);
         return ResponseEntity.ok(total);
@@ -80,6 +87,7 @@ public class PrescriptionController {
 
     // Print prescription
     @GetMapping("/{prescriptionId}/print")
+    @PreAuthorize("hasAnyAuthority('admin', 'staff')")
     public ResponseEntity<String> printPrescription(@PathVariable UUID prescriptionId) {
         String printout = prescriptionService.printPrescription(prescriptionId);
         return ResponseEntity.ok(printout);

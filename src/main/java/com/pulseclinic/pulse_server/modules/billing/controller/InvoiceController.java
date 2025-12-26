@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,12 +31,12 @@ public class InvoiceController {
         this.invoiceService = invoiceService;
     }
 
-    @PostMapping("/from_encounter/{encounterId}")
+    @PostMapping
+    @PreAuthorize("hasAnyAuthority('admin', 'staffs')")
     public ResponseEntity<InvoiceDto> createInvoice(
-            @PathVariable UUID encounterId,
             @Valid @RequestBody InvoiceRequestDto invoiceRequestDto) {
         try {
-            InvoiceDto invoice = invoiceService.createInvoice(encounterId, invoiceRequestDto);
+            InvoiceDto invoice = invoiceService.createInvoice(invoiceRequestDto);
             return ResponseEntity.status(HttpStatus.CREATED).body(invoice);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
@@ -43,6 +44,7 @@ public class InvoiceController {
     }
 
     @GetMapping("/{invoiceId}")
+    @PreAuthorize("hasAnyAuthority('admin', 'staff')")
     public ResponseEntity<InvoiceDto> getInvoiceById(@PathVariable UUID invoiceId) {
         return invoiceService.getInvoiceById(invoiceId)
                 .map(ResponseEntity::ok)
@@ -62,6 +64,7 @@ public class InvoiceController {
     }
 
     @PostMapping("/{invoiceId}/line_item")
+    @PreAuthorize("hasAnyAuthority('admin', 'staff')")
     public ResponseEntity<Void> addLineItem(
             @PathVariable UUID invoiceId,
             @RequestParam String description,
@@ -71,6 +74,7 @@ public class InvoiceController {
     }
 
     @PostMapping("/{invoiceId}/discount")
+    @PreAuthorize("hasAnyAuthority('admin', 'staff')")
     public ResponseEntity<Void> applyDiscount(
             @PathVariable UUID invoiceId,
             @RequestParam BigDecimal discount) {
@@ -79,6 +83,7 @@ public class InvoiceController {
     }
 
     @PostMapping("/{invoiceId}/void")
+    @PreAuthorize("hasAnyAuthority('admin', 'staff')")
     public ResponseEntity<Void> voidInvoice(
             @PathVariable UUID invoiceId,
             @RequestParam(required = false) String reason) {
@@ -87,8 +92,12 @@ public class InvoiceController {
     }
 
     @GetMapping("/{invoiceId}/create-payment")
-    public ResponseEntity<String> createPayment(@RequestParam BigDecimal amount) {
-        String result = invoiceService.createPayment(amount);
+    @PreAuthorize("hasAnyAuthority('admin', 'staff')")
+    public ResponseEntity<String> createPayment(
+            @PathVariable UUID invoiceId,
+            @RequestParam BigDecimal amount
+        ) {
+        String result = invoiceService.createPayment(invoiceId, amount);
         return ResponseEntity.ok(result);
     }
 

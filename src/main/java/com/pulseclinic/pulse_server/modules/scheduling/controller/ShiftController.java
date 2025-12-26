@@ -9,6 +9,7 @@ import java.util.UUID;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -35,6 +36,7 @@ public class ShiftController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAuthority('admin')")
     public ResponseEntity<ShiftDto> createShift(@Valid @RequestBody ShiftRequestDto shiftRequestDto) {
         try {
             ShiftDto shift = shiftService.createShift(shiftRequestDto);
@@ -45,12 +47,14 @@ public class ShiftController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyAuthority('staff', 'admin')")
     public ResponseEntity<List<ShiftDto>> getAllShifts() {
         List<ShiftDto> shifts = shiftService.getAllShifts();
         return ResponseEntity.ok(shifts);
     }
 
     @GetMapping("/{shiftId}")
+    @PreAuthorize("hasAnyAuthority('staff', 'admin')")
     public ResponseEntity<ShiftDto> getShiftById(@PathVariable UUID shiftId) {
         Optional<ShiftDto> shift = shiftService.getShiftById(shiftId);
         return shift.map(ResponseEntity::ok)
@@ -58,6 +62,7 @@ public class ShiftController {
     }
 
     @PutMapping("/{shiftId}")
+    @PreAuthorize("hasAuthority('admin')")
     public ResponseEntity<Void> updateShift(
             @PathVariable UUID shiftId,
             @Valid @RequestBody ShiftRequestDto shiftRequestDto) {
@@ -66,6 +71,7 @@ public class ShiftController {
     }
 
     @DeleteMapping("/{shiftId}")
+    @PreAuthorize("hasAuthority('admin')")
     public ResponseEntity<Void> deleteShift(@PathVariable UUID shiftId) {
         boolean deleted = shiftService.deleteShift(shiftId);
         return deleted ? ResponseEntity.noContent().build() : ResponseEntity.badRequest().build();

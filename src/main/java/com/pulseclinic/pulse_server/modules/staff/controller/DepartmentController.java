@@ -35,6 +35,8 @@ public class DepartmentController {
     }
 
     @PostMapping("/{id}/staff")
+//    @PreAuthorize("hasAnyAuthority('admin, staff, doctor')")
+    @PreAuthorize("hasAuthority('admin')")
     public ResponseEntity<HttpStatus> assignStaff(@PathVariable UUID id, @RequestBody UUID staffId) {
         if (this.departmentService.assignStaff(id, staffId)){
             return new ResponseEntity<>(HttpStatus.OK);
@@ -43,6 +45,7 @@ public class DepartmentController {
     }
 
     @DeleteMapping("/{id}/staff/{staffId}")
+    @PreAuthorize("hasAuthority('admin')")
     public ResponseEntity<HttpStatus> deleteStaff(@PathVariable UUID id, @PathVariable UUID staffId) {
         if (this.departmentService.unassignStaff(id, staffId)){
             return new ResponseEntity<>(HttpStatus.OK);
@@ -64,6 +67,7 @@ public class DepartmentController {
     }
 
     @GetMapping("/{id}/statistics")
+    @PreAuthorize("hasAuthority('admin')")
     public ResponseEntity<DepartmentStatisticsDto> getDepartmentStatistics(@PathVariable UUID id) {
         DepartmentStatisticsDto statistics = this.departmentService.getDepartmentStatistics(id);
         return ResponseEntity.ok(statistics);

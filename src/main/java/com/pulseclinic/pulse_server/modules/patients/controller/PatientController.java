@@ -30,6 +30,7 @@ public class PatientController {
     }
 
     @PostMapping("/search")
+    @PreAuthorize("hasAnyAuthority('admin', 'staff')")
     public ResponseEntity<List<PatientDto>> searchPatient(@RequestBody PatientSearchDto patientSearchDto) {
         List<Patient> patients = this.patientService.search(patientSearchDto);
         return new ResponseEntity<>(patients.stream().map(patient -> patientMapper.mapTo(patient)).collect(Collectors.toList()), HttpStatus.OK);
@@ -57,13 +58,13 @@ public class PatientController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('admin', 'staff')")
+    @PreAuthorize("hasAnyAuthority('admin', 'staff')")
     public ResponseEntity<List<PatientDto>> getPatients() {
         List<Patient> patients = this.patientService.getPatients();
         return new ResponseEntity<>(patients.stream().map(patient -> patientMapper.mapTo(patient)).collect(Collectors.toList()), HttpStatus.OK);
     }
 
-    @PreAuthorize("hasAnyRole('admin', 'staff', 'doctor')")
+    @PreAuthorize("hasAnyAuthority('admin', 'staff')")
     @GetMapping("/{id}")
     public ResponseEntity<PatientDto> getPatientById(@PathVariable("id") UUID id) {
         Optional<Patient> patient = this.patientService.findById(id);
@@ -82,7 +83,7 @@ public class PatientController {
     }
 
     @PatchMapping("/{id}")
-    @PreAuthorize("hasAnyRole('staff', 'admin')")
+    @PreAuthorize("hasAnyAuthority('admin', 'staff')")
     public ResponseEntity<PatientDto> updatePatient(@RequestBody PatientDto patientDto, @PathVariable UUID id) {
         Patient patient = this.patientService.updatePatient(id, patientDto);
         return new ResponseEntity<>(this.patientMapper.mapTo(patient), HttpStatus.OK);

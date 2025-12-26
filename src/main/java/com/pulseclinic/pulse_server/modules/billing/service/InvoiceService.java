@@ -10,13 +10,13 @@ import com.pulseclinic.pulse_server.modules.billing.dto.InvoiceDto;
 import com.pulseclinic.pulse_server.modules.billing.dto.InvoiceRequestDto;
 
 public interface InvoiceService {
-    InvoiceDto createInvoice(UUID encounterId, InvoiceRequestDto invoiceRequestDto);
+    InvoiceDto createInvoice(InvoiceRequestDto invoiceRequestDto);
     Optional<InvoiceDto> getInvoiceById(UUID invoiceId);
     BigDecimal getBalance(UUID invoiceId);
     List<Map<String, Object>> getLineItems(UUID invoiceId);
     boolean addLineItem(UUID invoiceId, String description, BigDecimal amount);
     boolean applyDiscount(UUID invoiceId, BigDecimal discount);
     boolean voidInvoice(UUID invoiceId, String reason);
-    String createPayment(BigDecimal amount);
+    String createPayment(UUID invoiceId, BigDecimal amount);
     boolean recordPayment(UUID invoiceId, BigDecimal amount);
 }

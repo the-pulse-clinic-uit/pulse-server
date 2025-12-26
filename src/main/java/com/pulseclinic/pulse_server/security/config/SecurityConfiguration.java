@@ -33,7 +33,8 @@ public class SecurityConfiguration {
                                         "/ws/**", "/ws-raw/**",
                                         "/v3/api-docs/**",
                                         "/swagger-ui/**",
-                                        "/swagger-ui.html"
+                                        "/swagger-ui.html",
+                                        "/invoices/{invoiceId}/record-payment"
                                 )
                                 .permitAll()
                                 // Admin only
