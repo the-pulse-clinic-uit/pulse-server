@@ -21,6 +21,8 @@ import com.pulseclinic.pulse_server.modules.billing.repository.InvoiceRepository
 import com.pulseclinic.pulse_server.modules.billing.service.InvoiceService;
 import com.pulseclinic.pulse_server.modules.encounters.entity.Encounter;
 import com.pulseclinic.pulse_server.modules.encounters.repository.EncounterRepository;
+import com.pulseclinic.pulse_server.modules.pharmacy.entity.Prescription;
+import com.pulseclinic.pulse_server.modules.pharmacy.repository.PrescriptionRepository;
 import org.springframework.web.reactive.function.client.WebClient;
 
 @Service
@@ -30,14 +32,18 @@ public class InvoiceServiceImpl implements InvoiceService {
     private final EncounterRepository encounterRepository;
     private final InvoiceMapper invoiceMapper;
     private final WebClient webClient;
+    private final PrescriptionRepository prescriptionRepository;
 
     public InvoiceServiceImpl(InvoiceRepository invoiceRepository,
                               EncounterRepository encounterRepository,
-                              InvoiceMapper invoiceMapper, WebClient webClient) {
+                              InvoiceMapper invoiceMapper,
+                              WebClient webClient,
+                              PrescriptionRepository prescriptionRepository) {
         this.invoiceRepository = invoiceRepository;
         this.encounterRepository = encounterRepository;
         this.invoiceMapper = invoiceMapper;
         this.webClient = webClient;
+        this.prescriptionRepository = prescriptionRepository;
     }
 
     @Override
@@ -53,11 +59,29 @@ public class InvoiceServiceImpl implements InvoiceService {
             throw new RuntimeException("Invoice already exists for this encounter");
         }
 
+        // Set default due date to 30 days from now if not provided
+        LocalDate dueDate = invoiceRequestDto.getDueDate() != null
+            ? invoiceRequestDto.getDueDate()
+            : LocalDate.now().plusDays(30);
+
+        // Calculate total from all prescriptions linked to this encounter
+        List<Prescription> prescriptions = prescriptionRepository.findByEncounterIdAndDeletedAtIsNullOrderByCreatedAtDesc(
+            invoiceRequestDto.getEncounterId()
+        );
+
+        BigDecimal totalAmount = BigDecimal.ZERO;
+        for (Prescription prescription : prescriptions) {
+            // Add prescription total price (which is already calculated when drugs are added)
+            if (prescription.getTotalPrice() != null) {
+                totalAmount = totalAmount.add(prescription.getTotalPrice());
+            }
+        }
+
         Invoice invoice = Invoice.builder()
-                .dueDate(invoiceRequestDto.getDueDate())
-                .amountPaid(invoiceRequestDto.getAmountPaid())
-                .totalAmount(invoiceRequestDto.getTotalAmount())
-                .status(invoiceRequestDto.getStatus())
+                .dueDate(dueDate)
+                .amountPaid(invoiceRequestDto.getAmountPaid() != null ? invoiceRequestDto.getAmountPaid() : BigDecimal.ZERO)
+                .totalAmount(totalAmount) // Auto-calculated from prescriptions
+                .status(invoiceRequestDto.getStatus() != null ? invoiceRequestDto.getStatus() : InvoiceStatus.UNPAID)
                 .encounter(encounterOpt.get())
                 .build();
 
@@ -204,9 +228,34 @@ public class InvoiceServiceImpl implements InvoiceService {
             invoiceRepository.save(invoice);
 
             updateStatus(invoiceId);
+
+            // Auto-dispense prescriptions when invoice is fully paid
+            if (invoice.getStatus() == InvoiceStatus.PAID) {
+                autoDispensePrescriptions(invoice);
+            }
+
             return true;
         } catch (Exception e) {
             return false;
+        }
+    }
+
+    private void autoDispensePrescriptions(Invoice invoice) {
+        try {
+            // Find all prescriptions for this encounter
+            List<Prescription> prescriptions = prescriptionRepository
+                .findByEncounterIdAndDeletedAtIsNullOrderByCreatedAtDesc(invoice.getEncounter().getId());
+
+            for (Prescription prescription : prescriptions) {
+                // Only dispense if prescription is in FINAL status
+                if (prescription.getStatus() == com.pulseclinic.pulse_server.enums.PrescriptionStatus.FINAL) {
+                    prescription.setStatus(com.pulseclinic.pulse_server.enums.PrescriptionStatus.DISPENSED);
+                    prescriptionRepository.save(prescription);
+                }
+            }
+        } catch (Exception e) {
+            // Log error but don't fail the payment
+            System.err.println("Error auto-dispensing prescriptions: " + e.getMessage());
         }
     }
 

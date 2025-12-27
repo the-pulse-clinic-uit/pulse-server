@@ -303,6 +303,12 @@ public class AppointmentServiceImpl implements AppointmentService {
             throw new RuntimeException("Appointment must be CONFIRMED or CHECKED_IN to create encounter. Current status: " + appointment.getStatus());
         }
 
+        // Auto check-in if not already checked in
+        if (appointment.getStatus() == AppointmentStatus.CONFIRMED) {
+            appointment.setStatus(AppointmentStatus.CHECKED_IN);
+            appointmentRepository.save(appointment);
+        }
+
         Encounter encounter = Encounter.builder()
                 .type(EncounterType.APPOINTED)
                 .startedAt(LocalDateTime.now())

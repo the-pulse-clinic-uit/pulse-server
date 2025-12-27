@@ -2,9 +2,11 @@ package com.pulseclinic.pulse_server.modules.pharmacy.service.impl;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import com.pulseclinic.pulse_server.modules.encounters.repository.EncounterRepository;
+import com.pulseclinic.pulse_server.modules.pharmacy.entity.Prescription;
 import com.pulseclinic.pulse_server.modules.pharmacy.repository.PrescriptionDetailRepository;
 import com.pulseclinic.pulse_server.modules.pharmacy.repository.PrescriptionRepository;
 import org.springframework.stereotype.Service;
@@ -18,23 +20,26 @@ import com.pulseclinic.pulse_server.modules.pharmacy.service.PrescriptionService
 
 @Service
 public class PrescriptionServiceImpl implements PrescriptionService {
-    
+
     private final PrescriptionRepository prescriptionRepository;
     private final PrescriptionDetailRepository prescriptionDetailRepository;
     private final EncounterRepository encounterRepository;
     private final com.pulseclinic.pulse_server.mappers.impl.PrescriptionMapper prescriptionMapper;
     private final com.pulseclinic.pulse_server.mappers.impl.PrescriptionDetailMapper prescriptionDetailMapper;
+    private final com.pulseclinic.pulse_server.modules.appointments.repository.AppointmentRepository appointmentRepository;
 
     public PrescriptionServiceImpl(PrescriptionRepository prescriptionRepository,
                                   PrescriptionDetailRepository prescriptionDetailRepository,
                                   com.pulseclinic.pulse_server.modules.encounters.repository.EncounterRepository encounterRepository,
                                   com.pulseclinic.pulse_server.mappers.impl.PrescriptionMapper prescriptionMapper,
-                                  com.pulseclinic.pulse_server.mappers.impl.PrescriptionDetailMapper prescriptionDetailMapper) {
+                                  com.pulseclinic.pulse_server.mappers.impl.PrescriptionDetailMapper prescriptionDetailMapper,
+                                  com.pulseclinic.pulse_server.modules.appointments.repository.AppointmentRepository appointmentRepository) {
         this.prescriptionRepository = prescriptionRepository;
         this.prescriptionDetailRepository = prescriptionDetailRepository;
         this.encounterRepository = encounterRepository;
         this.prescriptionMapper = prescriptionMapper;
         this.prescriptionDetailMapper = prescriptionDetailMapper;
+        this.appointmentRepository = appointmentRepository;
     }
 
     @Override
@@ -83,7 +88,7 @@ public class PrescriptionServiceImpl implements PrescriptionService {
             }
 
             var prescription = prescriptionOpt.get();
-            
+
             if (prescription.getStatus() != com.pulseclinic.pulse_server.enums.PrescriptionStatus.DRAFT) {
                 return false;
             }
@@ -91,6 +96,14 @@ public class PrescriptionServiceImpl implements PrescriptionService {
             prescription.setTotalPrice(calculateTotal(prescriptionId));
             prescription.setStatus(com.pulseclinic.pulse_server.enums.PrescriptionStatus.FINAL);
             prescriptionRepository.save(prescription);
+
+            // Auto-end encounter when prescription is finalized
+            var encounter = prescription.getEncounter();
+            if (encounter != null && encounter.getEndedAt() == null) {
+                encounter.setEndedAt(java.time.LocalDateTime.now());
+                encounterRepository.save(encounter);
+            }
+
             return true;
         } catch (Exception e) {
             return false;
@@ -107,28 +120,56 @@ public class PrescriptionServiceImpl implements PrescriptionService {
             }
 
             var prescription = prescriptionOpt.get();
-            
+
             if (prescription.getStatus() != com.pulseclinic.pulse_server.enums.PrescriptionStatus.FINAL) {
                 return false;
             }
 
             prescription.setStatus(com.pulseclinic.pulse_server.enums.PrescriptionStatus.DISPENSED);
             prescriptionRepository.save(prescription);
+
+            // Auto-complete appointment when prescription is dispensed
+            autoCompleteAppointment(prescription);
+
             return true;
         } catch (Exception e) {
             return false;
         }
     }
 
+    private void autoCompleteAppointment(com.pulseclinic.pulse_server.modules.pharmacy.entity.Prescription prescription) {
+        try {
+            var encounter = prescription.getEncounter();
+            if (encounter != null && encounter.getAppointment() != null) {
+                var appointment = encounter.getAppointment();
+                // Only mark as done if not already done or cancelled
+                if (appointment.getStatus() != com.pulseclinic.pulse_server.enums.AppointmentStatus.DONE &&
+                    appointment.getStatus() != com.pulseclinic.pulse_server.enums.AppointmentStatus.CANCELLED) {
+                    appointment.setStatus(com.pulseclinic.pulse_server.enums.AppointmentStatus.DONE);
+                    appointmentRepository.save(appointment);
+                }
+            }
+        } catch (Exception e) {
+            // Log error but don't fail the dispensing
+            System.err.println("Error auto-completing appointment: " + e.getMessage());
+        }
+    }
+
     @Override
-    @Transactional(readOnly = true)
+    //@Transactional(readOnly = true)
     public BigDecimal calculateTotal(UUID prescriptionId) {
         List<com.pulseclinic.pulse_server.modules.pharmacy.entity.PrescriptionDetail> details = 
             prescriptionDetailRepository.findByPrescriptionIdAndDeletedAtIsNullOrderByCreatedAtAsc(prescriptionId);
         
-        return details.stream()
+        BigDecimal totalPrice = details.stream()
                 .map(com.pulseclinic.pulse_server.modules.pharmacy.entity.PrescriptionDetail::getItemTotalPrice)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
+        Optional<Prescription> prescription = prescriptionRepository.findById(prescriptionId);
+        if (prescription.isPresent()) {
+            prescription.get().setTotalPrice(totalPrice);
+            prescriptionRepository.save(prescription.get());
+        }
+        return totalPrice;
     }
 
     @Override
