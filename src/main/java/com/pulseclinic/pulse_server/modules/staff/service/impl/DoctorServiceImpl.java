@@ -7,18 +7,16 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import com.pulseclinic.pulse_server.enums.Position;
+import com.pulseclinic.pulse_server.mappers.impl.*;
+import com.pulseclinic.pulse_server.modules.users.entity.Role;
+import com.pulseclinic.pulse_server.modules.users.entity.User;
+import com.pulseclinic.pulse_server.modules.users.repository.RoleRepository;
+import com.pulseclinic.pulse_server.modules.users.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.pulseclinic.pulse_server.enums.AdmissionStatus;
-import com.pulseclinic.pulse_server.mappers.impl.AdmissionMapper;
-import com.pulseclinic.pulse_server.mappers.impl.AppointmentMapper;
-import com.pulseclinic.pulse_server.mappers.impl.DoctorMapper;
-import com.pulseclinic.pulse_server.mappers.impl.EncounterMapper;
-import com.pulseclinic.pulse_server.mappers.impl.FollowUpPlanMapper;
-import com.pulseclinic.pulse_server.mappers.impl.PatientMapper;
-import com.pulseclinic.pulse_server.mappers.impl.PrescriptionMapper;
-import com.pulseclinic.pulse_server.mappers.impl.ShiftAssignmentMapper;
 import com.pulseclinic.pulse_server.modules.admissions.entity.Admission;
 import com.pulseclinic.pulse_server.modules.admissions.repository.AdmissionRepository;
 import com.pulseclinic.pulse_server.modules.appointments.entity.Appointment;
@@ -39,6 +37,8 @@ import com.pulseclinic.pulse_server.modules.staff.repository.DoctorRepository;
 import com.pulseclinic.pulse_server.modules.staff.repository.StaffRepository;
 import com.pulseclinic.pulse_server.modules.staff.service.DoctorService;
 
+import javax.swing.text.html.Option;
+
 @Service
 public class DoctorServiceImpl implements DoctorService {
 
@@ -51,24 +51,30 @@ public class DoctorServiceImpl implements DoctorService {
     private final AppointmentRepository appointmentRepository;
     private final EncounterRepository encounterRepository;
     private final PatientMapper patientMapper;
+    private final RoleRepository roleRepository;
+    private final UserRepository userRepository;
+    private final DepartmentMapper departmentMapper;
+    private final StaffMapper staffMapper;
+    private final UserMapper userMapper;
 
     public DoctorServiceImpl(DoctorRepository doctorRepository,
-                           StaffRepository staffRepository,
-                           DepartmentRepository departmentRepository,
-                           DoctorMapper doctorMapper,
-                           ShiftAssignmentRepository shiftAssignmentRepository,
-                           ShiftAssignmentMapper shiftAssignmentMapper,
-                           AppointmentRepository appointmentRepository,
-                           AppointmentMapper appointmentMapper,
-                           EncounterRepository encounterRepository,
-                           AdmissionRepository admissionRepository,
-                           AdmissionMapper admissionMapper,
-                           PrescriptionMapper prescriptionMapper,
-                           PrescriptionRepository prescriptionRepository,
-                           EncounterMapper encounterMapper,
-                           PatientMapper patientMapper,
-                           com.pulseclinic.pulse_server.modules.encounters.repository.FollowUpPlanRepository followUpPlanRepository,
-                           FollowUpPlanMapper followUpPlanMapper) {
+                             StaffRepository staffRepository,
+                             DepartmentRepository departmentRepository,
+                             DoctorMapper doctorMapper,
+                             RoleRepository roleRepository,
+                             ShiftAssignmentRepository shiftAssignmentRepository,
+                             ShiftAssignmentMapper shiftAssignmentMapper,
+                             AppointmentRepository appointmentRepository,
+                             AppointmentMapper appointmentMapper,
+                             EncounterRepository encounterRepository,
+                             AdmissionRepository admissionRepository,
+                             AdmissionMapper admissionMapper,
+                             PrescriptionMapper prescriptionMapper,
+                             PrescriptionRepository prescriptionRepository,
+                             EncounterMapper encounterMapper,
+                             PatientMapper patientMapper,
+                             com.pulseclinic.pulse_server.modules.encounters.repository.FollowUpPlanRepository followUpPlanRepository,
+                             FollowUpPlanMapper followUpPlanMapper, UserRepository userRepository, DepartmentMapper departmentMapper, StaffMapper staffMapper, UserMapper userMapper) {
         this.doctorRepository = doctorRepository;
         this.staffRepository = staffRepository;
         this.departmentRepository = departmentRepository;
@@ -78,6 +84,11 @@ public class DoctorServiceImpl implements DoctorService {
         this.appointmentRepository = appointmentRepository;
         this.encounterRepository = encounterRepository;
         this.patientMapper = patientMapper;
+        this.roleRepository = roleRepository;
+        this.userRepository = userRepository;
+        this.departmentMapper = departmentMapper;
+        this.staffMapper = staffMapper;
+        this.userMapper = userMapper;
     }
 
     @Override
@@ -106,9 +117,23 @@ public class DoctorServiceImpl implements DoctorService {
             throw new RuntimeException("Department not found");
         }
 
+        Optional<Role> roleOpt = roleRepository.findByName("doctor");
+        if (roleOpt.isEmpty()) {
+            throw new RuntimeException("Role not found");
+        }
+
         Staff staff = staffOpt.get();
         staff.setDepartment(departmentOpt.get());
+        staff.setPosition(Position.DOCTOR);
         staffRepository.save(staff);
+
+        Optional<User> userOpt = userRepository.findById(staff.getUser().getId());
+        if(userOpt.isEmpty()) {
+            throw new RuntimeException("User not found");
+        }
+
+        User user = userOpt.get();
+        user.setRole(roleOpt.get());
 
         Doctor doctor = Doctor.builder()
                 .licenseId(doctorRequestDto.getLicenseId())
@@ -117,7 +142,8 @@ public class DoctorServiceImpl implements DoctorService {
                 .build();
 
         Doctor savedDoctor = doctorRepository.save(doctor);
-        return doctorMapper.mapTo(savedDoctor);
+
+        return this.mapTo(savedDoctor, user);
     }
 
     @Override
@@ -237,5 +263,15 @@ public class DoctorServiceImpl implements DoctorService {
         return doctorRepository.findAll().stream()
                 .map(doctorMapper::mapTo)
                 .collect(Collectors.toList());
+    }
+
+    private DoctorDto mapTo(Doctor doctor, User user) {
+        DoctorDto resultDto = doctorMapper.mapTo(doctor);
+
+        resultDto.setDepartmentDto(departmentMapper.mapTo(doctor.getDepartment()));
+        resultDto.setStaffDto(staffMapper.mapTo(doctor.getStaff()));
+        resultDto.getStaffDto().setUserDto(userMapper.mapTo(user));
+
+        return resultDto;
     }
 }
