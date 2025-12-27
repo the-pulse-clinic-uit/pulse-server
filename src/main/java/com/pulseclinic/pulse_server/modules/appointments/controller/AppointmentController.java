@@ -110,4 +110,70 @@ public class AppointmentController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
+
+    // Get all appointments
+    @GetMapping
+    @PreAuthorize("hasAnyAuthority('admin', 'staff')")
+    public ResponseEntity<java.util.List<AppointmentDto>> getAllAppointments() {
+        java.util.List<AppointmentDto> appointments = appointmentService.getAllAppointments();
+        return ResponseEntity.ok(appointments);
+    }
+
+    // Get all pending appointments (for staff approval)
+    @GetMapping("/pending")
+    @PreAuthorize("hasAnyAuthority('admin', 'staff')")
+    public ResponseEntity<java.util.List<AppointmentDto>> getPendingAppointments() {
+        java.util.List<AppointmentDto> appointments = appointmentService.getPendingAppointments();
+        return ResponseEntity.ok(appointments);
+    }
+
+    // Get all confirmed appointments
+    @GetMapping("/confirmed")
+    @PreAuthorize("hasAnyAuthority('admin', 'staff')")
+    public ResponseEntity<java.util.List<AppointmentDto>> getConfirmedAppointments() {
+        java.util.List<AppointmentDto> appointments = appointmentService.getConfirmedAppointments();
+        return ResponseEntity.ok(appointments);
+    }
+
+    // Get today's appointments
+    @GetMapping("/today")
+    @PreAuthorize("hasAnyAuthority('admin', 'staff')")
+    public ResponseEntity<java.util.List<AppointmentDto>> getTodayAppointments() {
+        java.util.List<AppointmentDto> appointments = appointmentService.getTodayAppointments();
+        return ResponseEntity.ok(appointments);
+    }
+
+    // Get appointments by status
+    @GetMapping("/status/{status}")
+    @PreAuthorize("hasAnyAuthority('admin', 'staff')")
+    public ResponseEntity<java.util.List<AppointmentDto>> getAppointmentsByStatus(
+            @PathVariable com.pulseclinic.pulse_server.enums.AppointmentStatus status) {
+        java.util.List<AppointmentDto> appointments = appointmentService.getAppointmentsByStatus(status);
+        return ResponseEntity.ok(appointments);
+    }
+
+    // Get appointments by doctor
+    @GetMapping("/doctor/{doctorId}")
+    @PreAuthorize("hasAnyAuthority('admin', 'staff')")
+    public ResponseEntity<java.util.List<AppointmentDto>> getAppointmentsByDoctor(@PathVariable UUID doctorId) {
+        java.util.List<AppointmentDto> appointments = appointmentService.getAppointmentsByDoctor(doctorId);
+        return ResponseEntity.ok(appointments);
+    }
+
+    // Get appointments by patient
+    @GetMapping("/patient/{patientId}")
+    public ResponseEntity<java.util.List<AppointmentDto>> getAppointmentsByPatient(@PathVariable UUID patientId) {
+        java.util.List<AppointmentDto> appointments = appointmentService.getAppointmentsByPatient(patientId);
+        return ResponseEntity.ok(appointments);
+    }
+
+    // Get appointments by date range
+    @GetMapping("/range")
+    @PreAuthorize("hasAnyAuthority('admin', 'staff')")
+    public ResponseEntity<java.util.List<AppointmentDto>> getAppointmentsByDateRange(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate) {
+        java.util.List<AppointmentDto> appointments = appointmentService.getAppointmentsByDateRange(startDate, endDate);
+        return ResponseEntity.ok(appointments);
+    }
 }

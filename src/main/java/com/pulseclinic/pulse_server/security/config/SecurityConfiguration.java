@@ -14,41 +14,41 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfiguration {
-    private final JwtAuthenticationFilter jwtAuthFilter;
+        private final JwtAuthenticationFilter jwtAuthFilter;
 
-    private final AuthenticationProvider authenticationProvider;
+        private final AuthenticationProvider authenticationProvider;
 
-    public SecurityConfiguration(JwtAuthenticationFilter jwtAuthFilter, AuthenticationProvider authenticationProvider) {
-        this.jwtAuthFilter = jwtAuthFilter;
-        this.authenticationProvider = authenticationProvider;
-    }
+        public SecurityConfiguration(JwtAuthenticationFilter jwtAuthFilter,
+                        AuthenticationProvider authenticationProvider) {
+                this.jwtAuthFilter = jwtAuthFilter;
+                this.authenticationProvider = authenticationProvider;
+        }
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-                .csrf(csrf -> csrf.disable())
-                .authorizeHttpRequests(
-                        auth -> auth
-                                .requestMatchers("/auth/login", "/auth/register", "auth/forgot-password", "auth/reset-password", "roles/**",
-                                        "/ws/**", "/ws-raw/**",
-                                        "/v3/api-docs/**",
-                                        "/swagger-ui/**",
-                                        "/swagger-ui.html",
-                                        "/invoices/{invoiceId}/record-payment"
-                                )
-                                .permitAll()
-                                // Admin only
-//                                .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                                .anyRequest().authenticated()
-                )
-                .sessionManagement(
-                        session -> session
-                                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                )
-                .authenticationProvider(authenticationProvider)
-                // UsernamePasswordAuthenticationFilter.class = username, password
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
-        return http.build();
+        @Bean
+        public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+                http
+                                .csrf(csrf -> csrf.disable())
+                                .authorizeHttpRequests(
+                                                auth -> auth
+                                                                .requestMatchers("/auth/login", "/auth/register",
+                                                                                "auth/forgot-password",
+                                                                                "auth/reset-password", "roles/**",
+                                                                                "/ws/**", "/ws-raw/**",
+                                                                                "/v3/api-docs/**",
+                                                                                "/swagger-ui/**",
+                                                                                "/swagger-ui.html",
+                                                                                "/invoices/{invoiceId}/record-payment")
+                                                                .permitAll()
+                                                                // Admin only
+                                                                // .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                                                                .anyRequest().authenticated())
+                                .sessionManagement(
+                                                session -> session
+                                                                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                                .authenticationProvider(authenticationProvider)
+                                // UsernamePasswordAuthenticationFilter.class = username, password
+                                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+                return http.build();
 
-    }
+        }
 }
