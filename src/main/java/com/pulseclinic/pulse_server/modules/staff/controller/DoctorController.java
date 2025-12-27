@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +26,7 @@ import com.pulseclinic.pulse_server.modules.staff.service.DoctorService;
 
 import jakarta.validation.Valid;
 
+@Slf4j
 @RestController
 @RequestMapping("/doctors")
 public class DoctorController {
@@ -41,6 +43,7 @@ public class DoctorController {
             DoctorDto doctor = doctorService.createDoctor(doctorRequestDto);
             return ResponseEntity.status(HttpStatus.CREATED).body(doctor);
         } catch (Exception e) {
+            log.info("Exception: ", e);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
