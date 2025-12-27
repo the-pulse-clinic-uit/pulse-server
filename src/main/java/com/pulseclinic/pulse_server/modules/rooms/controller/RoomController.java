@@ -35,49 +35,51 @@ public class RoomController {
     }
 
     @PostMapping
-    @PreAuthorize("hasAnyAuthority('admin')")
+    @PreAuthorize("hasAnyAuthority('doctor')")
     public ResponseEntity<RoomDto> createRoom(@RequestBody RoomRequestDto roomRequestDto) {
         Room room = this.roomService.createRoom(this.roomMapper.mapFrom(roomRequestDto));
-        return new ResponseEntity<>(this.roomMapper.mapTo(room),HttpStatus.CREATED);
+        return new ResponseEntity<>(this.roomMapper.mapTo(room), HttpStatus.CREATED);
     }
 
     @GetMapping("/by-department")
-    @PreAuthorize("hasAnyAuthority('admin', 'staff')")
+    @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
     public ResponseEntity<List<RoomDto>> getAll(@RequestParam UUID departmentId) {
         List<Room> rooms = this.roomService.findAllByDepartmentId(departmentId);
-        return new ResponseEntity<>(rooms.stream().map(r->this.roomMapper.mapTo(r)).collect(Collectors.toList()), HttpStatus.OK);
+        return new ResponseEntity<>(rooms.stream().map(r -> this.roomMapper.mapTo(r)).collect(Collectors.toList()),
+                HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyAuthority('admin', 'staff')")
+    @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
     public ResponseEntity<RoomDto> getRoom(@PathVariable UUID id) {
         Room room = this.roomService.findById(id);
-        return new ResponseEntity<>(this.roomMapper.mapTo(room),HttpStatus.OK);
+        return new ResponseEntity<>(this.roomMapper.mapTo(room), HttpStatus.OK);
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyAuthority('admin', 'staff')")
+    @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
     public ResponseEntity<List<RoomDto>> getAllRooms() {
         List<Room> rooms = this.roomService.findAll();
-        return new ResponseEntity<>(rooms.stream().map(r->this.roomMapper.mapTo(r)).collect(Collectors.toList()), HttpStatus.OK);
+        return new ResponseEntity<>(rooms.stream().map(r -> this.roomMapper.mapTo(r)).collect(Collectors.toList()),
+                HttpStatus.OK);
     }
 
     @PatchMapping("/status/{id}")
-    @PreAuthorize("hasAnyAuthority('admin', 'staff')")
+    @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
     public ResponseEntity<RoomDto> updateStatus(@PathVariable UUID id) {
         Room room = this.roomService.updateStatus(id);
-        return new ResponseEntity<>(this.roomMapper.mapTo(room),HttpStatus.OK);
+        return new ResponseEntity<>(this.roomMapper.mapTo(room), HttpStatus.OK);
     }
 
     @PatchMapping("/{id}")
-    @PreAuthorize("hasAnyAuthority('admin')")
+    @PreAuthorize("hasAnyAuthority('doctor')")
     public ResponseEntity<RoomDto> updateRoom(@PathVariable UUID id, @RequestBody RoomDto roomDto) {
         Room room = this.roomService.updateRoom(id, roomDto);
-        return new ResponseEntity<>(this.roomMapper.mapTo(room),HttpStatus.OK);
+        return new ResponseEntity<>(this.roomMapper.mapTo(room), HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAnyAuthority('admin', 'staff')")
+    @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
     public ResponseEntity<Void> deleteRoom(@PathVariable UUID id) {
         this.roomService.deleteRoom(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);

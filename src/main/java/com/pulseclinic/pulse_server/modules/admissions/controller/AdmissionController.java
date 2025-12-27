@@ -32,7 +32,7 @@ public class AdmissionController {
     }
 
     @PostMapping
-    @PreAuthorize("hasAnyAuthority('admin','staff')")
+    @PreAuthorize("hasAnyAuthority('doctor','staff')")
     public ResponseEntity<AdmissionDto> admitPatient(@Valid @RequestBody AdmissionRequestDto requestDto) {
         try {
             AdmissionDto admission = admissionService.admitPatient(requestDto);
@@ -43,35 +43,41 @@ public class AdmissionController {
     }
 
     @GetMapping("/{admissionId}")
-    @PreAuthorize("hasAnyAuthority('admin','staff')")
+    @PreAuthorize("hasAnyAuthority('doctor','staff')")
     public ResponseEntity<AdmissionDto> getAdmissionById(@PathVariable UUID admissionId) {
         return admissionService.getAdmissionById(admissionId)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
-//    @PutMapping("/{admissionId}/transfer")
-//    public ResponseEntity<Void> transferRoom(
-//            @PathVariable UUID admissionId,
-//            @RequestParam UUID newRoomId) {
-//        boolean success = admissionService.transferRoom(admissionId, newRoomId);
-//        return success ? ResponseEntity.ok().build() : ResponseEntity.badRequest().build();
-//    }
+    @PutMapping("/{admissionId}/transfer-room")
+    @PreAuthorize("hasAnyAuthority('doctor','staff')")
+    public ResponseEntity<Void> transferRoom(
+            @PathVariable UUID admissionId,
+            @RequestParam UUID newRoomId) {
+        try {
+            boolean success = admissionService.transferRoom(admissionId, newRoomId);
+            return success ? ResponseEntity.ok().build() : ResponseEntity.badRequest().build();
+        } catch (Exception e) {
+            log.error("Failed to transfer room: {}", e.getMessage());
+            return ResponseEntity.badRequest().build();
+        }
+    }
 
     @PutMapping("/{admissionId}/discharge")
-    @PreAuthorize("hasAnyAuthority('admin','staff')")
+    @PreAuthorize("hasAnyAuthority('doctor','staff')")
     public ResponseEntity<Void> dischargePatient(@PathVariable UUID admissionId) {
         try {
             boolean success = admissionService.dischargePatient(admissionId);
             return success ? ResponseEntity.ok().build() : ResponseEntity.badRequest().build();
         } catch (Exception e) {
-//            log.info("Exception caught: {}", e);
+            // log.info("Exception caught: {}", e);
             return ResponseEntity.badRequest().build();
         }
     }
 
     @PutMapping("/{admissionId}/notes")
-    @PreAuthorize("hasAnyAuthority('admin','staff')")
+    @PreAuthorize("hasAnyAuthority('doctor','staff')")
     public ResponseEntity<Void> updateNotes(
             @PathVariable UUID admissionId,
             @RequestParam String notes) {

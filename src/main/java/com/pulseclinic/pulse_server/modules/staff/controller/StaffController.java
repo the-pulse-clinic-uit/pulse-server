@@ -29,7 +29,7 @@ public class StaffController {
     }
 
     @PostMapping
-    @PreAuthorize("hasAuthority('admin')")
+    @PreAuthorize("hasAuthority('doctor')")
     public ResponseEntity<StaffDto> createStaff(@RequestBody StaffRequestDto staffRequestDto) {
         Staff staff = this.staffService.createStaff(staffRequestDto);
         return new ResponseEntity<>(this.staffMapper.mapTo(staff), HttpStatus.CREATED);
@@ -38,29 +38,35 @@ public class StaffController {
     @GetMapping("/search")
     public ResponseEntity<List<StaffDto>> searchStaff(@RequestParam Position position) {
         List<Staff> staff = this.staffService.searchByPosition(position);
-        return new ResponseEntity<>(staff.stream().map(staff1 -> this.staffMapper.mapTo(staff1)).collect(Collectors.toList()), HttpStatus.OK);
+        return new ResponseEntity<>(
+                staff.stream().map(staff1 -> this.staffMapper.mapTo(staff1)).collect(Collectors.toList()),
+                HttpStatus.OK);
     }
+
     @GetMapping("/me")
-    public ResponseEntity<StaffDto> getStaffMe(Authentication authentication){
+    public ResponseEntity<StaffDto> getStaffMe(Authentication authentication) {
         Optional<Staff> staff = this.staffService.findByEmail(authentication.getName());
-        if(staff.isPresent()){
+        if (staff.isPresent()) {
             return new ResponseEntity<>(this.staffMapper.mapTo(staff.get()), HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
+
     @GetMapping("/{id}")
     public ResponseEntity<StaffDto> getStaffById(@PathVariable UUID id) {
         Optional<Staff> staff = this.staffService.findById(id);
-        if(staff.isPresent()){
+        if (staff.isPresent()) {
             return new ResponseEntity<>(this.staffMapper.mapTo(staff.get()), HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
+
     @PatchMapping("/me")
-    public ResponseEntity<StaffDto> updateStaffMe(Authentication authentication,@RequestBody StaffDto staffDto) {
+    public ResponseEntity<StaffDto> updateStaffMe(Authentication authentication, @RequestBody StaffDto staffDto) {
         Staff staff = this.staffService.updateMe(authentication.getName(), staffDto);
         return new ResponseEntity<>(this.staffMapper.mapTo(staff), HttpStatus.OK);
     }
+
     @PatchMapping("/{id}")
     public ResponseEntity<StaffDto> updateStaffById(@PathVariable UUID id, @RequestBody StaffDto staffDto) {
         Staff staff = this.staffService.update(id, staffDto);

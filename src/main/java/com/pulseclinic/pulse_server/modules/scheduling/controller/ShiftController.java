@@ -36,7 +36,7 @@ public class ShiftController {
     }
 
     @PostMapping
-    @PreAuthorize("hasAuthority('admin')")
+    @PreAuthorize("hasAuthority('doctor')")
     public ResponseEntity<ShiftDto> createShift(@Valid @RequestBody ShiftRequestDto shiftRequestDto) {
         try {
             ShiftDto shift = shiftService.createShift(shiftRequestDto);
@@ -47,14 +47,14 @@ public class ShiftController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyAuthority('staff', 'admin')")
+    @PreAuthorize("hasAnyAuthority('staff', 'doctor')")
     public ResponseEntity<List<ShiftDto>> getAllShifts() {
         List<ShiftDto> shifts = shiftService.getAllShifts();
         return ResponseEntity.ok(shifts);
     }
 
     @GetMapping("/{shiftId}")
-    @PreAuthorize("hasAnyAuthority('staff', 'admin')")
+    @PreAuthorize("hasAnyAuthority('staff', 'doctor')")
     public ResponseEntity<ShiftDto> getShiftById(@PathVariable UUID shiftId) {
         Optional<ShiftDto> shift = shiftService.getShiftById(shiftId);
         return shift.map(ResponseEntity::ok)
@@ -62,7 +62,7 @@ public class ShiftController {
     }
 
     @PutMapping("/{shiftId}")
-    @PreAuthorize("hasAuthority('admin')")
+    @PreAuthorize("hasAuthority('doctor')")
     public ResponseEntity<Void> updateShift(
             @PathVariable UUID shiftId,
             @Valid @RequestBody ShiftRequestDto shiftRequestDto) {
@@ -71,7 +71,7 @@ public class ShiftController {
     }
 
     @DeleteMapping("/{shiftId}")
-    @PreAuthorize("hasAuthority('admin')")
+    @PreAuthorize("hasAuthority('doctor')")
     public ResponseEntity<Void> deleteShift(@PathVariable UUID shiftId) {
         boolean deleted = shiftService.deleteShift(shiftId);
         return deleted ? ResponseEntity.noContent().build() : ResponseEntity.badRequest().build();

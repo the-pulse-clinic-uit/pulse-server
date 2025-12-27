@@ -20,7 +20,7 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest registerRequest) {
         AuthResponse authResponse = authService.register(registerRequest);
-        if(authResponse != null) {
+        if (authResponse != null) {
             return ResponseEntity.ok(authResponse);
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -37,17 +37,17 @@ public class AuthController {
 
     @PostMapping("/forgot-password")
     public ResponseEntity<HttpStatus> forgotPassword(@Valid @RequestBody ForgotPasswordRequest forgotPasswordRequest) {
-        if (authService.generateResetToken(forgotPasswordRequest)){
+        if (authService.generateResetToken(forgotPasswordRequest)) {
             return ResponseEntity.ok(HttpStatus.OK);
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 
     @PostMapping("/reset-password")
-//    @PreAuthorize(isAuthenticated())
-//    @PreAuthorize("hasAnyRole('DOCTOR','ADMIN')")
+    // @PreAuthorize(isAuthenticated())
+    // @PreAuthorize("hasAnyRole('DOCTOR','doctor')")
     public ResponseEntity<HttpStatus> resetPassword(@Valid @RequestBody ResetPasswordRequest resetPasswordRequest) {
-        if (authService.resetPassword(resetPasswordRequest)){
+        if (authService.resetPassword(resetPasswordRequest)) {
             return ResponseEntity.ok(HttpStatus.OK);
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -55,10 +55,12 @@ public class AuthController {
 
     @PostMapping("/logout")
     public ResponseEntity<HttpStatus> logout(Authentication authentication,
-                                             @RequestHeader("Authorization") String authHeader) {
+            @RequestHeader("Authorization") String authHeader) {
         String email = authentication.getName();
         String token = authHeader.substring(7);
-        if (authService.logout(email, token)) return ResponseEntity.ok().build();
-        else return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        if (authService.logout(email, token))
+            return ResponseEntity.ok().build();
+        else
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 }

@@ -59,4 +59,27 @@ public interface AppointmentRepository extends JpaRepository<Appointment, UUID> 
 
     @Query("SELECT COUNT(a) FROM Appointment a WHERE a.doctor.staff.department.id = :departmentId AND a.status = :status AND a.startsAt BETWEEN :start AND :end AND a.deletedAt IS NULL")
     Long countByDoctorDepartmentIdAndStatusAndStartsAtBetween(@Param("departmentId") UUID departmentId, @Param("status") AppointmentStatus status, @Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
+
+    // New query methods for appointment management
+    List<Appointment> findByDeletedAtIsNullOrderByStartsAtDesc();
+
+    List<Appointment> findByStatusAndDeletedAtIsNullOrderByStartsAtAsc(AppointmentStatus status);
+
+    List<Appointment> findByDoctorIdAndDeletedAtIsNullOrderByStartsAtDesc(UUID doctorId);
+
+    @Query("""
+            SELECT a FROM Appointment a
+            WHERE a.startsAt BETWEEN :startDate AND :endDate
+              AND a.deletedAt IS NULL
+            ORDER BY a.startsAt ASC
+            """)
+    List<Appointment> findByDateRange(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
+
+    @Query("""
+            SELECT a FROM Appointment a
+            WHERE FUNCTION('DATE', a.startsAt) = CURRENT_DATE
+              AND a.deletedAt IS NULL
+            ORDER BY a.startsAt ASC
+            """)
+    List<Appointment> findTodayAppointments();
 }

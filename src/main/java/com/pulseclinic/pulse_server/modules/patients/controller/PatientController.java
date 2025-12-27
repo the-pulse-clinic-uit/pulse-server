@@ -30,22 +30,21 @@ public class PatientController {
     }
 
     @PostMapping("/search")
-    @PreAuthorize("hasAnyAuthority('admin', 'staff')")
+    @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
     public ResponseEntity<List<PatientDto>> searchPatient(@RequestBody PatientSearchDto patientSearchDto) {
         List<Patient> patients = this.patientService.search(patientSearchDto);
-        return new ResponseEntity<>(patients.stream().map(patient -> patientMapper.mapTo(patient)).collect(Collectors.toList()), HttpStatus.OK);
+        return new ResponseEntity<>(
+                patients.stream().map(patient -> patientMapper.mapTo(patient)).collect(Collectors.toList()),
+                HttpStatus.OK);
     }
-
 
     // for staff
     @PostMapping
-    @PreAuthorize("hasAnyAuthority('staff', 'admin')")
+    @PreAuthorize("hasAnyAuthority('staff', 'doctor')")
     public ResponseEntity<PatientDto> registerPatient(@RequestBody PatientRequestDto patientRequestDto) {
         Patient patient = this.patientService.registerPatient(patientRequestDto);
         return new ResponseEntity<>(this.patientMapper.mapTo(patient), HttpStatus.CREATED);
     }
-
-
 
     @GetMapping("/me")
     public ResponseEntity<PatientDto> getPatientMe(Authentication authentication) {
@@ -58,13 +57,15 @@ public class PatientController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyAuthority('admin', 'staff')")
+    @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
     public ResponseEntity<List<PatientDto>> getPatients() {
         List<Patient> patients = this.patientService.getPatients();
-        return new ResponseEntity<>(patients.stream().map(patient -> patientMapper.mapTo(patient)).collect(Collectors.toList()), HttpStatus.OK);
+        return new ResponseEntity<>(
+                patients.stream().map(patient -> patientMapper.mapTo(patient)).collect(Collectors.toList()),
+                HttpStatus.OK);
     }
 
-    @PreAuthorize("hasAnyAuthority('admin', 'staff')")
+    @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
     @GetMapping("/{id}")
     public ResponseEntity<PatientDto> getPatientById(@PathVariable("id") UUID id) {
         Optional<Patient> patient = this.patientService.findById(id);
@@ -74,16 +75,16 @@ public class PatientController {
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-
     @PatchMapping("/me")
-    public ResponseEntity<PatientDto> updatePatientMe(Authentication authentication,@RequestBody PatientDto patientDto) {
+    public ResponseEntity<PatientDto> updatePatientMe(Authentication authentication,
+            @RequestBody PatientDto patientDto) {
         String email = authentication.getName();
         Patient patient = this.patientService.updatePatientMe(email, patientDto);
         return new ResponseEntity<>(this.patientMapper.mapTo(patient), HttpStatus.OK);
     }
 
     @PatchMapping("/{id}")
-    @PreAuthorize("hasAnyAuthority('admin', 'staff')")
+    @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
     public ResponseEntity<PatientDto> updatePatient(@RequestBody PatientDto patientDto, @PathVariable UUID id) {
         Patient patient = this.patientService.updatePatient(id, patientDto);
         return new ResponseEntity<>(this.patientMapper.mapTo(patient), HttpStatus.OK);

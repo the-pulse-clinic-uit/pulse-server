@@ -32,7 +32,7 @@ public class InvoiceController {
     }
 
     @PostMapping
-    @PreAuthorize("hasAnyAuthority('admin', 'staffs')")
+    @PreAuthorize("hasAnyAuthority('doctor', 'staffs')")
     public ResponseEntity<InvoiceDto> createInvoice(
             @Valid @RequestBody InvoiceRequestDto invoiceRequestDto) {
         try {
@@ -44,7 +44,7 @@ public class InvoiceController {
     }
 
     @GetMapping("/{invoiceId}")
-    @PreAuthorize("hasAnyAuthority('admin', 'staff')")
+    @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
     public ResponseEntity<InvoiceDto> getInvoiceById(@PathVariable UUID invoiceId) {
         return invoiceService.getInvoiceById(invoiceId)
                 .map(ResponseEntity::ok)
@@ -64,7 +64,7 @@ public class InvoiceController {
     }
 
     @PostMapping("/{invoiceId}/line_item")
-    @PreAuthorize("hasAnyAuthority('admin', 'staff')")
+    @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
     public ResponseEntity<Void> addLineItem(
             @PathVariable UUID invoiceId,
             @RequestParam String description,
@@ -74,7 +74,7 @@ public class InvoiceController {
     }
 
     @PostMapping("/{invoiceId}/discount")
-    @PreAuthorize("hasAnyAuthority('admin', 'staff')")
+    @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
     public ResponseEntity<Void> applyDiscount(
             @PathVariable UUID invoiceId,
             @RequestParam BigDecimal discount) {
@@ -83,7 +83,7 @@ public class InvoiceController {
     }
 
     @PostMapping("/{invoiceId}/void")
-    @PreAuthorize("hasAnyAuthority('admin', 'staff')")
+    @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
     public ResponseEntity<Void> voidInvoice(
             @PathVariable UUID invoiceId,
             @RequestParam(required = false) String reason) {
@@ -92,11 +92,17 @@ public class InvoiceController {
     }
 
     @GetMapping("/{invoiceId}/create-payment")
-    @PreAuthorize("hasAnyAuthority('admin', 'staff')")
+    @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
     public ResponseEntity<String> createPayment(
+<<<<<<< HEAD
             @PathVariable UUID invoiceId
         ) {
         String result = invoiceService.createPayment(invoiceId);
+=======
+            @PathVariable UUID invoiceId,
+            @RequestParam BigDecimal amount) {
+        String result = invoiceService.createPayment(invoiceId, amount);
+>>>>>>> c1912510c10d16262b98d421a1c94a085d6e28af
         return ResponseEntity.ok(result);
     }
 

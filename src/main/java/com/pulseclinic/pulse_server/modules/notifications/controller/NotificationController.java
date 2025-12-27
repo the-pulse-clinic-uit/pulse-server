@@ -23,14 +23,15 @@ public class NotificationController {
     private final NotificationMapper notificationMapper;
 
     public NotificationController(NotificationService notificationService,
-                                    NotificationMapper notificationMapper) {
+            NotificationMapper notificationMapper) {
         this.notificationService = notificationService;
         this.notificationMapper = notificationMapper;
     }
 
     @PostMapping
-    @PreAuthorize("hasAuthority('admin')")
-    public ResponseEntity<NotificationDto> createNotification(@RequestBody NotificationRequestDto notificationRequestDto) {
+    @PreAuthorize("hasAuthority('doctor')")
+    public ResponseEntity<NotificationDto> createNotification(
+            @RequestBody NotificationRequestDto notificationRequestDto) {
         Notification notification = this.notificationService.create(notificationRequestDto);
         return new ResponseEntity<>(this.notificationMapper.mapTo(notification), HttpStatus.CREATED);
     }
@@ -79,7 +80,7 @@ public class NotificationController {
     }
 
     @GetMapping("/user/{userId}")
-    @PreAuthorize("hasAuthority('admin')")
+    @PreAuthorize("hasAuthority('doctor')")
     public ResponseEntity<List<NotificationDto>> getNotificationsByUserId(@PathVariable UUID userId) {
         List<Notification> notifications = this.notificationService.findByUserId(userId);
         return ResponseEntity.ok(notifications.stream()

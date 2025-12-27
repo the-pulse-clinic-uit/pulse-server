@@ -26,35 +26,36 @@ public class DepartmentController {
     private final DepartmentMapper departmentMapper;
     private final DepartmentService departmentService;
     private final StaffMapper staffMapper;
+
     public DepartmentController(DepartmentService departmentService,
-                                DepartmentMapper departmentMapper,
-                                StaffMapper staffMapper) {
+            DepartmentMapper departmentMapper,
+            StaffMapper staffMapper) {
         this.departmentService = departmentService;
         this.departmentMapper = departmentMapper;
         this.staffMapper = staffMapper;
     }
 
     @PostMapping("/{id}/staff")
-//    @PreAuthorize("hasAnyAuthority('admin, staff, doctor')")
-    @PreAuthorize("hasAuthority('admin')")
+    // @PreAuthorize("hasAnyAuthority('doctor, staff, doctor')")
+    @PreAuthorize("hasAuthority('doctor')")
     public ResponseEntity<HttpStatus> assignStaff(@PathVariable UUID id, @RequestBody UUID staffId) {
-        if (this.departmentService.assignStaff(id, staffId)){
+        if (this.departmentService.assignStaff(id, staffId)) {
             return new ResponseEntity<>(HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
     @DeleteMapping("/{id}/staff/{staffId}")
-    @PreAuthorize("hasAuthority('admin')")
+    @PreAuthorize("hasAuthority('doctor')")
     public ResponseEntity<HttpStatus> deleteStaff(@PathVariable UUID id, @PathVariable UUID staffId) {
-        if (this.departmentService.unassignStaff(id, staffId)){
+        if (this.departmentService.unassignStaff(id, staffId)) {
             return new ResponseEntity<>(HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
     @PostMapping
-    @PreAuthorize("hasAuthority('admin')")
+    @PreAuthorize("hasAuthority('doctor')")
     public ResponseEntity<DepartmentDto> create(@RequestBody DepartmentRequestDto departmentRequestDto) {
         Department department = this.departmentService.create(this.departmentMapper.mapFrom(departmentRequestDto));
         return new ResponseEntity<>(this.departmentMapper.mapTo(department), HttpStatus.CREATED);
@@ -63,11 +64,12 @@ public class DepartmentController {
     @GetMapping("/{id}/staff")
     public ResponseEntity<List<StaffDto>> getAllStaff(@PathVariable UUID id) {
         List<Staff> staff = this.departmentService.findAllStaff(id);
-        return new ResponseEntity<>(staff.stream().map(s -> this.staffMapper.mapTo(s)).collect(Collectors.toList()), HttpStatus.OK);
+        return new ResponseEntity<>(staff.stream().map(s -> this.staffMapper.mapTo(s)).collect(Collectors.toList()),
+                HttpStatus.OK);
     }
 
     @GetMapping("/{id}/statistics")
-    @PreAuthorize("hasAuthority('admin')")
+    @PreAuthorize("hasAuthority('doctor')")
     public ResponseEntity<DepartmentStatisticsDto> getDepartmentStatistics(@PathVariable UUID id) {
         DepartmentStatisticsDto statistics = this.departmentService.getDepartmentStatistics(id);
         return ResponseEntity.ok(statistics);
@@ -83,10 +85,12 @@ public class DepartmentController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyAuthority('admin', 'staff')")
+    @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
     public ResponseEntity<List<DepartmentDto>> getAll() {
         List<Department> departments = this.departmentService.findAll(); // deleted is null
-        return new ResponseEntity<>(departments.stream().map(d -> this.departmentMapper.mapTo(d)).collect(Collectors.toList()), HttpStatus.OK);
+        return new ResponseEntity<>(
+                departments.stream().map(d -> this.departmentMapper.mapTo(d)).collect(Collectors.toList()),
+                HttpStatus.OK);
     }
 
     @PatchMapping("/{id}")

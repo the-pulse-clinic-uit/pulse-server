@@ -35,7 +35,7 @@ public class DoctorController {
     }
 
     @PostMapping
-    @PreAuthorize("hasAuthority('admin')")
+    @PreAuthorize("hasAuthority('doctor')")
     public ResponseEntity<DoctorDto> createDoctor(@Valid @RequestBody DoctorRequestDto doctorRequestDto) {
         try {
             DoctorDto doctor = doctorService.createDoctor(doctorRequestDto);
@@ -46,7 +46,7 @@ public class DoctorController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAuthority('admin')")
+    @PreAuthorize("hasAnyAuthority('doctor', 'patient', 'staff')")
     public ResponseEntity<List<DoctorDto>> getAllDoctors() {
         List<DoctorDto> doctors = doctorService.getAllDoctors();
         return ResponseEntity.ok(doctors);
