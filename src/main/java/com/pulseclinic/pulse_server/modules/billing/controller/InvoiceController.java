@@ -94,15 +94,9 @@ public class InvoiceController {
     @GetMapping("/{invoiceId}/create-payment")
     @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
     public ResponseEntity<String> createPayment(
-<<<<<<< HEAD
             @PathVariable UUID invoiceId
-        ) {
+    ) {
         String result = invoiceService.createPayment(invoiceId);
-=======
-            @PathVariable UUID invoiceId,
-            @RequestParam BigDecimal amount) {
-        String result = invoiceService.createPayment(invoiceId, amount);
->>>>>>> c1912510c10d16262b98d421a1c94a085d6e28af
         return ResponseEntity.ok(result);
     }
 
