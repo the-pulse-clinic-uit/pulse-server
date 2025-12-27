@@ -163,9 +163,18 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     @Transactional
     @Override
-    public String createPayment(UUID invoiceId, BigDecimal amount) {
+    public String createPayment(UUID invoiceId) {
+        Optional<Invoice> invoiceOpt = invoiceRepository.findById(invoiceId);
+        if (invoiceOpt.isEmpty()) {
+            throw new RuntimeException("Invoice not found");
+        }
+
+        Invoice invoice = invoiceOpt.get();
+        String amount = invoice.getTotalAmount().toString().split("\\.")[0];
+
+
         return webClient.get()
-                .uri("http://localhost:8080/api/v1/payment/vn-pay?amount=" + amount)
+                .uri("http://localhost:8081/api/v1/payment/vn-pay?amount=" + amount)
                 .header("X-INVOICE-ID", String.valueOf(invoiceId))
                 .retrieve()
                 .bodyToMono(String.class)
@@ -180,6 +189,8 @@ public class InvoiceServiceImpl implements InvoiceService {
             if (invoiceOpt.isEmpty()) {
                 return false;
             }
+
+            amount = amount.divide(new BigDecimal(100));
 
             Invoice invoice = invoiceOpt.get();
             BigDecimal currentPaid = invoice.getAmountPaid();

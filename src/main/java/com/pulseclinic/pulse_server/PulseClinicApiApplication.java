@@ -5,9 +5,15 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 
+import java.util.TimeZone;
+
 @EnableConfigurationProperties(OtpProperties.class)
 @SpringBootApplication
 public class PulseClinicApiApplication {
+
+    static {
+        TimeZone.setDefault(TimeZone.getTimeZone("Asia/Ho_Chi_Minh"));
+    }
 
 	public static void main(String[] args) {
 		SpringApplication.run(PulseClinicApiApplication.class, args);

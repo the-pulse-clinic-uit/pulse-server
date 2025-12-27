@@ -94,9 +94,9 @@ public class InvoiceController {
     @GetMapping("/{invoiceId}/create-payment")
     @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
     public ResponseEntity<String> createPayment(
-            @PathVariable UUID invoiceId,
-            @RequestParam BigDecimal amount) {
-        String result = invoiceService.createPayment(invoiceId, amount);
+            @PathVariable UUID invoiceId
+    ) {
+        String result = invoiceService.createPayment(invoiceId);
         return ResponseEntity.ok(result);
     }
 
