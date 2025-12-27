@@ -17,19 +17,20 @@ import com.pulseclinic.pulse_server.modules.encounters.dto.followUpPlan.FollowUp
 import com.pulseclinic.pulse_server.modules.encounters.service.EncounterService;
 
 import jakarta.validation.Valid;
+
 @Slf4j
 @RestController
 @RequestMapping("/encounters")
 public class EncounterController {
     private final EncounterService encounterService;
-    
+
     public EncounterController(EncounterService encounterService) {
         this.encounterService = encounterService;
     }
 
     // Start new encounter
     @PostMapping
-    @PreAuthorize("hasAnyAuthority('admin', 'staff')")
+    @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
     public ResponseEntity<EncounterDto> startEncounter(@Valid @RequestBody EncounterRequestDto requestDto) {
         try {
             EncounterDto encounter = encounterService.startEncounter(requestDto);
@@ -42,7 +43,7 @@ public class EncounterController {
 
     // Get encounter by ID
     @GetMapping("/{encounterId}")
-    @PreAuthorize("hasAnyAuthority('admin', 'staff')")
+    @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
     public ResponseEntity<EncounterDto> getEncounterById(@PathVariable UUID encounterId) {
         Optional<EncounterDto> encounter = encounterService.getEncounterById(encounterId);
         return encounter.map(ResponseEntity::ok)
@@ -51,7 +52,7 @@ public class EncounterController {
 
     // Record diagnosis
     @PutMapping("/{encounterId}/diagnosis")
-    @PreAuthorize("hasAnyAuthority('admin', 'staff')")
+    @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
     public ResponseEntity<Void> recordDiagnosis(
             @PathVariable UUID encounterId,
             @RequestParam String diagnosis) {
@@ -61,7 +62,7 @@ public class EncounterController {
 
     // Add notes
     @PutMapping("/{encounterId}/notes")
-    @PreAuthorize("hasAnyAuthority('admin', 'staff')")
+    @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
     public ResponseEntity<Void> addNotes(
             @PathVariable UUID encounterId,
             @RequestParam String notes) {
@@ -71,7 +72,7 @@ public class EncounterController {
 
     // End encounter
     @PostMapping("/{encounterId}/end")
-    @PreAuthorize("hasAnyAuthority('admin', 'staff')")
+    @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
     public ResponseEntity<Void> endEncounter(@PathVariable UUID encounterId) {
         boolean success = encounterService.endEncounter(encounterId);
         return success ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
@@ -79,7 +80,7 @@ public class EncounterController {
 
     // Generate summary
     @GetMapping("/{encounterId}/summary")
-    @PreAuthorize("hasAnyAuthority('admin', 'staff')")
+    @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
     public ResponseEntity<String> generateSummary(@PathVariable UUID encounterId) {
         String summary = encounterService.generateSummary(encounterId);
         return ResponseEntity.ok(summary);

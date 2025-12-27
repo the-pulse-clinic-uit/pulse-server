@@ -34,7 +34,7 @@ public class WaitlistEntryController {
 
     // Add patient to waitlist
     @PostMapping
-    @PreAuthorize("hasAnyAuthority('admin', 'staff')")
+    @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
     public ResponseEntity<WaitlistEntryDto> addToWaitlist(@Valid @RequestBody WaitlistEntryRequestDto requestDto) {
         try {
             WaitlistEntryDto entry = waitlistEntryService.addToWaitlist(requestDto);
@@ -46,7 +46,7 @@ public class WaitlistEntryController {
 
     // Get all waitlist entries
     @GetMapping
-    @PreAuthorize("hasAnyAuthority('admin', 'staff')")
+    @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
     public ResponseEntity<List<WaitlistEntryDto>> getAllEntries() {
         List<WaitlistEntryDto> entries = waitlistEntryService.findAll();
         return ResponseEntity.ok(entries);
@@ -54,7 +54,7 @@ public class WaitlistEntryController {
 
     // Get entry by ID
     @GetMapping("/{entryId}")
-    @PreAuthorize("hasAnyAuthority('admin', 'staff')")
+    @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
     public ResponseEntity<WaitlistEntryDto> getEntryById(@PathVariable UUID entryId) {
         Optional<WaitlistEntryDto> entry = waitlistEntryService.getEntryById(entryId);
         return entry.map(ResponseEntity::ok)
@@ -63,7 +63,7 @@ public class WaitlistEntryController {
 
     // Call next patient in department queue
     @PostMapping("/department/{departmentId}/call_next")
-    @PreAuthorize("hasAnyAuthority('admin', 'staff')")
+    @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
     public ResponseEntity<WaitlistEntryDto> callNext(@PathVariable UUID departmentId) {
         Optional<WaitlistEntryDto> entry = waitlistEntryService.callNext(departmentId);
         return entry.map(ResponseEntity::ok)
@@ -72,7 +72,7 @@ public class WaitlistEntryController {
 
     // Update priority
     @PutMapping("/{entryId}/priority")
-    @PreAuthorize("hasAnyAuthority('admin', 'staff')")
+    @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
     public ResponseEntity<Void> changePriority(
             @PathVariable UUID entryId,
             @RequestParam WaitlistPriority priority) {
@@ -82,7 +82,7 @@ public class WaitlistEntryController {
 
     // Mark as served
     @PutMapping("/{entryId}/served")
-    @PreAuthorize("hasAnyAuthority('admin', 'staff')")
+    @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
     public ResponseEntity<Void> markAsServed(@PathVariable UUID entryId) {
         boolean success = waitlistEntryService.markAsServed(entryId);
         return success ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
@@ -90,7 +90,7 @@ public class WaitlistEntryController {
 
     // Cancel entry
     @PutMapping("/{entryId}/cancel")
-    @PreAuthorize("hasAnyAuthority('admin', 'staff')")
+    @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
     public ResponseEntity<Void> cancelEntry(@PathVariable UUID entryId) {
         boolean success = waitlistEntryService.cancelEntry(entryId);
         return success ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
@@ -98,7 +98,7 @@ public class WaitlistEntryController {
 
     // Get waiting count for department
     @GetMapping("/department/{departmentId}/waiting/count")
-    @PreAuthorize("hasAnyAuthority('admin', 'staff')")
+    @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
     public ResponseEntity<Integer> getWaitingCount(@PathVariable UUID departmentId) {
         Integer count = waitlistEntryService.getWaitingCount(departmentId);
         return ResponseEntity.ok(count);

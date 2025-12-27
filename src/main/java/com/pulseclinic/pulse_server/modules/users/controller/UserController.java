@@ -36,22 +36,24 @@ public class UserController {
 
     }
 
-//    @PatchMapping("/me/avatar")
-//    public ResponseEntity<UserDto> updateAvatar(Authentication authentication, @RequestParam("avatar") String avatarUrl) {
-//        String email = authentication.getName();
-//        User user = userService.updateAvatar(email, avatarUrl);
-//        return new ResponseEntity<>(this.userMapper.mapTo(user), HttpStatus.OK);
-//    }
+    // @PatchMapping("/me/avatar")
+    // public ResponseEntity<UserDto> updateAvatar(Authentication authentication,
+    // @RequestParam("avatar") String avatarUrl) {
+    // String email = authentication.getName();
+    // User user = userService.updateAvatar(email, avatarUrl);
+    // return new ResponseEntity<>(this.userMapper.mapTo(user), HttpStatus.OK);
+    // }
 
     @PatchMapping("/me/avatar")
-    public ResponseEntity<UserDto> updateAvatar(Authentication authentication, @RequestParam("file") MultipartFile file) throws IOException {
+    public ResponseEntity<UserDto> updateAvatar(Authentication authentication, @RequestParam("file") MultipartFile file)
+            throws IOException {
         User user = this.userService.updateAvatar(authentication.getName(), file);
         return new ResponseEntity<>(this.userMapper.mapTo(user), HttpStatus.OK);
 
     }
 
     @PatchMapping("/me")
-    public ResponseEntity<UserDto> updatePersonalInfo(Authentication authentication,@RequestBody UserDto userDto) {
+    public ResponseEntity<UserDto> updatePersonalInfo(Authentication authentication, @RequestBody UserDto userDto) {
         String email = authentication.getName();
         User user = userService.update(email, userDto);
         return new ResponseEntity<>(this.userMapper.mapTo(user), HttpStatus.OK);
@@ -68,30 +70,30 @@ public class UserController {
     public ResponseEntity<UserDto> getUser(Authentication authentication) {
         String email = authentication.getName();
         Optional<User> user = this.userService.findByEmail(email);
-        return user.map(value -> new ResponseEntity<>(this.userMapper.mapTo(value), HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+        return user.map(value -> new ResponseEntity<>(this.userMapper.mapTo(value), HttpStatus.OK))
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-
     @GetMapping("/deactivate/{id}")
-    @PreAuthorize("hasAuthority('admin')")
+    @PreAuthorize("hasAuthority('doctor')")
     public ResponseEntity<UserDto> deactivateUser(@PathVariable UUID id) {
         User user = this.userService.deactivateUser(id);
         return new ResponseEntity<>(userMapper.mapTo(user), HttpStatus.OK);
     }
 
     @GetMapping("/activate/{id}")
-    @PreAuthorize("hasAuthority('admin')")
+    @PreAuthorize("hasAuthority('doctor')")
     public ResponseEntity<UserDto> activateUser(@PathVariable UUID id) {
         User user = this.userService.activateUser(id);
         return new ResponseEntity<>(userMapper.mapTo(user), HttpStatus.OK);
     }
 
     @GetMapping()
-    @PreAuthorize("hasAuthority('admin')")
+    @PreAuthorize("hasAuthority('doctor')")
     public ResponseEntity<List<UserDto>> getAllUsers() {
         List<User> allUsers = this.userService.findAll();
-        return new ResponseEntity<>(allUsers.stream().map(user -> userMapper.mapTo(user)).collect(Collectors.toList()), HttpStatus.OK);
+        return new ResponseEntity<>(allUsers.stream().map(user -> userMapper.mapTo(user)).collect(Collectors.toList()),
+                HttpStatus.OK);
     }
-
 
 }

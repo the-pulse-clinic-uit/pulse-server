@@ -21,43 +21,44 @@ public class DrugController {
     private final DrugService drugService;
     private final DrugMapper drugMapper;
 
-    public DrugController(DrugService drugService, DrugMapper drugMapper){
+    public DrugController(DrugService drugService, DrugMapper drugMapper) {
         this.drugService = drugService;
         this.drugMapper = drugMapper;
     }
 
     @PostMapping
-    @PreAuthorize("hasAuthority('admin')")
-    public ResponseEntity<DrugDto> createDrug(@RequestBody DrugRequestDto drugRequestDto){
+    @PreAuthorize("hasAuthority('doctor')")
+    public ResponseEntity<DrugDto> createDrug(@RequestBody DrugRequestDto drugRequestDto) {
         Drug drug = this.drugService.createDrug(this.drugMapper.mapFrom(drugRequestDto));
         return new ResponseEntity<>(this.drugMapper.mapTo(drug), HttpStatus.CREATED);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<DrugDto> getDrug(@PathVariable UUID id){
+    public ResponseEntity<DrugDto> getDrug(@PathVariable UUID id) {
         Optional<Drug> drug = this.drugService.findById(id);
-        if (drug.isPresent()){
+        if (drug.isPresent()) {
             return new ResponseEntity<>(this.drugMapper.mapTo(drug.get()), HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
     @GetMapping
-    public ResponseEntity<List<DrugDto>> getAllDrugs(){
+    public ResponseEntity<List<DrugDto>> getAllDrugs() {
         List<Drug> drugs = this.drugService.getAllDrugs();
-        return new ResponseEntity<>(drugs.stream().map(d -> this.drugMapper.mapTo(d)).collect(Collectors.toList()), HttpStatus.OK);
+        return new ResponseEntity<>(drugs.stream().map(d -> this.drugMapper.mapTo(d)).collect(Collectors.toList()),
+                HttpStatus.OK);
     }
 
     @PatchMapping("/{id}")
-    @PreAuthorize("hasAuthority('admin')")
-    public ResponseEntity<DrugDto> updateDrug(@PathVariable UUID id, @RequestBody DrugDto drugDto){
-        Drug drug = this.drugService.updateDrug(id,drugDto);
+    @PreAuthorize("hasAuthority('doctor')")
+    public ResponseEntity<DrugDto> updateDrug(@PathVariable UUID id, @RequestBody DrugDto drugDto) {
+        Drug drug = this.drugService.updateDrug(id, drugDto);
         return new ResponseEntity<>(this.drugMapper.mapTo(drug), HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAuthority('admin')")
-    public ResponseEntity<HttpStatus> deleteDrug(@PathVariable UUID id){
+    @PreAuthorize("hasAuthority('doctor')")
+    public ResponseEntity<HttpStatus> deleteDrug(@PathVariable UUID id) {
         this.drugService.deleteDrug(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }

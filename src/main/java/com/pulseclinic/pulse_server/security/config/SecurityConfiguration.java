@@ -28,26 +28,22 @@ public class SecurityConfiguration {
                 this.authenticationProvider = authenticationProvider;
         }
 
-        public UrlBasedCorsConfigurationSource corsConfigurationSource(){
+        public UrlBasedCorsConfigurationSource corsConfigurationSource() {
                 CorsConfiguration configuration = new CorsConfiguration();
                 configuration.setAllowedOrigins(List.of(
-                        "http://localhost:3000"
-                ));
+                                "http://localhost:3000"));
 
                 configuration.setAllowedMethods(List.of(
-                        "GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"
-                ));
+                                "GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
 
                 configuration.setAllowedHeaders(List.of(
-                        "Authorization",
-                        "Content-Type",
-                        "Accept"
-                ));
+                                "Authorization",
+                                "Content-Type",
+                                "Accept"));
 
                 configuration.setAllowCredentials(true);
 
-                UrlBasedCorsConfigurationSource source =
-                        new UrlBasedCorsConfigurationSource();
+                UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
                 source.registerCorsConfiguration("/**", configuration);
 
                 return source;
@@ -57,7 +53,7 @@ public class SecurityConfiguration {
         public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
                 http
                                 .csrf(csrf -> csrf.disable())
-                        .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                                 .authorizeHttpRequests(
                                                 auth -> auth
                                                                 .requestMatchers("/auth/login", "/auth/register",
@@ -69,8 +65,8 @@ public class SecurityConfiguration {
                                                                                 "/swagger-ui.html",
                                                                                 "/invoices/{invoiceId}/record-payment")
                                                                 .permitAll()
-                                                                // Admin only
-                                                                // .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                                                                // doctor only
+                                                                // .requestMatchers("/api/doctor/**").hasRole("doctor")
                                                                 .anyRequest().authenticated())
                                 .sessionManagement(
                                                 session -> session
