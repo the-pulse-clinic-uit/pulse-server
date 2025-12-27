@@ -10,14 +10,27 @@ import org.springframework.stereotype.Component;
 @Component
 public class NotificationMapper implements Mapper<Notification, NotificationDto> {
     private final ModelMapper modelMapper;
+    private final UserMapper userMapper;
 
-    public NotificationMapper(ModelMapper modelMapper) {
+    public NotificationMapper(ModelMapper modelMapper, UserMapper userMapper) {
         this.modelMapper = modelMapper;
+        this.userMapper = userMapper;
     }
 
     @Override
     public NotificationDto mapTo(Notification notification) {
-        return this.modelMapper.map(notification, NotificationDto.class);
+        return NotificationDto.builder()
+                .id(notification.getId())
+                .type(notification.getType())
+                .channel(notification.getChannel())
+                .title(notification.getTitle())
+                .content(notification.getContent())
+                .isRead(notification.getIsRead())
+                .createdAt(notification.getCreatedAt())
+                .sentAt(notification.getSentAt())
+                .status(notification.getStatus())
+                .userDto(notification.getUser() != null ? userMapper.mapTo(notification.getUser()) : null)
+                .build();
     }
 
     @Override

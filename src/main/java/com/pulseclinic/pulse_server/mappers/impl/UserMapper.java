@@ -12,14 +12,31 @@ import org.springframework.stereotype.Component;
 public class UserMapper implements Mapper<User, UserDto> {
 
     private final ModelMapper modelMapper;
+    private final RoleMapper roleMapper;
 
-    public UserMapper(ModelMapper modelMapper) {
+    public UserMapper(ModelMapper modelMapper, RoleMapper roleMapper) {
         this.modelMapper = modelMapper;
+        this.roleMapper = roleMapper;
     }
 
     @Override
     public UserDto mapTo(User user) {
-        return this.modelMapper.map(user, UserDto.class);
+        return UserDto.builder()
+                .id(user.getId())
+                .email(user.getEmail())
+                .hashedPassword(user.getHashedPassword())
+                .fullName(user.getFullName())
+                .address(user.getAddress())
+                .citizenId(user.getCitizenId())
+                .phone(user.getPhone())
+                .gender(user.getGender())
+                .birthDate(user.getBirthDate())
+                .avatarUrl(user.getAvatarUrl())
+                .createdAt(user.getCreatedAt())
+                .updatedAt(user.getUpdatedAt())
+                .isActive(user.getIsActive())
+                .roleDto(user.getRole() != null ? roleMapper.mapTo(user.getRole()) : null)
+                .build();
     }
 
     @Override

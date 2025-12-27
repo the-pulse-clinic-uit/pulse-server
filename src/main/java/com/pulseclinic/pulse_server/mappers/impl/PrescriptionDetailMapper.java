@@ -10,14 +10,31 @@ import org.springframework.stereotype.Component;
 @Component
 public class PrescriptionDetailMapper implements Mapper<PrescriptionDetail, PrescriptionDetailDto> {
     private final ModelMapper modelMapper;
+    private final DrugMapper drugMapper;
+    private final PrescriptionMapper prescriptionMapper;
 
-    public PrescriptionDetailMapper(ModelMapper modelMapper) {
+    public PrescriptionDetailMapper(ModelMapper modelMapper, DrugMapper drugMapper, PrescriptionMapper prescriptionMapper) {
         this.modelMapper = modelMapper;
+        this.drugMapper = drugMapper;
+        this.prescriptionMapper = prescriptionMapper;
     }
 
     @Override
     public PrescriptionDetailDto mapTo(PrescriptionDetail prescriptionDetail) {
-        return this.modelMapper.map(prescriptionDetail, PrescriptionDetailDto.class);
+        return PrescriptionDetailDto.builder()
+                .id(prescriptionDetail.getId())
+                .strengthText(prescriptionDetail.getStrengthText())
+                .quantity(prescriptionDetail.getQuantity())
+                .unitPrice(prescriptionDetail.getUnitPrice())
+                .itemTotalPrice(prescriptionDetail.getItemTotalPrice())
+                .dose(prescriptionDetail.getDose())
+                .timing(prescriptionDetail.getTiming())
+                .instructions(prescriptionDetail.getInstructions())
+                .createdAt(prescriptionDetail.getCreatedAt())
+                .frequency(prescriptionDetail.getFrequency())
+                .drugDto(prescriptionDetail.getDrug() != null ? drugMapper.mapTo(prescriptionDetail.getDrug()) : null)
+                .prescriptionDto(prescriptionDetail.getPrescription() != null ? prescriptionMapper.mapTo(prescriptionDetail.getPrescription()) : null)
+                .build();
     }
 
     @Override

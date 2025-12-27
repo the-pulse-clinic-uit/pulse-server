@@ -10,14 +10,25 @@ import org.springframework.stereotype.Component;
 @Component
 public class InvoiceMapper implements Mapper<Invoice, InvoiceDto> {
     private final ModelMapper modelMapper;
+    private final EncounterMapper encounterMapper;
 
-    public InvoiceMapper(ModelMapper modelMapper) {
+    public InvoiceMapper(ModelMapper modelMapper, EncounterMapper encounterMapper) {
         this.modelMapper = modelMapper;
+        this.encounterMapper = encounterMapper;
     }
 
     @Override
     public InvoiceDto mapTo(Invoice invoice) {
-        return this.modelMapper.map(invoice, InvoiceDto.class);
+        return InvoiceDto.builder()
+                .id(invoice.getId())
+                .status(invoice.getStatus())
+                .dueDate(invoice.getDueDate())
+                .amountPaid(invoice.getAmountPaid())
+                .totalAmount(invoice.getTotalAmount())
+                .createdAt(invoice.getCreatedAt())
+                .updatedAt(invoice.getUpdatedAt())
+                .encounterDto(invoice.getEncounter() != null ? encounterMapper.mapTo(invoice.getEncounter()) : null)
+                .build();
     }
 
     @Override

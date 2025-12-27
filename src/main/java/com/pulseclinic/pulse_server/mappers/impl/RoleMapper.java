@@ -18,7 +18,11 @@ public class RoleMapper implements Mapper<Role, RoleDto> {
 
     @Override
     public RoleDto mapTo(Role role) {
-        return this.modelMapper.map(role, RoleDto.class);
+        return RoleDto.builder()
+                .id(role.getId())
+                .name(role.getName())
+                .createdAt(role.getCreatedAt())
+                .build();
     }
 
     @Override

@@ -4,20 +4,34 @@ import com.pulseclinic.pulse_server.mappers.Mapper;
 import com.pulseclinic.pulse_server.modules.staff.dto.doctor.DoctorDto;
 import com.pulseclinic.pulse_server.modules.staff.dto.doctor.DoctorRequestDto;
 import com.pulseclinic.pulse_server.modules.staff.entity.Doctor;
+import com.pulseclinic.pulse_server.modules.staff.entity.Staff;
+import com.pulseclinic.pulse_server.modules.staff.repository.StaffRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 
 @Component
 public class DoctorMapper implements Mapper<Doctor, DoctorDto> {
     private final ModelMapper modelMapper;
+    private final StaffRepository staffRepository;
+    private final StaffMapper staffMapper;
 
-    public DoctorMapper(ModelMapper modelMapper){
+    public DoctorMapper(ModelMapper modelMapper, StaffRepository staffRepository, StaffMapper staffMapper){
         this.modelMapper = modelMapper;
+        this.staffRepository = staffRepository;
+        this.staffMapper = staffMapper;
     }
 
     @Override
     public DoctorDto mapTo(Doctor doctor) {
-        return this.modelMapper.map(doctor, DoctorDto.class);
+        DoctorDto doctorDto = DoctorDto.builder()
+                .id(doctor.getId())
+                .licenseId(doctor.getLicenseId())
+                .isVerified(doctor.getIsVerified())
+                .createdAt(doctor.getCreatedAt())
+                .staffDto(doctor.getStaff() != null ? staffMapper.mapTo(doctor.getStaff()) : null)
+                .departmentDto(doctor.getDepartment() != null ? modelMapper.map(doctor.getDepartment(), com.pulseclinic.pulse_server.modules.staff.dto.department.DepartmentDto.class) : null)
+                .build();
+        return doctorDto;
     }
 
     @Override
@@ -26,6 +40,19 @@ public class DoctorMapper implements Mapper<Doctor, DoctorDto> {
     }
 
     public Doctor mapFrom(DoctorRequestDto doctorRequestDto) {
-        return this.modelMapper.map(doctorRequestDto, Doctor.class);
+        if (doctorRequestDto.getStaffId() == null) {
+            throw new IllegalArgumentException("Staff ID cannot be null");
+        }
+
+        // Fetch the Staff entity from the database using staffId
+        Staff staff = staffRepository.findById(doctorRequestDto.getStaffId())
+                .orElseThrow(() -> new RuntimeException("Staff not found with id: " + doctorRequestDto.getStaffId()));
+
+        // Build the Doctor entity manually
+        return Doctor.builder()
+                .licenseId(doctorRequestDto.getLicenseId())
+                .isVerified(doctorRequestDto.getIsVerified())
+                .staff(staff)
+                .build();
     }
 }

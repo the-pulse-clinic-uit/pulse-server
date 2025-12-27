@@ -10,14 +10,21 @@ import org.springframework.stereotype.Component;
 @Component
 public class StaffMapper implements Mapper<Staff, StaffDto> {
     private final ModelMapper modelMapper;
+    private final UserMapper userMapper;
 
-    public StaffMapper(ModelMapper modelMapper){
+    public StaffMapper(ModelMapper modelMapper, UserMapper userMapper){
         this.modelMapper = modelMapper;
+        this.userMapper = userMapper;
     }
 
     @Override
     public StaffDto mapTo(Staff staff) {
-        return this.modelMapper.map(staff, StaffDto.class);
+        return StaffDto.builder()
+                .id(staff.getId())
+                .position(staff.getPosition())
+                .createdAt(staff.getCreatedAt())
+                .userDto(staff.getUser() != null ? userMapper.mapTo(staff.getUser()) : null)
+                .build();
     }
 
     @Override

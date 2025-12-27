@@ -10,14 +10,23 @@ import org.springframework.stereotype.Component;
 @Component
 public class PatientMapper implements Mapper<Patient, PatientDto> {
     private final ModelMapper modelMapper;
+    private final UserMapper userMapper;
 
-    public PatientMapper(ModelMapper modelMapper) {
+    public PatientMapper(ModelMapper modelMapper, UserMapper userMapper) {
         this.modelMapper = modelMapper;
+        this.userMapper = userMapper;
     }
 
     @Override
     public PatientDto mapTo(Patient patient) {
-        return this.modelMapper.map(patient, PatientDto.class);
+        return PatientDto.builder()
+                .id(patient.getId())
+                .healthInsuranceId(patient.getHealthInsuranceId())
+                .bloodType(patient.getBloodType())
+                .allergies(patient.getAllergies())
+                .createdAt(patient.getCreatedAt())
+                .userDto(patient.getUser() != null ? userMapper.mapTo(patient.getUser()) : null)
+                .build();
     }
 
     @Override

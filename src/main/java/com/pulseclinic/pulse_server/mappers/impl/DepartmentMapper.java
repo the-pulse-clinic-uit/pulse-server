@@ -16,7 +16,12 @@ public class DepartmentMapper implements Mapper<Department, DepartmentDto> {
     }
     @Override
     public DepartmentDto mapTo(Department department) {
-        return this.modelMapper.map(department, DepartmentDto.class);
+        return DepartmentDto.builder()
+                .id(department.getId())
+                .name(department.getName())
+                .description(department.getDescription())
+                .createdAt(department.getCreatedAt())
+                .build();
     }
 
     @Override

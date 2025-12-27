@@ -10,14 +10,23 @@ import org.springframework.stereotype.Component;
 @Component
 public class RoomMapper implements Mapper<Room, RoomDto> {
     private final ModelMapper modelMapper;
+    private final DepartmentMapper departmentMapper;
 
-    public RoomMapper(ModelMapper modelMapper) {
+    public RoomMapper(ModelMapper modelMapper, DepartmentMapper departmentMapper) {
         this.modelMapper = modelMapper;
+        this.departmentMapper = departmentMapper;
     }
 
     @Override
     public RoomDto mapTo(Room room) {
-        return this.modelMapper.map(room, RoomDto.class);
+        return RoomDto.builder()
+                .id(room.getId())
+                .roomNumber(room.getRoomNumber())
+                .bedAmount(room.getBedAmount())
+                .isAvailable(room.getIsAvailable())
+                .createdAt(room.getCreatedAt())
+                .departmentDto(room.getDepartment() != null ? departmentMapper.mapTo(room.getDepartment()) : null)
+                .build();
     }
 
     @Override
