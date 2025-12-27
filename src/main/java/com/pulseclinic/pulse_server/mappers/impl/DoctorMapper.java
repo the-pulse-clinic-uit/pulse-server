@@ -1,6 +1,7 @@
 package com.pulseclinic.pulse_server.mappers.impl;
 
 import com.pulseclinic.pulse_server.mappers.Mapper;
+import com.pulseclinic.pulse_server.modules.staff.dto.department.DepartmentDto;
 import com.pulseclinic.pulse_server.modules.staff.dto.doctor.DoctorDto;
 import com.pulseclinic.pulse_server.modules.staff.dto.doctor.DoctorRequestDto;
 import com.pulseclinic.pulse_server.modules.staff.entity.Doctor;
@@ -29,7 +30,27 @@ public class DoctorMapper implements Mapper<Doctor, DoctorDto> {
                 .isVerified(doctor.getIsVerified())
                 .createdAt(doctor.getCreatedAt())
                 .staffDto(doctor.getStaff() != null ? staffMapper.mapTo(doctor.getStaff()) : null)
-                .departmentDto(doctor.getDepartment() != null ? modelMapper.map(doctor.getDepartment(), com.pulseclinic.pulse_server.modules.staff.dto.department.DepartmentDto.class) : null)
+                // Don't map department to avoid StackOverflow - accessible via staffDto.department if needed
+                .departmentDto(null)
+                .build();
+        return doctorDto;
+    }
+
+    public DoctorDto mapToWithDepartment(Doctor doctor) {
+        DoctorDto doctorDto = DoctorDto.builder()
+                .id(doctor.getId())
+                .licenseId(doctor.getLicenseId())
+                .isVerified(doctor.getIsVerified())
+                .createdAt(doctor.getCreatedAt())
+                .staffDto(doctor.getStaff() != null ? staffMapper.mapTo(doctor.getStaff()) : null)
+                .departmentDto(doctor.getDepartment() != null ?
+                    DepartmentDto.builder()
+                        .id(doctor.getDepartment().getId())
+                        .name(doctor.getDepartment().getName())
+                        .description(doctor.getDepartment().getDescription())
+                        .createdAt(doctor.getDepartment().getCreatedAt())
+                        .build()
+                    : null)
                 .build();
         return doctorDto;
     }

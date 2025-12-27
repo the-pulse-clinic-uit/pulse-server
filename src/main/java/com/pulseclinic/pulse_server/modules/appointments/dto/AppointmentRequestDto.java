@@ -40,7 +40,7 @@ public class AppointmentRequestDto {
     @NotNull(message = "Doctor ID is required")
     private UUID doctorId;
 
-    private UUID shiftAssignmentId;
-
-    private UUID followUpPlanId;
+//    private UUID shiftAssignmentId;
+//
+//    private UUID followUpPlanId;
 }

@@ -75,21 +75,21 @@ public class UserController {
     }
 
     @GetMapping("/deactivate/{id}")
-    @PreAuthorize("hasAuthority('doctor')")
+    @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
     public ResponseEntity<UserDto> deactivateUser(@PathVariable UUID id) {
         User user = this.userService.deactivateUser(id);
         return new ResponseEntity<>(userMapper.mapTo(user), HttpStatus.OK);
     }
 
     @GetMapping("/activate/{id}")
-    @PreAuthorize("hasAuthority('doctor')")
+    @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
     public ResponseEntity<UserDto> activateUser(@PathVariable UUID id) {
         User user = this.userService.activateUser(id);
         return new ResponseEntity<>(userMapper.mapTo(user), HttpStatus.OK);
     }
 
     @GetMapping()
-    @PreAuthorize("hasAuthority('doctor')")
+    @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
     public ResponseEntity<List<UserDto>> getAllUsers() {
         List<User> allUsers = this.userService.findAll();
         return new ResponseEntity<>(allUsers.stream().map(user -> userMapper.mapTo(user)).collect(Collectors.toList()),

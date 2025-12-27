@@ -105,8 +105,13 @@ public class AppointmentController {
     public ResponseEntity<Object> createEncounter(@PathVariable UUID appointmentId) {
         try {
             Object encounter = appointmentService.createEncounter(appointmentId);
+            if (encounter == null) {
+                log.error("Failed to create encounter for appointment {}: appointment not found or invalid status", appointmentId);
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            }
             return ResponseEntity.status(HttpStatus.CREATED).body(encounter);
         } catch (Exception e) {
+            log.error("Error creating encounter: {}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }

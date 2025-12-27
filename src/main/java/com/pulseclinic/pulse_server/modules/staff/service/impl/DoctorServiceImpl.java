@@ -261,7 +261,7 @@ public class DoctorServiceImpl implements DoctorService {
     @Transactional(readOnly = true)
     public List<DoctorDto> getAllDoctors() {
         return doctorRepository.findAll().stream()
-                .map(doctorMapper::mapTo)
+                .map(doctorMapper::mapToWithDepartment)
                 .collect(Collectors.toList());
     }
 

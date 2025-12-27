@@ -37,7 +37,7 @@ public class DoctorController {
     }
 
     @PostMapping
-    @PreAuthorize("hasAuthority('doctor')")
+    @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
     public ResponseEntity<DoctorDto> createDoctor(@Valid @RequestBody DoctorRequestDto doctorRequestDto) {
         try {
             DoctorDto doctor = doctorService.createDoctor(doctorRequestDto);

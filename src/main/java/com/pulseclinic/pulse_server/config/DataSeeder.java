@@ -1,8 +1,11 @@
 package com.pulseclinic.pulse_server.config;
 
+import com.pulseclinic.pulse_server.enums.BloodType;
 import com.pulseclinic.pulse_server.enums.DrugDosageForm;
 import com.pulseclinic.pulse_server.enums.DrugUnit;
 import com.pulseclinic.pulse_server.enums.Position;
+import com.pulseclinic.pulse_server.modules.patients.entity.Patient;
+import com.pulseclinic.pulse_server.modules.patients.repository.PatientRepository;
 import com.pulseclinic.pulse_server.modules.pharmacy.entity.Drug;
 import com.pulseclinic.pulse_server.modules.pharmacy.repository.DrugRepository;
 import com.pulseclinic.pulse_server.modules.rooms.entity.Room;
@@ -36,6 +39,7 @@ public class DataSeeder {
             DepartmentRepository departmentRepository,
             StaffRepository staffRepository,
             DoctorRepository doctorRepository,
+            PatientRepository patientRepository,
             DrugRepository drugRepository,
             RoomRepository roomRepository,
             PasswordEncoder passwordEncoder
@@ -191,9 +195,9 @@ public class DataSeeder {
                     .department(pharmacy)
                     .build());
 
-            // 7. Seed Patients
-            System.out.println("Seeding patients...");
-            userRepository.save(User.builder()
+            // 7. Seed Patients (Users)
+            System.out.println("Seeding patient users...");
+            User patient1User = userRepository.save(User.builder()
                     .email("patient1@example.com")
                     .fullName("John Patient")
                     .hashedPassword(passwordEncoder.encode("password123"))
@@ -206,7 +210,7 @@ public class DataSeeder {
                     .isActive(true)
                     .build());
 
-            userRepository.save(User.builder()
+            User patient2User = userRepository.save(User.builder()
                     .email("patient2@example.com")
                     .fullName("Mary Patient")
                     .hashedPassword(passwordEncoder.encode("password123"))
@@ -219,7 +223,23 @@ public class DataSeeder {
                     .isActive(true)
                     .build());
 
-            // 8. Seed Drugs
+            // 8. Seed Patient Entities
+            System.out.println("Seeding patient records...");
+            patientRepository.save(Patient.builder()
+                    .user(patient1User)
+                    .healthInsuranceId("HI123456789")
+                    .bloodType(BloodType.A)
+                    .allergies("Penicillin, Peanuts")
+                    .build());
+
+            patientRepository.save(Patient.builder()
+                    .user(patient2User)
+                    .healthInsuranceId("HI987654321")
+                    .bloodType(BloodType.O)
+                    .allergies("None")
+                    .build());
+
+            // 9. Seed Drugs
             System.out.println("Seeding drugs...");
             List<Drug> drugs = List.of(
                     Drug.builder()
@@ -281,7 +301,7 @@ public class DataSeeder {
             );
             drugRepository.saveAll(drugs);
 
-            // 9. Seed Rooms
+            // 10. Seed Rooms
             System.out.println("Seeding rooms...");
             List<Room> rooms = List.of(
                     Room.builder()

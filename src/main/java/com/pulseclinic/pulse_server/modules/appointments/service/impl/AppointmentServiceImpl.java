@@ -135,15 +135,15 @@ public class AppointmentServiceImpl implements AppointmentService {
                 .doctor(doctorOpt.get())
                 .build();
 
-        if (appointmentRequestDto.getShiftAssignmentId() != null) {
-            Optional<ShiftAssignment> shiftAssignmentOpt = shiftAssignmentRepository.findById(appointmentRequestDto.getShiftAssignmentId());
-            shiftAssignmentOpt.ifPresent(appointment::setShiftAssignment);
-        }
-
-        if (appointmentRequestDto.getFollowUpPlanId() != null) {
-            Optional<FollowUpPlan> followUpPlanOpt = followUpPlanRepository.findById(appointmentRequestDto.getFollowUpPlanId());
-            followUpPlanOpt.ifPresent(appointment::setFollowUpPlan);
-        }
+//        if (appointmentRequestDto.getShiftAssignmentId() != null) {
+//            Optional<ShiftAssignment> shiftAssignmentOpt = shiftAssignmentRepository.findById(appointmentRequestDto.getShiftAssignmentId());
+//            shiftAssignmentOpt.ifPresent(appointment::setShiftAssignment);
+//        }
+//
+//        if (appointmentRequestDto.getFollowUpPlanId() != null) {
+//            Optional<FollowUpPlan> followUpPlanOpt = followUpPlanRepository.findById(appointmentRequestDto.getFollowUpPlanId());
+//            followUpPlanOpt.ifPresent(appointment::setFollowUpPlan);
+//        }
 
         Appointment savedAppointment = appointmentRepository.save(appointment);
         return appointmentMapper.mapTo(savedAppointment);
@@ -293,16 +293,16 @@ public class AppointmentServiceImpl implements AppointmentService {
     public EncounterDto createEncounter(UUID appointmentId) {
         Optional<Appointment> appointmentOpt = appointmentRepository.findById(appointmentId);
         if (appointmentOpt.isEmpty()) {
-            return null;
+            throw new RuntimeException("Appointment not found with id: " + appointmentId);
         }
-        
+
         Appointment appointment = appointmentOpt.get();
-        
-        if (appointment.getStatus() != AppointmentStatus.CONFIRMED && 
+
+        if (appointment.getStatus() != AppointmentStatus.CONFIRMED &&
             appointment.getStatus() != AppointmentStatus.CHECKED_IN) {
-            return null;
+            throw new RuntimeException("Appointment must be CONFIRMED or CHECKED_IN to create encounter. Current status: " + appointment.getStatus());
         }
-        
+
         Encounter encounter = Encounter.builder()
                 .type(EncounterType.APPOINTED)
                 .startedAt(LocalDateTime.now())
@@ -312,7 +312,7 @@ public class AppointmentServiceImpl implements AppointmentService {
                 .doctor(appointment.getDoctor())
                 .appointment(appointment)
                 .build();
-        
+
         Encounter savedEncounter = encounterRepository.save(encounter);
         return encounterMapper.mapTo(savedEncounter);
     }
