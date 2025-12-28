@@ -9,12 +9,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import com.pulseclinic.pulse_server.modules.encounters.dto.encounter.EncounterDto;
 import com.pulseclinic.pulse_server.modules.encounters.dto.encounter.EncounterRequestDto;
 import com.pulseclinic.pulse_server.modules.encounters.dto.followUpPlan.FollowUpPlanDto;
 import com.pulseclinic.pulse_server.modules.encounters.service.EncounterService;
+import com.pulseclinic.pulse_server.modules.patients.repository.PatientRepository;
+import com.pulseclinic.pulse_server.modules.patients.entity.Patient;
 
 import jakarta.validation.Valid;
 
@@ -23,9 +26,11 @@ import jakarta.validation.Valid;
 @RequestMapping("/encounters")
 public class EncounterController {
     private final EncounterService encounterService;
+    private final PatientRepository patientRepository;
 
-    public EncounterController(EncounterService encounterService) {
+    public EncounterController(EncounterService encounterService, PatientRepository patientRepository) {
         this.encounterService = encounterService;
+        this.patientRepository = patientRepository;
     }
 
     // Start new encounter
@@ -62,6 +67,18 @@ public class EncounterController {
     @GetMapping("/patient/{patientId}")
     public ResponseEntity<List<EncounterDto>> getEncountersByPatient(@PathVariable UUID patientId) {
         List<EncounterDto> encounters = encounterService.getEncountersByPatient(patientId);
+        return ResponseEntity.ok(encounters);
+    }
+
+    @GetMapping("/me")
+    @PreAuthorize("hasAuthority('patient')")
+    public ResponseEntity<List<EncounterDto>> getMyEncounters(Authentication authentication) {
+        String email = authentication.getName();
+        Optional<Patient> patient = patientRepository.findByEmail(email);
+        if (patient.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        List<EncounterDto> encounters = encounterService.getEncountersByPatient(patient.get().getId());
         return ResponseEntity.ok(encounters);
     }
 

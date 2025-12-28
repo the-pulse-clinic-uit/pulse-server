@@ -3,11 +3,13 @@ package com.pulseclinic.pulse_server.modules.billing.controller;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,6 +21,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.pulseclinic.pulse_server.modules.billing.dto.InvoiceDto;
 import com.pulseclinic.pulse_server.modules.billing.dto.InvoiceRequestDto;
 import com.pulseclinic.pulse_server.modules.billing.service.InvoiceService;
+import com.pulseclinic.pulse_server.modules.patients.repository.PatientRepository;
+import com.pulseclinic.pulse_server.modules.patients.entity.Patient;
 
 import jakarta.validation.Valid;
 
@@ -26,9 +30,11 @@ import jakarta.validation.Valid;
 @RequestMapping("/invoices")
 public class InvoiceController {
     private final InvoiceService invoiceService;
+    private final PatientRepository patientRepository;
 
-    public InvoiceController(InvoiceService invoiceService) {
+    public InvoiceController(InvoiceService invoiceService, PatientRepository patientRepository) {
         this.invoiceService = invoiceService;
+        this.patientRepository = patientRepository;
     }
 
     @PostMapping
@@ -55,6 +61,18 @@ public class InvoiceController {
     @PreAuthorize("hasAnyAuthority('doctor', 'staff', 'patient')")
     public ResponseEntity<List<InvoiceDto>> getInvoicesByPatientId(@PathVariable UUID patientId) {
         List<InvoiceDto> invoices = invoiceService.getInvoicesByPatientId(patientId);
+        return ResponseEntity.ok(invoices);
+    }
+
+    @GetMapping("/me")
+    @PreAuthorize("hasAuthority('patient')")
+    public ResponseEntity<List<InvoiceDto>> getMyInvoices(Authentication authentication) {
+        String email = authentication.getName();
+        Optional<Patient> patient = patientRepository.findByEmail(email);
+        if (patient.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        List<InvoiceDto> invoices = invoiceService.getInvoicesByPatientId(patient.get().getId());
         return ResponseEntity.ok(invoices);
     }
 
