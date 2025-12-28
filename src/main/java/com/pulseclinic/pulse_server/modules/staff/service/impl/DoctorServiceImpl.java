@@ -111,19 +111,12 @@ public class DoctorServiceImpl implements DoctorService {
             throw new RuntimeException("Staff is already a doctor");
         }
 
-        // Tìm department và gán cho staff
-        Optional<Department> departmentOpt = departmentRepository.findById(doctorRequestDto.getDepartmentId());
-        if (departmentOpt.isEmpty()) {
-            throw new RuntimeException("Department not found");
-        }
-
         Optional<Role> roleOpt = roleRepository.findByName("doctor");
         if (roleOpt.isEmpty()) {
             throw new RuntimeException("Role not found");
         }
 
         Staff staff = staffOpt.get();
-        staff.setDepartment(departmentOpt.get());
         staff.setPosition(Position.DOCTOR);
         staffRepository.save(staff);
 
@@ -255,6 +248,13 @@ public class DoctorServiceImpl implements DoctorService {
     @Transactional(readOnly = true)
     public Optional<DoctorDto> getDoctorById(UUID doctorId) {
         return doctorRepository.findById(doctorId)
+                .map(doctorMapper::mapTo);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<DoctorDto> findByEmail(String email) {
+        return doctorRepository.findByEmail(email)
                 .map(doctorMapper::mapTo);
     }
 

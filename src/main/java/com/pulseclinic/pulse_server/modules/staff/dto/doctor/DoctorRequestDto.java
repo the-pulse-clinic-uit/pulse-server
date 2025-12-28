@@ -18,11 +18,8 @@ public class DoctorRequestDto {
 
     private Boolean isVerified;
 
-    // relationships => 2
+    // relationships => 1
 
     @NotNull(message = "Staff ID must not be null")
     private UUID staffId;
-
-    @NotNull(message = "Department ID must not be null")
-    private UUID departmentId;
 }
