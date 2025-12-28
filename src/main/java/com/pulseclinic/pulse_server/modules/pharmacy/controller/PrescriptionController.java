@@ -50,15 +50,6 @@ public class PrescriptionController {
         }
     }
 
-    // Get prescription by ID
-    @GetMapping("/{prescriptionId}")
-    @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
-    public ResponseEntity<PrescriptionDto> getPrescriptionById(@PathVariable UUID prescriptionId) {
-        java.util.Optional<PrescriptionDto> prescription = prescriptionService.getPrescriptionById(prescriptionId);
-        return prescription.map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
-
     @GetMapping("/me")
     @PreAuthorize("hasAuthority('patient')")
     public ResponseEntity<List<PrescriptionDto>> getMyPrescriptions(Authentication authentication) {
@@ -69,6 +60,14 @@ public class PrescriptionController {
         }
         List<PrescriptionDto> prescriptions = prescriptionService.getPrescriptionsByPatientId(patient.get().getId());
         return ResponseEntity.ok(prescriptions);
+    }
+
+    @GetMapping("/{prescriptionId}")
+    @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
+    public ResponseEntity<PrescriptionDto> getPrescriptionById(@PathVariable UUID prescriptionId) {
+        java.util.Optional<PrescriptionDto> prescription = prescriptionService.getPrescriptionById(prescriptionId);
+        return prescription.map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     // Get prescription details (drug items)

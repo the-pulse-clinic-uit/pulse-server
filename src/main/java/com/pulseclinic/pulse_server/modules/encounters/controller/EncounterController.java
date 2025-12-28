@@ -46,27 +46,11 @@ public class EncounterController {
         }
     }
 
-    // get encounter by ID
-    @GetMapping("/{encounterId}")
-    @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
-    public ResponseEntity<EncounterDto> getEncounterById(@PathVariable UUID encounterId) {
-        Optional<EncounterDto> encounter = encounterService.getEncounterById(encounterId);
-        return encounter.map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
-
     // get all encounters
     @GetMapping
     @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
     public ResponseEntity<List<EncounterDto>> getAllEncounters() {
         List<EncounterDto> encounters = encounterService.getAllEncounters();
-        return ResponseEntity.ok(encounters);
-    }
-
-    // get by patient
-    @GetMapping("/patient/{patientId}")
-    public ResponseEntity<List<EncounterDto>> getEncountersByPatient(@PathVariable UUID patientId) {
-        List<EncounterDto> encounters = encounterService.getEncountersByPatient(patientId);
         return ResponseEntity.ok(encounters);
     }
 
@@ -80,6 +64,22 @@ public class EncounterController {
         }
         List<EncounterDto> encounters = encounterService.getEncountersByPatient(patient.get().getId());
         return ResponseEntity.ok(encounters);
+    }
+
+    // get by patient
+    @GetMapping("/patient/{patientId}")
+    public ResponseEntity<List<EncounterDto>> getEncountersByPatient(@PathVariable UUID patientId) {
+        List<EncounterDto> encounters = encounterService.getEncountersByPatient(patientId);
+        return ResponseEntity.ok(encounters);
+    }
+
+    // get encounter by ID
+    @GetMapping("/{encounterId}")
+    @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
+    public ResponseEntity<EncounterDto> getEncounterById(@PathVariable UUID encounterId) {
+        Optional<EncounterDto> encounter = encounterService.getEncounterById(encounterId);
+        return encounter.map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     // get by doctor

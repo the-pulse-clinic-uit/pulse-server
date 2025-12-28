@@ -129,6 +129,18 @@ public class AppointmentController {
         return ResponseEntity.ok(appointments);
     }
 
+    @GetMapping("/me")
+    @PreAuthorize("hasAuthority('patient')")
+    public ResponseEntity<java.util.List<AppointmentDto>> getMyAppointments(Authentication authentication) {
+        String email = authentication.getName();
+        Optional<Patient> patient = patientRepository.findByEmail(email);
+        if (patient.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        java.util.List<AppointmentDto> appointments = appointmentService.getAppointmentsByPatient(patient.get().getId());
+        return ResponseEntity.ok(appointments);
+    }
+
     // Get all pending appointments (for staff approval)
     @GetMapping("/pending")
     @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
@@ -174,18 +186,6 @@ public class AppointmentController {
     @GetMapping("/patient/{patientId}")
     public ResponseEntity<java.util.List<AppointmentDto>> getAppointmentsByPatient(@PathVariable UUID patientId) {
         java.util.List<AppointmentDto> appointments = appointmentService.getAppointmentsByPatient(patientId);
-        return ResponseEntity.ok(appointments);
-    }
-
-    @GetMapping("/me")
-    @PreAuthorize("hasAuthority('patient')")
-    public ResponseEntity<java.util.List<AppointmentDto>> getMyAppointments(Authentication authentication) {
-        String email = authentication.getName();
-        Optional<Patient> patient = patientRepository.findByEmail(email);
-        if (patient.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-        java.util.List<AppointmentDto> appointments = appointmentService.getAppointmentsByPatient(patient.get().getId());
         return ResponseEntity.ok(appointments);
     }
 

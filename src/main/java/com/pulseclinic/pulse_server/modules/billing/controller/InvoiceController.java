@@ -49,21 +49,6 @@ public class InvoiceController {
         }
     }
 
-    @GetMapping("/{invoiceId}")
-    @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
-    public ResponseEntity<InvoiceDto> getInvoiceById(@PathVariable UUID invoiceId) {
-        return invoiceService.getInvoiceById(invoiceId)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
-
-    @GetMapping("/patient/{patientId}")
-    @PreAuthorize("hasAnyAuthority('doctor', 'staff', 'patient')")
-    public ResponseEntity<List<InvoiceDto>> getInvoicesByPatientId(@PathVariable UUID patientId) {
-        List<InvoiceDto> invoices = invoiceService.getInvoicesByPatientId(patientId);
-        return ResponseEntity.ok(invoices);
-    }
-
     @GetMapping("/me")
     @PreAuthorize("hasAuthority('patient')")
     public ResponseEntity<List<InvoiceDto>> getMyInvoices(Authentication authentication) {
@@ -74,6 +59,21 @@ public class InvoiceController {
         }
         List<InvoiceDto> invoices = invoiceService.getInvoicesByPatientId(patient.get().getId());
         return ResponseEntity.ok(invoices);
+    }
+
+    @GetMapping("/patient/{patientId}")
+    @PreAuthorize("hasAnyAuthority('doctor', 'staff', 'patient')")
+    public ResponseEntity<List<InvoiceDto>> getInvoicesByPatientId(@PathVariable UUID patientId) {
+        List<InvoiceDto> invoices = invoiceService.getInvoicesByPatientId(patientId);
+        return ResponseEntity.ok(invoices);
+    }
+
+    @GetMapping("/{invoiceId}")
+    @PreAuthorize("hasAnyAuthority('doctor', 'staff', 'patient')")
+    public ResponseEntity<InvoiceDto> getInvoiceById(@PathVariable UUID invoiceId) {
+        return invoiceService.getInvoiceById(invoiceId)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/{invoiceId}/balance")
@@ -119,8 +119,7 @@ public class InvoiceController {
     @GetMapping("/{invoiceId}/create-payment")
     @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
     public ResponseEntity<String> createPayment(
-            @PathVariable UUID invoiceId
-    ) {
+            @PathVariable UUID invoiceId) {
         String result = invoiceService.createPayment(invoiceId);
         return ResponseEntity.ok(result);
     }
