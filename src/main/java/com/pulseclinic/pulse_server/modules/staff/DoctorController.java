@@ -1,4 +1,4 @@
-package com.pulseclinic.pulse_server.modules.staff.controller;
+package com.pulseclinic.pulse_server.modules.staff;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
