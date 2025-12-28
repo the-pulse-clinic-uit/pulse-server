@@ -41,11 +41,96 @@ public class EncounterController {
         }
     }
 
-    // Get encounter by ID
+    // get encounter by ID
     @GetMapping("/{encounterId}")
     @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
     public ResponseEntity<EncounterDto> getEncounterById(@PathVariable UUID encounterId) {
         Optional<EncounterDto> encounter = encounterService.getEncounterById(encounterId);
+        return encounter.map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    // get all encounters
+    @GetMapping
+    @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
+    public ResponseEntity<List<EncounterDto>> getAllEncounters() {
+        List<EncounterDto> encounters = encounterService.getAllEncounters();
+        return ResponseEntity.ok(encounters);
+    }
+
+    // get by patient
+    @GetMapping("/patient/{patientId}")
+    public ResponseEntity<List<EncounterDto>> getEncountersByPatient(@PathVariable UUID patientId) {
+        List<EncounterDto> encounters = encounterService.getEncountersByPatient(patientId);
+        return ResponseEntity.ok(encounters);
+    }
+
+    // get by doctor
+    @GetMapping("/doctor/{doctorId}")
+    @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
+    public ResponseEntity<List<EncounterDto>> getEncountersByDoctor(@PathVariable UUID doctorId) {
+        List<EncounterDto> encounters = encounterService.getEncountersByDoctor(doctorId);
+        return ResponseEntity.ok(encounters);
+    }
+
+    // get by patient and doctor
+    @GetMapping("/patient/{patientId}/doctor/{doctorId}")
+    @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
+    public ResponseEntity<List<EncounterDto>> getEncountersByPatientAndDoctor(
+            @PathVariable UUID patientId,
+            @PathVariable UUID doctorId) {
+        List<EncounterDto> encounters = encounterService.getEncountersByPatientAndDoctor(patientId, doctorId);
+        return ResponseEntity.ok(encounters);
+    }
+
+    // get by type
+    @GetMapping("/type/{type}")
+    @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
+    public ResponseEntity<List<EncounterDto>> getEncountersByType(
+            @PathVariable com.pulseclinic.pulse_server.enums.EncounterType type) {
+        List<EncounterDto> encounters = encounterService.getEncountersByType(type);
+        return ResponseEntity.ok(encounters);
+    }
+
+    // get active (not ended)
+    @GetMapping("/active")
+    @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
+    public ResponseEntity<List<EncounterDto>> getActiveEncounters() {
+        List<EncounterDto> encounters = encounterService.getActiveEncounters();
+        return ResponseEntity.ok(encounters);
+    }
+
+    // get completed (ended)
+    @GetMapping("/completed")
+    @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
+    public ResponseEntity<List<EncounterDto>> getCompletedEncounters() {
+        List<EncounterDto> encounters = encounterService.getCompletedEncounters();
+        return ResponseEntity.ok(encounters);
+    }
+
+    // get today's encounters
+    @GetMapping("/today")
+    @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
+    public ResponseEntity<List<EncounterDto>> getTodayEncounters() {
+        List<EncounterDto> encounters = encounterService.getTodayEncounters();
+        return ResponseEntity.ok(encounters);
+    }
+
+    // get by date range
+    @GetMapping("/range")
+    @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
+    public ResponseEntity<List<EncounterDto>> getEncountersByDateRange(
+            @RequestParam java.time.LocalDateTime startDate,
+            @RequestParam java.time.LocalDateTime endDate) {
+        List<EncounterDto> encounters = encounterService.getEncountersByDateRange(startDate, endDate);
+        return ResponseEntity.ok(encounters);
+    }
+
+    // get by appointment
+    @GetMapping("/appointment/{appointmentId}")
+    @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
+    public ResponseEntity<EncounterDto> getEncounterByAppointment(@PathVariable UUID appointmentId) {
+        Optional<EncounterDto> encounter = encounterService.getEncounterByAppointment(appointmentId);
         return encounter.map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }

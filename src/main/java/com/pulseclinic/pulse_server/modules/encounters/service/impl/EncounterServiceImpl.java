@@ -119,6 +119,94 @@ public class EncounterServiceImpl implements EncounterService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public List<EncounterDto> getAllEncounters() {
+        List<Encounter> encounters = encounterRepository.findByDeletedAtIsNullOrderByStartedAtDesc();
+        return encounters.stream()
+                .map(encounterMapper::mapTo)
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<EncounterDto> getEncountersByPatient(UUID patientId) {
+        List<Encounter> encounters = encounterRepository.findByPatientIdAndDeletedAtIsNullOrderByStartedAtDesc(patientId);
+        return encounters.stream()
+                .map(encounterMapper::mapTo)
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<EncounterDto> getEncountersByDoctor(UUID doctorId) {
+        List<Encounter> encounters = encounterRepository.findByDoctorIdAndDeletedAtIsNullOrderByStartedAtDesc(doctorId);
+        return encounters.stream()
+                .map(encounterMapper::mapTo)
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<EncounterDto> getEncountersByPatientAndDoctor(UUID patientId, UUID doctorId) {
+        List<Encounter> encounters = encounterRepository.findByPatientIdAndDoctorIdAndDeletedAtIsNull(patientId, doctorId);
+        return encounters.stream()
+                .map(encounterMapper::mapTo)
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<EncounterDto> getEncountersByType(com.pulseclinic.pulse_server.enums.EncounterType type) {
+        List<Encounter> encounters = encounterRepository.findByTypeAndDeletedAtIsNullOrderByStartedAtDesc(type);
+        return encounters.stream()
+                .map(encounterMapper::mapTo)
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<EncounterDto> getActiveEncounters() {
+        List<Encounter> encounters = encounterRepository.findByEndedAtIsNullAndDeletedAtIsNullOrderByStartedAtDesc();
+        return encounters.stream()
+                .map(encounterMapper::mapTo)
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<EncounterDto> getCompletedEncounters() {
+        List<Encounter> encounters = encounterRepository.findByEndedAtIsNotNullAndDeletedAtIsNullOrderByEndedAtDesc();
+        return encounters.stream()
+                .map(encounterMapper::mapTo)
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<EncounterDto> getEncountersByDateRange(LocalDateTime startDate, LocalDateTime endDate) {
+        List<Encounter> encounters = encounterRepository.findByDateRange(startDate, endDate);
+        return encounters.stream()
+                .map(encounterMapper::mapTo)
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<EncounterDto> getTodayEncounters() {
+        List<Encounter> encounters = encounterRepository.findTodayEncounters();
+        return encounters.stream()
+                .map(encounterMapper::mapTo)
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<EncounterDto> getEncounterByAppointment(UUID appointmentId) {
+        return encounterRepository.findByAppointmentIdAndDeletedAtIsNull(appointmentId)
+                .map(encounterMapper::mapTo);
+    }
+
+    @Override
     @Transactional
     public boolean recordDiagnosis(UUID encounterId, String diagnosis) {
         try {
