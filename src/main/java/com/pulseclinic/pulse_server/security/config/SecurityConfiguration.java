@@ -28,10 +28,10 @@ public class SecurityConfiguration {
         this.authenticationProvider = authenticationProvider;
     }
 
-    public UrlBasedCorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of(
-                "http://localhost:3000"));
+        public UrlBasedCorsConfigurationSource corsConfigurationSource() {
+                CorsConfiguration configuration = new CorsConfiguration();
+                configuration.setAllowedOrigins(List.of(
+                                "http://localhost:3000", "http://staff.localhost:3000", "http://doctor.localhost:3000", "http://hms.localhost:3000"));
 
         configuration.setAllowedMethods(List.of(
                 "GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
