@@ -268,7 +268,9 @@ public class DoctorServiceImpl implements DoctorService {
     private DoctorDto mapTo(Doctor doctor, User user) {
         DoctorDto resultDto = doctorMapper.mapTo(doctor);
 
-        resultDto.setDepartmentDto(departmentMapper.mapTo(doctor.getDepartment()));
+        if (doctor.getDepartment() != null) {
+            resultDto.setDepartmentDto(departmentMapper.mapTo(doctor.getDepartment()));
+        }
         resultDto.setStaffDto(staffMapper.mapTo(doctor.getStaff()));
         resultDto.getStaffDto().setUserDto(userMapper.mapTo(user));
 

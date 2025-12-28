@@ -17,7 +17,7 @@ public interface DoctorRepository extends JpaRepository<Doctor, UUID> {
     Optional<Doctor> findByLicenseId(String licenseId);
     Optional<Doctor> findByStaffId(UUID staffId);
 
-    @Query("SELECT d FROM Doctor d WHERE d.staff.user.email = :email")
+    @Query("SELECT d FROM Doctor d JOIN d.staff s JOIN s.user u WHERE u.email = :email AND d.deletedAt IS NULL")
     Optional<Doctor> findByEmail(@Param("email") String email);
 
     @Query("SELECT d FROM Doctor d WHERE d.staff.department.id = :departmentId")
