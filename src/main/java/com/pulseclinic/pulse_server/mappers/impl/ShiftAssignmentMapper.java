@@ -11,14 +11,32 @@ import org.springframework.ui.ModelMap;
 @Component
 public class ShiftAssignmentMapper implements Mapper<ShiftAssignment, ShiftAssignmentDto> {
     private final ModelMapper modelMapper;
+    private final DoctorMapper doctorMapper;
+    private final ShiftMapper shiftMapper;
+    private final RoomMapper roomMapper;
 
-    public ShiftAssignmentMapper(ModelMapper modelMapper) {
+    public ShiftAssignmentMapper(ModelMapper modelMapper, DoctorMapper doctorMapper,
+                                ShiftMapper shiftMapper, RoomMapper roomMapper) {
         this.modelMapper = modelMapper;
+        this.doctorMapper = doctorMapper;
+        this.shiftMapper = shiftMapper;
+        this.roomMapper = roomMapper;
     }
 
     @Override
     public ShiftAssignmentDto mapTo(ShiftAssignment shiftAssignment) {
-        return this.modelMapper.map(shiftAssignment, ShiftAssignmentDto.class);
+        return ShiftAssignmentDto.builder()
+                .id(shiftAssignment.getId())
+                .dutyDate(shiftAssignment.getDutyDate())
+                .roleInShift(shiftAssignment.getRoleInShift())
+                .status(shiftAssignment.getStatus())
+                .notes(shiftAssignment.getNotes())
+                .createdAt(shiftAssignment.getCreatedAt())
+                .updatedAt(shiftAssignment.getUpdatedAt())
+                .doctorDto(shiftAssignment.getDoctor() != null ? doctorMapper.mapTo(shiftAssignment.getDoctor()) : null)
+                .shiftDto(shiftAssignment.getShift() != null ? shiftMapper.mapTo(shiftAssignment.getShift()) : null)
+                .roomDto(shiftAssignment.getRoom() != null ? roomMapper.mapTo(shiftAssignment.getRoom()) : null)
+                .build();
     }
 
     @Override

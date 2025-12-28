@@ -38,7 +38,7 @@ public class ShiftAssignmentController {
 
     // Assign doctor to shift
     @PostMapping("/assignments")
-    @PreAuthorize("hasAuthority('doctor')")
+    @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
     public ResponseEntity<ShiftAssignmentDto> assignDoctor(@Valid @RequestBody ShiftAssignmentRequestDto requestDto) {
         try {
             ShiftAssignmentDto assignment = shiftAssignmentService.assignDoctor(requestDto);
@@ -60,7 +60,7 @@ public class ShiftAssignmentController {
 
     // Update assignment status
     @PutMapping("/assignments/{assignmentId}/status")
-    @PreAuthorize("hasAuthority('doctor')")
+    @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
     public ResponseEntity<Void> updateStatus(
             @PathVariable UUID assignmentId,
             @RequestParam ShiftAssignmentStatus status) {
@@ -70,7 +70,7 @@ public class ShiftAssignmentController {
 
     // Update assignment room
     @PutMapping("/assignments/{assignmentId}/room")
-    @PreAuthorize("hasAuthority('doctor')")
+    @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
     public ResponseEntity<Void> updateRoom(
             @PathVariable UUID assignmentId,
             @RequestParam UUID roomId) {
@@ -80,7 +80,7 @@ public class ShiftAssignmentController {
 
     // Get all assignments for a shift on a specific date
     @GetMapping("/{shiftId}/assignments")
-    @PreAuthorize("hasAuthority('doctor')")
+    @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
     public ResponseEntity<List<ShiftAssignmentDto>> findByShift(
             @PathVariable UUID shiftId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
@@ -90,7 +90,7 @@ public class ShiftAssignmentController {
 
     // Get assignments by doctor within date range
     @GetMapping("/assignments/by_doctor/{doctorId}")
-    @PreAuthorize("hasAuthority('doctor')")
+    @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
     public ResponseEntity<List<ShiftAssignmentDto>> findByDoctor(
             @PathVariable UUID doctorId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,

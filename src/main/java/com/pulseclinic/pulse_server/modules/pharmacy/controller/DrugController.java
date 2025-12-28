@@ -27,10 +27,10 @@ public class DrugController {
     }
 
     @PostMapping
-    @PreAuthorize("hasAuthority('doctor')")
+    @PreAuthorize("hasAnyAuthority('staff', 'doctor')")
     public ResponseEntity<DrugDto> createDrug(@RequestBody DrugRequestDto drugRequestDto) {
         Drug drug = this.drugService.createDrug(this.drugMapper.mapFrom(drugRequestDto));
-        return new ResponseEntity<>(this.drugMapper.mapTo(drug), HttpStatus.CREATED);
+        return new ResponseEntity<>(drugMapper.mapTo(drug), HttpStatus.CREATED);
     }
 
     @GetMapping("/{id}")
@@ -50,14 +50,14 @@ public class DrugController {
     }
 
     @PatchMapping("/{id}")
-    @PreAuthorize("hasAuthority('doctor')")
+    @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
     public ResponseEntity<DrugDto> updateDrug(@PathVariable UUID id, @RequestBody DrugDto drugDto) {
         Drug drug = this.drugService.updateDrug(id, drugDto);
         return new ResponseEntity<>(this.drugMapper.mapTo(drug), HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAuthority('doctor')")
+    @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
     public ResponseEntity<HttpStatus> deleteDrug(@PathVariable UUID id) {
         this.drugService.deleteDrug(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);

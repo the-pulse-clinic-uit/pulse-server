@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.UuidGenerator;
@@ -19,6 +20,7 @@ import java.util.UUID;
 @Builder
 @Entity
 @Table(name = "departments")
+@ToString(exclude = {"staff"})
 public class Department {
     @Id
     @UuidGenerator // Hibernate 6

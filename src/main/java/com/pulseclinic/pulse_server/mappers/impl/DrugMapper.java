@@ -17,7 +17,15 @@ public class DrugMapper implements Mapper<Drug, DrugDto> {
 
     @Override
     public DrugDto mapTo(Drug drug) {
-        return this.modelMapper.map(drug, DrugDto.class);
+        return DrugDto.builder()
+                .id(drug.getId())
+                .name(drug.getName())
+                .dosageForm(drug.getDosageForm())
+                .unit(drug.getUnit())
+                .strength(drug.getStrength())
+                .createdAt(drug.getCreatedAt())
+                .unitPrice(drug.getUnitPrice())
+                .build();
     }
 
     @Override

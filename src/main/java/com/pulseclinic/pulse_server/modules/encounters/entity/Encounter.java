@@ -37,7 +37,7 @@ public class Encounter {
     @Builder.Default
     private LocalDateTime startedAt = LocalDateTime.now();
 
-    @Column(nullable = false, name = "ended_at")
+    @Column(name = "ended_at")
     private LocalDateTime endedAt;
 
     @Column(columnDefinition = "TEXT", nullable = false)

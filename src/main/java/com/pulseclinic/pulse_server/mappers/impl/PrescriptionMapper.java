@@ -10,14 +10,23 @@ import org.springframework.stereotype.Component;
 @Component
 public class PrescriptionMapper implements Mapper<Prescription, PrescriptionDto> {
     private final ModelMapper modelMapper;
+    private final EncounterMapper encounterMapper;
 
-    public PrescriptionMapper(ModelMapper modelMapper) {
+    public PrescriptionMapper(ModelMapper modelMapper, EncounterMapper encounterMapper) {
         this.modelMapper = modelMapper;
+        this.encounterMapper = encounterMapper;
     }
 
     @Override
     public PrescriptionDto mapTo(Prescription prescription) {
-        return this.modelMapper.map(prescription, PrescriptionDto.class);
+        return PrescriptionDto.builder()
+                .id(prescription.getId())
+                .totalPrice(prescription.getTotalPrice())
+                .notes(prescription.getNotes())
+                .createdAt(prescription.getCreatedAt())
+                .status(prescription.getStatus())
+                .encounterDto(prescription.getEncounter() != null ? encounterMapper.mapTo(prescription.getEncounter()) : null)
+                .build();
     }
 
     @Override

@@ -11,14 +11,29 @@ import org.springframework.ui.ModelMap;
 @Component
 public class ShiftMapper implements Mapper<Shift, ShiftDto> {
     private final ModelMapper modelMapper;
+    private final DepartmentMapper departmentMapper;
+    private final RoomMapper roomMapper;
 
-    public ShiftMapper(ModelMapper modelMapper) {
+    public ShiftMapper(ModelMapper modelMapper, DepartmentMapper departmentMapper, RoomMapper roomMapper) {
         this.modelMapper = modelMapper;
+        this.departmentMapper = departmentMapper;
+        this.roomMapper = roomMapper;
     }
 
     @Override
     public ShiftDto mapTo(Shift shift) {
-        return this.modelMapper.map(shift, ShiftDto.class);
+        return ShiftDto.builder()
+                .id(shift.getId())
+                .name(shift.getName())
+                .kind(shift.getKind())
+                .startTime(shift.getStartTime())
+                .endTime(shift.getEndTime())
+                .slotMinutes(shift.getSlotMinutes())
+                .capacityPerSlot(shift.getCapacityPerSlot())
+                .createdAt(shift.getCreatedAt())
+                .departmentDto(shift.getDepartment() != null ? departmentMapper.mapTo(shift.getDepartment()) : null)
+                .defaultRoomDto(shift.getDefaultRoom() != null ? roomMapper.mapTo(shift.getDefaultRoom()) : null)
+                .build();
     }
 
     @Override

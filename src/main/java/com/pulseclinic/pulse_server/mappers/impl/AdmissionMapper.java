@@ -10,14 +10,33 @@ import org.springframework.stereotype.Component;
 @Component
 public class AdmissionMapper implements Mapper<Admission, AdmissionDto> {
     private final ModelMapper modelMapper;
+    private final EncounterMapper encounterMapper;
+    private final PatientMapper patientMapper;
+    private final DoctorMapper doctorMapper;
+    private final RoomMapper roomMapper;
 
-    public AdmissionMapper(ModelMapper modelMapper) {
+    public AdmissionMapper(ModelMapper modelMapper, EncounterMapper encounterMapper,
+                          PatientMapper patientMapper, DoctorMapper doctorMapper, RoomMapper roomMapper) {
         this.modelMapper = modelMapper;
+        this.encounterMapper = encounterMapper;
+        this.patientMapper = patientMapper;
+        this.doctorMapper = doctorMapper;
+        this.roomMapper = roomMapper;
     }
 
     @Override
     public AdmissionDto mapTo(Admission admission) {
-        return this.modelMapper.map(admission, AdmissionDto.class);
+        return AdmissionDto.builder()
+                .id(admission.getId())
+                .status(admission.getStatus())
+                .notes(admission.getNotes())
+                .admittedAt(admission.getAdmittedAt())
+                .dischargedAt(admission.getDischargedAt())
+                .encounterDto(admission.getEncounter() != null ? encounterMapper.mapTo(admission.getEncounter()) : null)
+                .patientDto(admission.getPatient() != null ? patientMapper.mapTo(admission.getPatient()) : null)
+                .doctorDto(admission.getDoctor() != null ? doctorMapper.mapTo(admission.getDoctor()) : null)
+                .roomDto(admission.getRoom() != null ? roomMapper.mapTo(admission.getRoom()) : null)
+                .build();
     }
 
     @Override

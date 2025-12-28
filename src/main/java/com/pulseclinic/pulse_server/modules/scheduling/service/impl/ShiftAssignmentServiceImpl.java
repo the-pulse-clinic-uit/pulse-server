@@ -74,19 +74,6 @@ public class ShiftAssignmentServiceImpl implements ShiftAssignmentService {
         Shift shift = shiftRepository.findById(dto.getShiftId())
                 .orElseThrow(() -> new RuntimeException("Shift not found"));
 
-        String debug = doctor.getDepartment().toString();
-        log.info("Debugging: {}", debug);
-
-        if (shift.getDepartment() != null) {
-            if (doctor.getDepartment() == null || doctor.getDepartment() == null) {
-                throw new RuntimeException("Doctor has no department");
-            }
-            if (!shift.getDepartment().getId()
-                    .equals(doctor.getDepartment().getId())) {
-                throw new RuntimeException("Doctor does not belong to shift department");
-            }
-        }
-
         if (shiftAssignmentRepository.existsByDoctorIdAndShiftIdAndDutyDate(
                 doctor.getId(), shift.getId(), dto.getDutyDate())) {
             throw new RuntimeException("Duplicate shift assignment");
@@ -114,12 +101,6 @@ public class ShiftAssignmentServiceImpl implements ShiftAssignmentService {
         if (dto.getRoomId() != null) {
             Room room = roomRepository.findById(dto.getRoomId())
                     .orElseThrow(() -> new RuntimeException("Room not found"));
-
-            if (shift.getDepartment() != null && room.getDepartment() != null) {
-                if (!shift.getDepartment().getId().equals(room.getDepartment().getId())) {
-                    throw new RuntimeException("Room does not belong to shift department");
-                }
-            }
 
             assignment.setRoom(room);
         } else if (shift.getDefaultRoom() != null) {

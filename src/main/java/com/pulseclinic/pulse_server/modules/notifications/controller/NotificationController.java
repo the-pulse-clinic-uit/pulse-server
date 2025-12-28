@@ -29,7 +29,7 @@ public class NotificationController {
     }
 
     @PostMapping
-    @PreAuthorize("hasAuthority('doctor')")
+    @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
     public ResponseEntity<NotificationDto> createNotification(
             @RequestBody NotificationRequestDto notificationRequestDto) {
         Notification notification = this.notificationService.create(notificationRequestDto);
@@ -80,7 +80,7 @@ public class NotificationController {
     }
 
     @GetMapping("/user/{userId}")
-    @PreAuthorize("hasAuthority('doctor')")
+    @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
     public ResponseEntity<List<NotificationDto>> getNotificationsByUserId(@PathVariable UUID userId) {
         List<Notification> notifications = this.notificationService.findByUserId(userId);
         return ResponseEntity.ok(notifications.stream()
