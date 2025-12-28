@@ -7,6 +7,7 @@ import com.pulseclinic.pulse_server.modules.rooms.entity.Room;
 import com.pulseclinic.pulse_server.modules.rooms.repository.RoomRepository;
 import com.pulseclinic.pulse_server.modules.staff.entity.Department;
 import com.pulseclinic.pulse_server.modules.staff.repository.DepartmentRepository;
+import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -52,6 +53,9 @@ public class RoomIntegrationTest {
     private DepartmentRepository departmentRepository;
 
     @Autowired
+    private EntityManager entityManager;
+
+    @Autowired
     private RoomMapper roomMapper;
 
     private Department testDepartment;
@@ -62,8 +66,14 @@ public class RoomIntegrationTest {
     @BeforeEach
     void setUp() {
         // Clean up before each test
-        roomRepository.deleteAll();
-        departmentRepository.deleteAll();
+//        roomRepository.deleteAll();
+//        departmentRepository.deleteAll();
+
+        entityManager.createNativeQuery("DELETE FROM doctors").executeUpdate();
+        entityManager.createNativeQuery("DELETE FROM staff").executeUpdate();
+        entityManager.createNativeQuery("DELETE FROM rooms").executeUpdate();
+        entityManager.createNativeQuery("DELETE FROM departments").executeUpdate();
+
 
         // Create test departments
         testDepartment = Department.builder()

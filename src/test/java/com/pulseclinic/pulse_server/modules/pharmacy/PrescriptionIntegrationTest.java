@@ -23,6 +23,8 @@ import com.pulseclinic.pulse_server.modules.staff.repository.DoctorRepository;
 import com.pulseclinic.pulse_server.modules.staff.repository.StaffRepository;
 import com.pulseclinic.pulse_server.modules.users.entity.Role;
 import com.pulseclinic.pulse_server.modules.users.entity.User;
+import com.pulseclinic.pulse_server.modules.users.repository.UserRepository;
+import jakarta.persistence.EntityManager;
 import org.h2.tools.Server;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +41,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -78,10 +81,16 @@ public class PrescriptionIntegrationTest {
     private DoctorRepository doctorRepository;
 
     @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
     private StaffRepository staffRepository;
 
     @Autowired
     private DrugRepository drugRepository;
+
+    @Autowired
+    private EntityManager entityManager;
 
     private Encounter testEncounter;
     private Drug testDrug1;
@@ -106,14 +115,19 @@ public class PrescriptionIntegrationTest {
 
     @BeforeEach
     void setUp() {
-        // Clean up
-        prescriptionDetailRepository.deleteAll();
-        prescriptionRepository.deleteAll();
-        encounterRepository.deleteAll();
-        drugRepository.deleteAll();
-        patientRepository.deleteAll();
-        doctorRepository.deleteAll();
-        staffRepository.deleteAll();
+        entityManager.createNativeQuery("SET REFERENTIAL_INTEGRITY FALSE").executeUpdate();
+
+        entityManager.createNativeQuery("DELETE FROM prescription_details").executeUpdate();
+        entityManager.createNativeQuery("DELETE FROM prescriptions").executeUpdate();
+        entityManager.createNativeQuery("DELETE FROM encounters").executeUpdate();
+        entityManager.createNativeQuery("DELETE FROM drugs").executeUpdate();
+        entityManager.createNativeQuery("DELETE FROM patients").executeUpdate();
+        entityManager.createNativeQuery("DELETE FROM doctors").executeUpdate();
+        entityManager.createNativeQuery("DELETE FROM staff").executeUpdate();
+        entityManager.createNativeQuery("DELETE FROM users").executeUpdate();
+        entityManager.createNativeQuery("DELETE FROM roles").executeUpdate();
+
+        entityManager.createNativeQuery("SET REFERENTIAL_INTEGRITY TRUE").executeUpdate();
 
         // Create test patient
         User patientUser = User.builder()
@@ -126,6 +140,8 @@ public class PrescriptionIntegrationTest {
                 .birthDate(LocalDate.of(1990, 1, 1))
                 .isActive(true)
                 .build();
+
+        patientUser = userRepository.save(patientUser);
 
         testPatient = Patient.builder()
                 .healthInsuranceId("HI123456")
@@ -147,6 +163,8 @@ public class PrescriptionIntegrationTest {
                 .isActive(true)
                 .build();
 
+        doctorUser = userRepository.save(doctorUser);
+
         Staff doctorStaff = Staff.builder()
                 .position(Position.STAFF)
                 .user(doctorUser)
@@ -166,6 +184,7 @@ public class PrescriptionIntegrationTest {
                 .diagnosis("Common cold")
                 .notes("Patient has mild symptoms")
                 .patient(testPatient)
+                .createdAt(LocalDateTime.now())
                 .doctor(testDoctor)
                 .build();
         testEncounter = encounterRepository.save(testEncounter);
@@ -352,6 +371,7 @@ public class PrescriptionIntegrationTest {
         Prescription prescription = Prescription.builder()
                 .totalPrice(BigDecimal.ZERO)
                 .notes("Empty prescription")
+                .createdAt(LocalDateTime.now())
                 .status(PrescriptionStatus.DRAFT)
                 .encounter(testEncounter)
                 .build();

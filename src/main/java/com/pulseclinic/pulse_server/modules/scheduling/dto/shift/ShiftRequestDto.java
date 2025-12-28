@@ -29,7 +29,7 @@ public class ShiftRequestDto {
     private LocalDateTime startTime;
 
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    @NotNull(message = "Start Time is required")
+    @NotNull(message = "End Time is required")
     private LocalDateTime endTime;
 
     @NotNull(message = "Slot minutes is required")

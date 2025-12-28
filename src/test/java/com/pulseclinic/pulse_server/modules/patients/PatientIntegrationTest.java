@@ -7,6 +7,8 @@ import com.pulseclinic.pulse_server.modules.patients.dto.PatientRequestDto;
 import com.pulseclinic.pulse_server.modules.patients.dto.PatientSearchDto;
 import com.pulseclinic.pulse_server.modules.patients.entity.Patient;
 import com.pulseclinic.pulse_server.modules.patients.repository.PatientRepository;
+import com.pulseclinic.pulse_server.modules.staff.repository.DoctorRepository;
+import com.pulseclinic.pulse_server.modules.staff.repository.StaffRepository;
 import com.pulseclinic.pulse_server.modules.users.entity.Role;
 import com.pulseclinic.pulse_server.modules.users.entity.User;
 import com.pulseclinic.pulse_server.modules.users.repository.RoleRepository;
@@ -57,6 +59,12 @@ class PatientIntegrationTest {
     private RoleRepository roleRepository;
 
     @Autowired
+    private DoctorRepository doctorRepository;
+
+    @Autowired
+    private StaffRepository staffRepository;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Autowired
@@ -82,6 +90,8 @@ class PatientIntegrationTest {
     void setUp() {
         // Clean database
         patientRepository.deleteAll();
+        doctorRepository.deleteAll();
+        staffRepository.deleteAll();
         userRepository.deleteAll();
         roleRepository.deleteAll();
 

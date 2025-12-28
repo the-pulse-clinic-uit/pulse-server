@@ -7,6 +7,7 @@ import com.pulseclinic.pulse_server.modules.pharmacy.dto.drug.DrugDto;
 import com.pulseclinic.pulse_server.modules.pharmacy.dto.drug.DrugRequestDto;
 import com.pulseclinic.pulse_server.modules.pharmacy.entity.Drug;
 import com.pulseclinic.pulse_server.modules.pharmacy.repository.DrugRepository;
+import jakarta.persistence.EntityManager;
 import org.h2.tools.Server;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,11 +49,19 @@ public class DrugIntegrationTest {
     @Autowired
     private DrugRepository drugRepository;
 
+    @Autowired
+    private EntityManager entityManager;
+
     private Drug testDrug;
 
     @BeforeEach
     void setUp() {
-        drugRepository.deleteAll();
+//        drugRepository.deleteAll();
+
+        entityManager.createNativeQuery("DELETE FROM drugs").executeUpdate();
+
+//        entityManager.flush();
+//        entityManager.clear();
 
         testDrug = Drug.builder()
                 .name("Paracetamol")
