@@ -24,7 +24,7 @@ public class UserMapper implements Mapper<User, UserDto> {
         return UserDto.builder()
                 .id(user.getId())
                 .email(user.getEmail())
-                .hashedPassword(user.getHashedPassword())
+//                .hashedPassword(user.getHashedPassword())
                 .fullName(user.getFullName())
                 .address(user.getAddress())
                 .citizenId(user.getCitizenId())

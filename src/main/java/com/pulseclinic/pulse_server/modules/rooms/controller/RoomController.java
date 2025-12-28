@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import com.pulseclinic.pulse_server.mappers.impl.DepartmentMapper;
+import com.pulseclinic.pulse_server.modules.staff.dto.department.DepartmentDto;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.pulseclinic.pulse_server.modules.staff.dto.department.DepartmentDto;
 import com.pulseclinic.pulse_server.mappers.impl.RoomMapper;
 import com.pulseclinic.pulse_server.modules.rooms.dto.RoomDto;
 import com.pulseclinic.pulse_server.modules.rooms.dto.RoomRequestDto;
@@ -28,17 +31,22 @@ import com.pulseclinic.pulse_server.modules.rooms.service.RoomService;
 public class RoomController {
     private final RoomService roomService;
     private final RoomMapper roomMapper;
+    private final DepartmentMapper departmentMapper;
 
-    public RoomController(RoomService roomService, RoomMapper roomMapper) {
+    public RoomController(RoomService roomService, RoomMapper roomMapper, DepartmentMapper departmentMapper) {
         this.roomService = roomService;
         this.roomMapper = roomMapper;
+        this.departmentMapper = departmentMapper;
     }
 
     @PostMapping
     @PreAuthorize("hasAnyAuthority('doctor')")
     public ResponseEntity<RoomDto> createRoom(@RequestBody RoomRequestDto roomRequestDto) {
-        Room room = this.roomService.createRoom(this.roomMapper.mapFrom(roomRequestDto));
-        return new ResponseEntity<>(this.roomMapper.mapTo(room), HttpStatus.CREATED);
+        Room room = this.roomService.createRoom(roomRequestDto);
+        RoomDto response = this.roomMapper.mapTo(room);
+        DepartmentDto departmentDto = this.departmentMapper.mapTo(room.getDepartment());
+        response.setDepartmentDto(departmentDto);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     @GetMapping("/by-department")

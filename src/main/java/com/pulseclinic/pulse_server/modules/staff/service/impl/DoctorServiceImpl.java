@@ -253,9 +253,22 @@ public class DoctorServiceImpl implements DoctorService {
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<DoctorDto> getDoctorById(UUID doctorId) {
-        return doctorRepository.findById(doctorId)
-                .map(doctorMapper::mapTo);
+    public DoctorDto getDoctorById(UUID doctorId) {
+        Optional<Doctor> doctorOpt = doctorRepository.findById(doctorId);
+        if (doctorOpt.isEmpty()) {
+            throw new RuntimeException("Doctor not found");
+        }
+
+
+        Doctor doctor = doctorOpt.get();
+        Optional<User> userOpt = userRepository.findById(doctor.getStaff().getUser().getId());
+        if (userOpt.isEmpty()) {
+            throw new RuntimeException("User not found");
+        }
+
+        DoctorDto doctorDto = this.mapTo(doctor, userOpt.get());
+
+        return doctorDto;
     }
 
     @Transactional(readOnly = true)

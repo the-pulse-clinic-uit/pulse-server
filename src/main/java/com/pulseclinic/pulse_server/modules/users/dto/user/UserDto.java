@@ -19,8 +19,6 @@ public class UserDto {
 
     private String email;
 
-    private String hashedPassword;
-
     private String fullName;
 
     private String address;

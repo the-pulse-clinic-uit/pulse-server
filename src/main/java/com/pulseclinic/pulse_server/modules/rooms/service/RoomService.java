@@ -1,13 +1,14 @@
 package com.pulseclinic.pulse_server.modules.rooms.service;
 
 import com.pulseclinic.pulse_server.modules.rooms.dto.RoomDto;
+import com.pulseclinic.pulse_server.modules.rooms.dto.RoomRequestDto;
 import com.pulseclinic.pulse_server.modules.rooms.entity.Room;
 
 import java.util.List;
 import java.util.UUID;
 
 public interface RoomService {
-    Room createRoom(Room room);
+    Room createRoom(RoomRequestDto requestDto);
     List<Room> findAll();
     List<Room> findAllByDepartmentId(UUID departmentId);
     Room findById(UUID id);
