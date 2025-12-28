@@ -36,7 +36,7 @@ public class AppointmentController {
 
     // Schedule new appointment
     @PostMapping
-    @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
+    @PreAuthorize("hasAnyAuthority('doctor', 'staff', 'patient')")
     public ResponseEntity<AppointmentDto> scheduleAppointment(
             @Valid @RequestBody AppointmentRequestDto appointmentRequestDto) {
         try {
