@@ -99,6 +99,15 @@ public class InvoiceServiceImpl implements InvoiceService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public List<InvoiceDto> getInvoicesByPatientId(UUID patientId) {
+        List<Invoice> invoices = invoiceRepository.findByPatientId(patientId);
+        return invoices.stream()
+                .map(invoiceMapper::mapTo)
+                .toList();
+    }
+
+    @Override
     public BigDecimal getBalance(UUID invoiceId) {
         return calculateBalance(invoiceId);
     }

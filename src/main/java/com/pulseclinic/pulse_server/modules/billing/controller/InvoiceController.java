@@ -51,6 +51,13 @@ public class InvoiceController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @GetMapping("/patient/{patientId}")
+    @PreAuthorize("hasAnyAuthority('doctor', 'staff', 'patient')")
+    public ResponseEntity<List<InvoiceDto>> getInvoicesByPatientId(@PathVariable UUID patientId) {
+        List<InvoiceDto> invoices = invoiceService.getInvoicesByPatientId(patientId);
+        return ResponseEntity.ok(invoices);
+    }
+
     @GetMapping("/{invoiceId}/balance")
     public ResponseEntity<BigDecimal> getBalance(@PathVariable UUID invoiceId) {
         BigDecimal balance = invoiceService.getBalance(invoiceId);
