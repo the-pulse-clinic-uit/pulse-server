@@ -78,10 +78,6 @@ public class ShiftServiceImpl implements ShiftService {
             throw new RuntimeException("Start time must be before end time");
         }
 
-        if (shiftRequestDto.getSlotMinutes() <= 0) {
-            throw new RuntimeException("Slot minutes must be greater than 0");
-        }
-
         if (shiftRequestDto.getCapacityPerSlot() != null && shiftRequestDto.getCapacityPerSlot() <= 0) {
             throw new RuntimeException("Capacity per slot must be greater than 0");
         }
@@ -93,7 +89,7 @@ public class ShiftServiceImpl implements ShiftService {
         }
 
         if (shiftRequestDto.getKind() == ShiftKind.ER) {
-            if (shiftRequestDto.getSlotMinutes() != null) {
+            if (shiftRequestDto.getSlotMinutes() != 0) {
                 throw new RuntimeException("ER shift must not have slot minutes");
             }
         }

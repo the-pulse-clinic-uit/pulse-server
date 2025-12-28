@@ -1,4 +1,4 @@
-package com.pulseclinic.pulse_server.security.controller;
+package com.pulseclinic.pulse_server.security;
 
 import com.pulseclinic.pulse_server.security.dto.*;
 import com.pulseclinic.pulse_server.security.service.AuthService;
