@@ -12,7 +12,8 @@ import com.pulseclinic.pulse_server.modules.staff.dto.doctor.DoctorRequestDto;
 public interface DoctorService {
     DoctorDto createDoctor(DoctorRequestDto doctorRequestDto);
     List<DoctorDto> getAllDoctors();
-    DoctorDto getDoctorById(UUID doctorId);
+    Optional<DoctorDto> getDoctorById(UUID doctorId);
+    Optional<DoctorDto> findByEmail(String email);
     DoctorDto updateDoctor(UUID doctorId, DoctorRequestDto doctorRequestDto);
     boolean updateSpecialization(UUID doctorId, UUID departmentId);
     List<Object> getPatients(UUID doctorId);

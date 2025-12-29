@@ -71,6 +71,15 @@ public class PrescriptionServiceImpl implements PrescriptionService {
 
     @Override
     @Transactional(readOnly = true)
+    public List<PrescriptionDto> getPrescriptionsByPatientId(UUID patientId) {
+        return prescriptionRepository.findByPatientId(patientId)
+                .stream()
+                .map(prescriptionMapper::mapTo)
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public List<PrescriptionDetailDto> getDetails(UUID prescriptionId) {
         return prescriptionDetailRepository.findByPrescriptionIdAndDeletedAtIsNullOrderByCreatedAtAsc(prescriptionId)
                 .stream()

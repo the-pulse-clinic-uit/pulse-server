@@ -25,6 +25,7 @@ import com.pulseclinic.pulse_server.modules.staff.dto.doctor.DoctorRequestDto;
 import com.pulseclinic.pulse_server.modules.staff.service.DoctorService;
 
 import jakarta.validation.Valid;
+import org.springframework.security.core.Authentication;
 
 @Slf4j
 @RestController
@@ -53,6 +54,16 @@ public class DoctorController {
     public ResponseEntity<List<DoctorDto>> getAllDoctors() {
         List<DoctorDto> doctors = doctorService.getAllDoctors();
         return ResponseEntity.ok(doctors);
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<DoctorDto> getDoctorMe(Authentication authentication) {
+        String email = authentication.getName();
+        Optional<DoctorDto> doctor = doctorService.findByEmail(email);
+        if (doctor.isPresent()) {
+            return ResponseEntity.ok(doctor.get());
+        }
+        return ResponseEntity.notFound().build();
     }
 
     // Get doctor by ID

@@ -9,6 +9,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,6 +22,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.pulseclinic.pulse_server.modules.appointments.dto.AppointmentDto;
 import com.pulseclinic.pulse_server.modules.appointments.dto.AppointmentRequestDto;
 import com.pulseclinic.pulse_server.modules.appointments.service.AppointmentService;
+import com.pulseclinic.pulse_server.modules.patients.repository.PatientRepository;
+import com.pulseclinic.pulse_server.modules.patients.entity.Patient;
 
 import jakarta.validation.Valid;
 
@@ -29,9 +32,11 @@ import jakarta.validation.Valid;
 @RequestMapping("/appointments")
 public class AppointmentController {
     private final AppointmentService appointmentService;
+    private final PatientRepository patientRepository;
 
-    public AppointmentController(AppointmentService appointmentService) {
+    public AppointmentController(AppointmentService appointmentService, PatientRepository patientRepository) {
         this.appointmentService = appointmentService;
+        this.patientRepository = patientRepository;
     }
 
     // Schedule new appointment
@@ -121,6 +126,18 @@ public class AppointmentController {
     @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
     public ResponseEntity<java.util.List<AppointmentDto>> getAllAppointments() {
         java.util.List<AppointmentDto> appointments = appointmentService.getAllAppointments();
+        return ResponseEntity.ok(appointments);
+    }
+
+    @GetMapping("/me")
+    @PreAuthorize("hasAuthority('patient')")
+    public ResponseEntity<java.util.List<AppointmentDto>> getMyAppointments(Authentication authentication) {
+        String email = authentication.getName();
+        Optional<Patient> patient = patientRepository.findByEmail(email);
+        if (patient.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        java.util.List<AppointmentDto> appointments = appointmentService.getAppointmentsByPatient(patient.get().getId());
         return ResponseEntity.ok(appointments);
     }
 

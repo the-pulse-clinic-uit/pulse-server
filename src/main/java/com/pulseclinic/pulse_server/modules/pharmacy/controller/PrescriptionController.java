@@ -2,11 +2,13 @@ package com.pulseclinic.pulse_server.modules.pharmacy.controller;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,6 +21,8 @@ import com.pulseclinic.pulse_server.modules.pharmacy.dto.prescription.Prescripti
 import com.pulseclinic.pulse_server.modules.pharmacy.dto.prescription.PrescriptionRequestDto;
 import com.pulseclinic.pulse_server.modules.pharmacy.dto.prescriptionDetail.PrescriptionDetailDto;
 import com.pulseclinic.pulse_server.modules.pharmacy.service.PrescriptionService;
+import com.pulseclinic.pulse_server.modules.patients.repository.PatientRepository;
+import com.pulseclinic.pulse_server.modules.patients.entity.Patient;
 
 import jakarta.validation.Valid;
 
@@ -26,9 +30,11 @@ import jakarta.validation.Valid;
 @RequestMapping("/prescriptions")
 public class PrescriptionController {
     private final PrescriptionService prescriptionService;
+    private final PatientRepository patientRepository;
 
-    public PrescriptionController(PrescriptionService prescriptionService) {
+    public PrescriptionController(PrescriptionService prescriptionService, PatientRepository patientRepository) {
         this.prescriptionService = prescriptionService;
+        this.patientRepository = patientRepository;
     }
 
     // Create new prescription from encounter
@@ -44,7 +50,18 @@ public class PrescriptionController {
         }
     }
 
-    // Get prescription by ID
+    @GetMapping("/me")
+    @PreAuthorize("hasAuthority('patient')")
+    public ResponseEntity<List<PrescriptionDto>> getMyPrescriptions(Authentication authentication) {
+        String email = authentication.getName();
+        Optional<Patient> patient = patientRepository.findByEmail(email);
+        if (patient.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        List<PrescriptionDto> prescriptions = prescriptionService.getPrescriptionsByPatientId(patient.get().getId());
+        return ResponseEntity.ok(prescriptions);
+    }
+
     @GetMapping("/{prescriptionId}")
     @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
     public ResponseEntity<PrescriptionDto> getPrescriptionById(@PathVariable UUID prescriptionId) {

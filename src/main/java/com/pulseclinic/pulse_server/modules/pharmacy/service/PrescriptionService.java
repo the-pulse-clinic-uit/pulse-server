@@ -12,6 +12,7 @@ import com.pulseclinic.pulse_server.modules.pharmacy.dto.prescriptionDetail.Pres
 public interface PrescriptionService {
     PrescriptionDto createPrescription(PrescriptionRequestDto prescriptionRequestDto);
     Optional<PrescriptionDto> getPrescriptionById(UUID prescriptionId);
+    List<PrescriptionDto> getPrescriptionsByPatientId(UUID patientId);
     List<PrescriptionDetailDto> getDetails(UUID prescriptionId);
     boolean finalizePrescription(UUID prescriptionId);
     boolean dispenseMedication(UUID prescriptionId);

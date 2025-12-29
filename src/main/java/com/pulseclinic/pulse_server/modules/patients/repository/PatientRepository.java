@@ -26,6 +26,9 @@ public interface PatientRepository extends JpaRepository<Patient, UUID> {
     @Query("SELECT p FROM Patient p WHERE p.user = :user")
     Optional<Patient> findByUser(@Param("user") User user);
 
+    @Query("SELECT p FROM Patient p WHERE p.user.email = :email AND p.user.deletedAt IS NULL")
+    Optional<Patient> findByEmail(@Param("email") String email);
+
     @Query("SELECT p FROM Patient p WHERE p.user.deletedAt IS NULL")
     List<Patient> findAll();
 

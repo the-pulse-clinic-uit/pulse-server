@@ -33,17 +33,20 @@ public class InvoiceServiceImpl implements InvoiceService {
     private final InvoiceMapper invoiceMapper;
     private final WebClient webClient;
     private final PrescriptionRepository prescriptionRepository;
+    private final com.pulseclinic.pulse_server.modules.pharmacy.service.PrescriptionService prescriptionService;
 
     public InvoiceServiceImpl(InvoiceRepository invoiceRepository,
                               EncounterRepository encounterRepository,
                               InvoiceMapper invoiceMapper,
                               WebClient webClient,
-                              PrescriptionRepository prescriptionRepository) {
+                              PrescriptionRepository prescriptionRepository,
+                              com.pulseclinic.pulse_server.modules.pharmacy.service.PrescriptionService prescriptionService) {
         this.invoiceRepository = invoiceRepository;
         this.encounterRepository = encounterRepository;
         this.invoiceMapper = invoiceMapper;
         this.webClient = webClient;
         this.prescriptionRepository = prescriptionRepository;
+        this.prescriptionService = prescriptionService;
     }
 
     @Override
@@ -93,6 +96,15 @@ public class InvoiceServiceImpl implements InvoiceService {
     public Optional<InvoiceDto> getInvoiceById(UUID invoiceId) {
         Optional<Invoice> invoiceOpt = invoiceRepository.findById(invoiceId);
         return invoiceOpt.map(invoiceMapper::mapTo);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<InvoiceDto> getInvoicesByPatientId(UUID patientId) {
+        List<Invoice> invoices = invoiceRepository.findByPatientId(patientId);
+        return invoices.stream()
+                .map(invoiceMapper::mapTo)
+                .toList();
     }
 
     @Override
@@ -249,8 +261,8 @@ public class InvoiceServiceImpl implements InvoiceService {
             for (Prescription prescription : prescriptions) {
                 // Only dispense if prescription is in FINAL status
                 if (prescription.getStatus() == com.pulseclinic.pulse_server.enums.PrescriptionStatus.FINAL) {
-                    prescription.setStatus(com.pulseclinic.pulse_server.enums.PrescriptionStatus.DISPENSED);
-                    prescriptionRepository.save(prescription);
+                    // Use the prescription service to dispense, which triggers appointment auto-completion
+                    prescriptionService.dispenseMedication(prescription.getId());
                 }
             }
         } catch (Exception e) {

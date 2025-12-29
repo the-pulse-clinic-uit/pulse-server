@@ -19,6 +19,9 @@ public interface StaffRepository extends JpaRepository<Staff, UUID> {
     @Query("SELECT s FROM Staff s WHERE s.user = :user")
     Optional<Staff> findByUser(User user);
 
+    @Query("SELECT s FROM Staff s WHERE s.user.id = :userId")
+    Optional<Staff> findByUserId(UUID userId);
+
     @Query("SELECT s FROM Staff s WHERE s.department = :department")
     List<Staff> findByDepartment(Department department);
 

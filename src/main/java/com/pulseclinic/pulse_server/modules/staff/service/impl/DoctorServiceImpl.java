@@ -111,19 +111,12 @@ public class DoctorServiceImpl implements DoctorService {
             throw new RuntimeException("Staff is already a doctor");
         }
 
-        // Tìm department và gán cho staff
-        Optional<Department> departmentOpt = departmentRepository.findById(doctorRequestDto.getDepartmentId());
-        if (departmentOpt.isEmpty()) {
-            throw new RuntimeException("Department not found");
-        }
-
         Optional<Role> roleOpt = roleRepository.findByName("doctor");
         if (roleOpt.isEmpty()) {
             throw new RuntimeException("Role not found");
         }
 
         Staff staff = staffOpt.get();
-        staff.setDepartment(departmentOpt.get());
         staff.setPosition(Position.DOCTOR);
         staffRepository.save(staff);
 
@@ -271,6 +264,13 @@ public class DoctorServiceImpl implements DoctorService {
         return doctorDto;
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<DoctorDto> findByEmail(String email) {
+        return doctorRepository.findByEmail(email)
+                .map(doctorMapper::mapTo);
+    }
+
     @Transactional(readOnly = true)
     public List<DoctorDto> getAllDoctors() {
         return doctorRepository.findAll().stream()
@@ -281,7 +281,9 @@ public class DoctorServiceImpl implements DoctorService {
     private DoctorDto mapTo(Doctor doctor, User user) {
         DoctorDto resultDto = doctorMapper.mapTo(doctor);
 
-        resultDto.setDepartmentDto(departmentMapper.mapTo(doctor.getDepartment()));
+        if (doctor.getDepartment() != null) {
+            resultDto.setDepartmentDto(departmentMapper.mapTo(doctor.getDepartment()));
+        }
         resultDto.setStaffDto(staffMapper.mapTo(doctor.getStaff()));
         resultDto.getStaffDto().setUserDto(userMapper.mapTo(user));
 
