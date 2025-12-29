@@ -3,7 +3,9 @@ package com.pulseclinic.pulse_server.modules.staff.service.impl;
 import com.pulseclinic.pulse_server.enums.Position;
 import com.pulseclinic.pulse_server.modules.staff.dto.staff.StaffDto;
 import com.pulseclinic.pulse_server.modules.staff.dto.staff.StaffRequestDto;
+import com.pulseclinic.pulse_server.modules.staff.entity.Department;
 import com.pulseclinic.pulse_server.modules.staff.entity.Staff;
+import com.pulseclinic.pulse_server.modules.staff.repository.DepartmentRepository;
 import com.pulseclinic.pulse_server.modules.staff.repository.StaffRepository;
 import com.pulseclinic.pulse_server.modules.staff.service.StaffService;
 import com.pulseclinic.pulse_server.modules.users.entity.User;
@@ -18,19 +20,30 @@ import java.util.UUID;
 public class StaffServiceImpl implements StaffService {
     private final StaffRepository staffRepository;
     private final UserRepository userRepository;
+    private final DepartmentRepository departmentRepository;
 
     public StaffServiceImpl(StaffRepository staffRepository,
-                            UserRepository userRepository) {
+                            UserRepository userRepository,
+                            DepartmentRepository departmentRepository) {
         this.staffRepository = staffRepository;
         this.userRepository = userRepository;
+        this.departmentRepository = departmentRepository;
     }
 
     @Override
     public Staff createStaff(StaffRequestDto staffRequestDto) {
         User user = this.userRepository.findById(staffRequestDto.getUserId()).orElseThrow(() -> new RuntimeException("User not found"));
+
+        Department department = null;
+        if (staffRequestDto.getDepartmentId() != null) {
+            department = this.departmentRepository.findById(staffRequestDto.getDepartmentId())
+                    .orElseThrow(() -> new RuntimeException("Department not found"));
+        }
+
         Staff staff = Staff.builder()
                 .position(staffRequestDto.getPosition())
                 .user(user)
+                .department(department)
                 .build();
         return this.staffRepository.save(staff);
     }

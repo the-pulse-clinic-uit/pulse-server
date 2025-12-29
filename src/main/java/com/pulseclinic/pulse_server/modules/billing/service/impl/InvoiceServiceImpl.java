@@ -254,19 +254,20 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     private void autoDispensePrescriptions(Invoice invoice) {
         try {
-            // Find all prescriptions for this encounter
             List<Prescription> prescriptions = prescriptionRepository
                 .findByEncounterIdAndDeletedAtIsNullOrderByCreatedAtDesc(invoice.getEncounter().getId());
 
             for (Prescription prescription : prescriptions) {
-                // Only dispense if prescription is in FINAL status
-                if (prescription.getStatus() == com.pulseclinic.pulse_server.enums.PrescriptionStatus.FINAL) {
-                    // Use the prescription service to dispense, which triggers appointment auto-completion
+                if (prescription.getStatus() == com.pulseclinic.pulse_server.enums.PrescriptionStatus.DRAFT) {
+                    prescriptionService.finalizePrescription(prescription.getId());
+                }
+
+                if (prescription.getStatus() == com.pulseclinic.pulse_server.enums.PrescriptionStatus.FINAL
+                    || prescription.getStatus() == com.pulseclinic.pulse_server.enums.PrescriptionStatus.DRAFT) {
                     prescriptionService.dispenseMedication(prescription.getId());
                 }
             }
         } catch (Exception e) {
-            // Log error but don't fail the payment
             System.err.println("Error auto-dispensing prescriptions: " + e.getMessage());
         }
     }
