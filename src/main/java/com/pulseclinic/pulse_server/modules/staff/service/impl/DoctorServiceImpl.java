@@ -169,22 +169,31 @@ public class DoctorServiceImpl implements DoctorService {
     public boolean updateSpecialization(UUID doctorId, UUID departmentId) {
         try {
             Optional<Doctor> doctorOpt = doctorRepository.findById(doctorId);
-            Optional<Department> departmentOpt = departmentRepository.findById(departmentId);
+            if (doctorOpt.isEmpty()) {
+                System.err.println("Doctor not found with ID: " + doctorId);
+                return false;
+            }
 
-            if (doctorOpt.isEmpty() || departmentOpt.isEmpty()) {
+            Optional<Department> departmentOpt = departmentRepository.findById(departmentId);
+            if (departmentOpt.isEmpty()) {
+                System.err.println("Department not found with ID: " + departmentId);
                 return false;
             }
 
             Doctor doctor = doctorOpt.get();
             Staff staff = doctor.getStaff();
             if (staff == null) {
+                System.err.println("Staff is null for doctor ID: " + doctorId);
                 return false;
             }
 
             staff.setDepartment(departmentOpt.get());
             staffRepository.save(staff);
+            System.out.println("Successfully updated doctor " + doctorId + " specialization to department " + departmentId);
             return true;
         } catch (Exception e) {
+            System.err.println("Exception updating specialization: " + e.getMessage());
+            e.printStackTrace();
             return false;
         }
     }
