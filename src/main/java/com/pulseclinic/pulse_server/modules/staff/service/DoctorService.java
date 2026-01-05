@@ -13,6 +13,7 @@ public interface DoctorService {
     DoctorDto createDoctor(DoctorRequestDto doctorRequestDto);
     List<DoctorDto> getAllDoctors();
     Optional<DoctorDto> getDoctorById(UUID doctorId);
+    // Find by email
     Optional<DoctorDto> findByEmail(String email);
     DoctorDto updateDoctor(UUID doctorId, DoctorRequestDto doctorRequestDto);
     boolean updateSpecialization(UUID doctorId, UUID departmentId);

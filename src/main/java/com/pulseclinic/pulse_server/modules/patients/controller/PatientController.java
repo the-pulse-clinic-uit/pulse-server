@@ -1,6 +1,7 @@
 package com.pulseclinic.pulse_server.modules.patients.controller;
 
 import com.pulseclinic.pulse_server.mappers.impl.PatientMapper;
+import com.pulseclinic.pulse_server.mappers.impl.UserMapper;
 import com.pulseclinic.pulse_server.modules.patients.dto.PatientDto;
 import com.pulseclinic.pulse_server.modules.patients.dto.PatientRequestDto;
 import com.pulseclinic.pulse_server.modules.patients.dto.PatientSearchDto;
@@ -23,10 +24,12 @@ public class PatientController {
 
     private final PatientService patientService;
     private final PatientMapper patientMapper;
+    private final UserMapper userMapper;
 
-    public PatientController(PatientService patientService, PatientMapper patientMapper) {
+    public PatientController(PatientService patientService, PatientMapper patientMapper, UserMapper userMapper) {
         this.patientService = patientService;
         this.patientMapper = patientMapper;
+        this.userMapper = userMapper;
     }
 
     @PostMapping("/search")
@@ -43,7 +46,10 @@ public class PatientController {
     @PreAuthorize("hasAnyAuthority('staff', 'doctor')")
     public ResponseEntity<PatientDto> registerPatient(@RequestBody PatientRequestDto patientRequestDto) {
         Patient patient = this.patientService.registerPatient(patientRequestDto);
-        return new ResponseEntity<>(this.patientMapper.mapTo(patient), HttpStatus.CREATED);
+        PatientDto patientDto = this.patientMapper.mapTo(patient);
+        patientDto.setUserDto(this.userMapper.mapTo(patient.getUser()));
+
+        return new ResponseEntity<>(patientDto, HttpStatus.CREATED);
     }
 
     @GetMapping("/me")

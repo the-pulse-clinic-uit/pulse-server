@@ -1,6 +1,6 @@
-package com.pulseclinic.pulse_server.enums;
+    package com.pulseclinic.pulse_server.enums;
 
-public enum ShiftAssignmentRole {
-    ON_CALL,
-    PRIMARY
-}
+    public enum ShiftAssignmentRole {
+        ON_CALL,
+        PRIMARY
+    }

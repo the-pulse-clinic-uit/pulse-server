@@ -1,5 +1,6 @@
 package com.pulseclinic.pulse_server.modules.scheduling.service;
 
+import com.pulseclinic.pulse_server.modules.scheduling.dto.shift.AvailableTimeSlotDto;
 import com.pulseclinic.pulse_server.modules.scheduling.dto.shift.ShiftDto;
 import com.pulseclinic.pulse_server.modules.scheduling.dto.shift.ShiftRequestDto;
 
@@ -13,7 +14,7 @@ public interface ShiftService {
     ShiftDto createShift(ShiftRequestDto shiftRequestDto);
     boolean updateShift(UUID shiftId, ShiftRequestDto shiftRequestDto);
     boolean deleteShift(UUID shiftId);
-    List<LocalDateTime> getAvailableSlots(UUID shiftId, LocalDate date);
+    List<AvailableTimeSlotDto> getAvailableSlots(UUID shiftId, LocalDate date);
     Integer getCapacity(UUID shiftId);
     Optional<ShiftDto> getShiftById(UUID shiftId);
     List<ShiftDto> getAllShifts();

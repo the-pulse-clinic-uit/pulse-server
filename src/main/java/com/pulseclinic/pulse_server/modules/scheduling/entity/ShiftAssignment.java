@@ -10,7 +10,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.annotations.UuidGenerator;
 
@@ -68,5 +67,4 @@ public class ShiftAssignment {
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "room_id")
     private Room room; // can override
-
 }

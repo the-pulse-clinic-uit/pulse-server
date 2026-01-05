@@ -1,6 +1,8 @@
 package com.pulseclinic.pulse_server.modules.rooms.service.impl;
 
+import com.pulseclinic.pulse_server.mappers.impl.RoomMapper;
 import com.pulseclinic.pulse_server.modules.rooms.dto.RoomDto;
+import com.pulseclinic.pulse_server.modules.rooms.dto.RoomRequestDto;
 import com.pulseclinic.pulse_server.modules.rooms.entity.Room;
 import com.pulseclinic.pulse_server.modules.rooms.repository.RoomRepository;
 import com.pulseclinic.pulse_server.modules.rooms.service.RoomService;
@@ -17,13 +19,30 @@ import java.util.UUID;
 public class RoomServiceImpl implements RoomService {
     private final RoomRepository roomRepository;
     private final DepartmentRepository departmentRepository;
-    public RoomServiceImpl(RoomRepository roomRepository, DepartmentRepository departmentRepository) {
+    private final RoomMapper roomMapper;
+
+    public RoomServiceImpl(RoomRepository roomRepository, DepartmentRepository departmentRepository, RoomMapper roomMapper) {
         this.roomRepository = roomRepository;
         this.departmentRepository = departmentRepository;
+        this.roomMapper = roomMapper;
     }
 
     @Override
-    public Room createRoom(Room room) {
+    public Room createRoom(RoomRequestDto requestDto) {
+        Optional<Department> departmentOpt = departmentRepository.findById(requestDto.getDepartmentId());
+        if (departmentOpt.isEmpty()) {
+            throw new RuntimeException("Department not found");
+        }
+
+        Department department = departmentOpt.get();
+
+        Room room = Room.builder()
+                .roomNumber(requestDto.getRoomNumber())
+                .bedAmount(requestDto.getBedAmount())
+                .isAvailable(requestDto.getIsAvailable())
+                .department(department)
+                .build();
+
         return this.roomRepository.save(room);
     }
 
@@ -37,8 +56,7 @@ public class RoomServiceImpl implements RoomService {
         Optional<Department> department = this.departmentRepository.findById(departmentId);
         if (department.isPresent()) {
             return this.roomRepository.findAllByDepartment(department.get());
-        }
-        else throw new RuntimeException("Department not found");
+        } else throw new RuntimeException("Department not found");
     }
 
     @Override

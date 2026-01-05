@@ -1,4 +1,4 @@
-package com.pulseclinic.pulse_server.modules.staff.controller;
+package com.pulseclinic.pulse_server.modules.staff;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -69,9 +69,8 @@ public class DoctorController {
     // Get doctor by ID
     @GetMapping("/{doctorId}")
     public ResponseEntity<DoctorDto> getDoctorById(@PathVariable UUID doctorId) {
-        Optional<DoctorDto> doctor = doctorService.getDoctorById(doctorId);
-        return doctor.map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        DoctorDto doctor = doctorService.getDoctorById(doctorId).get();
+        return new ResponseEntity<>(doctor, HttpStatus.OK);
     }
 
     // Update doctor basic info

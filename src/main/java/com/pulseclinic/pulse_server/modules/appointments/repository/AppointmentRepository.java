@@ -82,4 +82,17 @@ public interface AppointmentRepository extends JpaRepository<Appointment, UUID> 
             ORDER BY a.startsAt ASC
             """)
     List<Appointment> findTodayAppointments();
+
+    @Query("""
+                SELECT COUNT(a) FROM Appointment a
+                WHERE a.startsAt < :endsAt
+                  AND a.endsAt   > :startsAt
+                  AND a.deletedAt IS NULL
+                  AND a.shiftAssignment.shift.id = :shiftId
+            """)
+    long countOccupiedSlots(
+            @Param("shiftId") UUID shiftId,
+            @Param("startsAt") LocalDateTime startsAt,
+            @Param("endsAt") LocalDateTime endsAt
+    );
 }

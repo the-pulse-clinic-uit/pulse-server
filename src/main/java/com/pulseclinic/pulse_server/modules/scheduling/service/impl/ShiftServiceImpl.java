@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 
 import com.pulseclinic.pulse_server.enums.ShiftKind;
 import com.pulseclinic.pulse_server.modules.rooms.entity.Room;
+import com.pulseclinic.pulse_server.modules.scheduling.dto.shift.AvailableTimeSlotDto;
 import com.pulseclinic.pulse_server.modules.staff.entity.Department;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -78,10 +79,6 @@ public class ShiftServiceImpl implements ShiftService {
             throw new RuntimeException("Start time must be before end time");
         }
 
-        if (shiftRequestDto.getSlotMinutes() <= 0) {
-            throw new RuntimeException("Slot minutes must be greater than 0");
-        }
-
         if (shiftRequestDto.getCapacityPerSlot() != null && shiftRequestDto.getCapacityPerSlot() <= 0) {
             throw new RuntimeException("Capacity per slot must be greater than 0");
         }
@@ -93,7 +90,7 @@ public class ShiftServiceImpl implements ShiftService {
         }
 
         if (shiftRequestDto.getKind() == ShiftKind.ER) {
-            if (shiftRequestDto.getSlotMinutes() != null) {
+            if (shiftRequestDto.getSlotMinutes() != 0) {
                 throw new RuntimeException("ER shift must not have slot minutes");
             }
         }
@@ -207,32 +204,32 @@ public class ShiftServiceImpl implements ShiftService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<LocalDateTime> getAvailableSlots(UUID shiftId, LocalDate date) {
-        Optional<Shift> shiftOpt = shiftRepository.findById(shiftId);
-        if (shiftOpt.isEmpty()) {
-            return new ArrayList<>();
-        }
+    public List<AvailableTimeSlotDto> getAvailableSlots(UUID shiftId, LocalDate date) {
 
-        Shift shift = shiftOpt.get();
-        List<LocalDateTime> slots = new ArrayList<>();
+        Shift shift = shiftRepository.findById(shiftId)
+                .orElseThrow(() -> new RuntimeException("Shift not found"));
 
-        LocalDateTime current = shift.getStartTime();
-        LocalDateTime end = shift.getEndTime();
+        List<AvailableTimeSlotDto> slots = new ArrayList<>();
+
+        LocalDateTime current = LocalDateTime.of(date, shift.getStartTime().toLocalTime());
+        LocalDateTime end = LocalDateTime.of(date, shift.getEndTime().toLocalTime());
 
         while (current.isBefore(end)) {
-            slots.add(current);
+
+            long occupied = appointmentRepository.countOccupiedSlots(
+                    shift.getId(),
+                    current,
+                    current.plusMinutes(shift.getSlotMinutes())
+            );
+
+            long remaining = shift.getCapacityPerSlot() - occupied;
+
+            if (remaining > 0) {
+                slots.add(new AvailableTimeSlotDto(current, remaining));
+            }
+
             current = current.plusMinutes(shift.getSlotMinutes());
         }
-
-        List<Appointment> appointments = appointmentRepository
-                .findByDoctorIdAndStartsAtBetweenAndDeletedAtIsNull(
-                        null, shift.getStartTime(), shift.getEndTime());
-
-        List<LocalDateTime> bookedSlots = appointments.stream()
-                .map(Appointment::getStartsAt)
-                .collect(Collectors.toList());
-
-        slots.removeAll(bookedSlots);
 
         return slots;
     }

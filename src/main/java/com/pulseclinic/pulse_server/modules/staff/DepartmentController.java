@@ -1,4 +1,4 @@
-package com.pulseclinic.pulse_server.modules.staff.controller;
+package com.pulseclinic.pulse_server.modules.staff;
 
 import com.pulseclinic.pulse_server.mappers.impl.DepartmentMapper;
 import com.pulseclinic.pulse_server.mappers.impl.StaffMapper;

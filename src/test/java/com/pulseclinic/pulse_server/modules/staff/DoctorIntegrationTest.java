@@ -1,0 +1,326 @@
+package com.pulseclinic.pulse_server.modules.staff;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.pulseclinic.pulse_server.enums.Position;
+import com.pulseclinic.pulse_server.modules.staff.dto.doctor.DoctorRequestDto;
+import com.pulseclinic.pulse_server.modules.staff.entity.Department;
+import com.pulseclinic.pulse_server.modules.staff.entity.Doctor;
+import com.pulseclinic.pulse_server.modules.staff.entity.Staff;
+import com.pulseclinic.pulse_server.modules.staff.repository.DepartmentRepository;
+import com.pulseclinic.pulse_server.modules.staff.repository.DoctorRepository;
+import com.pulseclinic.pulse_server.modules.staff.repository.StaffRepository;
+import com.pulseclinic.pulse_server.modules.users.entity.Role;
+import com.pulseclinic.pulse_server.modules.users.entity.User;
+import com.pulseclinic.pulse_server.modules.users.repository.RoleRepository;
+import com.pulseclinic.pulse_server.modules.users.repository.UserRepository;
+import jakarta.persistence.EntityManager;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDate;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+@SpringBootTest
+@AutoConfigureMockMvc
+@ActiveProfiles("test")
+@Transactional
+@DisplayName("Doctor Integration Tests - Success Cases Only")
+class DoctorIntegrationTest {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @Autowired
+    private DoctorRepository doctorRepository;
+
+    @Autowired
+    private StaffRepository staffRepository;
+
+    @Autowired
+    private DepartmentRepository departmentRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private RoleRepository roleRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private EntityManager entityManager;
+
+    // Test data
+    private Role doctorRole;
+    private Role staffRole;
+    private Role patientRole;
+
+    private User doctorUser;
+
+    private Department cardiology;
+    private Department neurology;
+
+    private Staff testStaff;
+    private Staff anotherStaff;
+
+    private Doctor testDoctor;
+
+    @BeforeEach
+    void setUp() {
+        // Clean database
+        entityManager.createNativeQuery("DELETE FROM doctors").executeUpdate();
+        entityManager.createNativeQuery("DELETE FROM staff").executeUpdate();
+        entityManager.createNativeQuery("DELETE FROM patients").executeUpdate();
+        entityManager.createNativeQuery("DELETE FROM rooms").executeUpdate();
+        entityManager.createNativeQuery("DELETE FROM departments").executeUpdate();
+        entityManager.createNativeQuery("DELETE FROM users").executeUpdate();
+        entityManager.createNativeQuery("DELETE FROM roles").executeUpdate();
+
+        // Create roles
+        doctorRole = Role.builder().name("doctor").build();
+        staffRole = Role.builder().name("staff").build();
+        patientRole = Role.builder().name("patient").build();
+
+        doctorRole = roleRepository.save(doctorRole);
+        staffRole = roleRepository.save(staffRole);
+        patientRole = roleRepository.save(patientRole);
+
+        // Create departments
+        cardiology = Department.builder()
+                .name("Cardiology")
+                .description("Heart and cardiovascular system")
+                .build();
+
+        neurology = Department.builder()
+                .name("Neurology")
+                .description("Brain and nervous system")
+                .build();
+
+        cardiology = departmentRepository.save(cardiology);
+        neurology = departmentRepository.save(neurology);
+
+        // Create users with different roles
+        doctorUser = User.builder()
+                .email("doctor@example.com")
+                .fullName("Dr. John Smith")
+                .hashedPassword(passwordEncoder.encode("Password123!"))
+                .role(doctorRole)
+                .phone("0123456789")
+                .citizenId("123456789012")
+                .birthDate(LocalDate.of(1985, 5, 15))
+                .gender(false)
+                .isActive(true)
+                .build();
+
+        doctorUser = userRepository.save(doctorUser);
+
+        // Create staff linked to doctor user
+        testStaff = Staff.builder()
+                .user(doctorUser)
+                .department(cardiology)
+                .position(Position.DOCTOR)
+                .build();
+        testStaff = staffRepository.save(testStaff);
+
+        // Create another staff for creating new doctor
+        User anotherUser = User.builder()
+                .email("newdoctor@example.com")
+                .fullName("Dr. Jane Doe")
+                .hashedPassword(passwordEncoder.encode("Password123!"))
+                .role(doctorRole)
+                .phone("0987654321")
+                .citizenId("987654321012")
+                .birthDate(LocalDate.of(1988, 9, 25))
+                .gender(false)
+                .isActive(true)
+                .build();
+        anotherUser = userRepository.save(anotherUser);
+
+        anotherStaff = Staff.builder()
+                .user(anotherUser)
+                .department(neurology)
+                .position(Position.DOCTOR)
+                .build();
+        anotherStaff = staffRepository.save(anotherStaff);
+
+        // Create existing doctor
+        testDoctor = Doctor.builder()
+                .licenseId("LIC-12345")
+                .isVerified(true)
+                .staff(testStaff)
+                .build();
+        testDoctor = doctorRepository.save(testDoctor);
+    }
+
+    // ==================== BACKEND_DOCTOR_001 ====================
+    @Test
+    @DisplayName("BACKEND_DOCTOR_001: Create new doctor with valid data")
+    void whenCreateDoctorWithValidData_thenDoctorCreated() throws Exception {
+        // Given
+        DoctorRequestDto request = DoctorRequestDto.builder()
+                .licenseId("LIC-67890")
+                .isVerified(false)
+                .staffId(anotherStaff.getId())
+//                .departmentId(neurology.getId())
+                .build();
+
+        // When & Then
+        mockMvc.perform(post("/doctors")
+                        .with(jwt().authorities(new SimpleGrantedAuthority("doctor")))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andDo(print())
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").exists())
+                .andExpect(jsonPath("$.licenseId").value("LIC-67890"))
+                .andExpect(jsonPath("$.isVerified").value(false))
+                .andExpect(jsonPath("$.staffDto").exists())
+                .andExpect(jsonPath("$.departmentDto").exists());
+
+        // Verify doctor created in database
+        Optional<Doctor> savedDoctor = doctorRepository.findAll().stream()
+                .filter(d -> "LIC-67890".equals(d.getLicenseId()))
+                .findFirst();
+
+        assertThat(savedDoctor).isPresent();
+        assertThat(savedDoctor.get().getLicenseId()).isEqualTo("LIC-67890");
+        assertThat(savedDoctor.get().getStaff().getId()).isEqualTo(anotherStaff.getId());
+    }
+
+    // ==================== BACKEND_DOCTOR_002 ====================
+    @Test
+    @DisplayName("BACKEND_DOCTOR_002: Get all doctors with doctor role")
+    void whenGetAllDoctorsWithDoctorRole_thenReturnAllDoctors() throws Exception {
+        // When & Then
+        mockMvc.perform(get("/doctors")
+                        .with(jwt().authorities(new SimpleGrantedAuthority("doctor"))))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$", hasSize(greaterThanOrEqualTo(1))))
+                .andExpect(jsonPath("$[0].id").exists())
+                .andExpect(jsonPath("$[0].licenseId").exists())
+                .andExpect(jsonPath("$[0].staffDto").exists());
+    }
+
+    @Test
+    @DisplayName("BACKEND_DOCTOR_002: Get all doctors with staff role")
+    void whenGetAllDoctorsWithStaffRole_thenReturnAllDoctors() throws Exception {
+        // When & Then
+        mockMvc.perform(get("/doctors")
+                        .with(jwt().authorities(new SimpleGrantedAuthority("staff"))))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$", hasSize(greaterThanOrEqualTo(1))));
+    }
+
+    @Test
+    @DisplayName("BACKEND_DOCTOR_002: Get all doctors with patient role")
+    void whenGetAllDoctorsWithPatientRole_thenReturnAllDoctors() throws Exception {
+        // When & Then
+        mockMvc.perform(get("/doctors")
+                        .with(jwt().authorities(new SimpleGrantedAuthority("patient"))))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$", hasSize(greaterThanOrEqualTo(1))));
+    }
+
+    // ==================== BACKEND_DOCTOR_003 ====================
+    @Test
+    @DisplayName("BACKEND_DOCTOR_003: Get doctor by ID with valid ID")
+    void whenGetDoctorByIdWithValidId_thenReturnDoctor() throws Exception {
+        // When & Then
+        mockMvc.perform(get("/doctors/{doctorId}", testDoctor.getId())
+                        .with(jwt().authorities(new SimpleGrantedAuthority("doctor"))))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(testDoctor.getId().toString()))
+                .andExpect(jsonPath("$.licenseId").value("LIC-12345"))
+                .andExpect(jsonPath("$.isVerified").value(true))
+                .andExpect(jsonPath("$.staffDto").exists())
+                .andExpect(jsonPath("$.departmentDto").exists());
+    }
+
+    // ==================== BACKEND_DOCTOR_004 ====================
+    @Test
+    @DisplayName("BACKEND_DOCTOR_004: Get doctor's patients list")
+    void whenGetDoctorPatients_thenReturnPatientsList() throws Exception {
+        // When & Then
+        mockMvc.perform(get("/doctors/{doctorId}/patients", testDoctor.getId())
+                        .with(jwt().authorities(new SimpleGrantedAuthority("doctor"))))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray());
+    }
+
+    @Test
+    @DisplayName("BACKEND_DOCTOR_004: Get patients for non-existent doctor")
+    void whenGetPatientsForNonExistentDoctor_thenReturnEmptyList() throws Exception {
+        // Given
+        String nonExistentId = "00000000-0000-0000-0000-000000000000";
+
+        // When & Then
+        mockMvc.perform(get("/doctors/{doctorId}/patients", nonExistentId)
+                        .with(jwt().authorities(new SimpleGrantedAuthority("doctor"))))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$", hasSize(0)));
+    }
+
+    // ==================== BACKEND_DOCTOR_005 ====================
+    @Test
+    @DisplayName("BACKEND_DOCTOR_005: Get doctor's shift schedule for specific date")
+    void whenGetDoctorShiftSchedule_thenReturnSchedule() throws Exception {
+        // Given
+        LocalDate testDate = LocalDate.now();
+
+        // When & Then
+        mockMvc.perform(get("/doctors/{doctorId}/schedule", testDoctor.getId())
+                        .with(jwt().authorities(new SimpleGrantedAuthority("doctor")))
+                        .param("date", testDate.toString()))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray());
+    }
+
+    @Test
+    @DisplayName("BACKEND_DOCTOR_005: Get schedule for non-existent doctor")
+    void whenGetScheduleForNonExistentDoctor_thenReturnEmptyList() throws Exception {
+        // Given
+        String nonExistentId = "00000000-0000-0000-0000-000000000000";
+        LocalDate testDate = LocalDate.now();
+
+        // When & Then
+        mockMvc.perform(get("/doctors/{doctorId}/schedule", nonExistentId)
+                        .with(jwt().authorities(new SimpleGrantedAuthority("doctor")))
+                        .param("date", testDate.toString()))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$", hasSize(0)));
+    }
+}

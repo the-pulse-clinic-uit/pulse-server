@@ -1,5 +1,6 @@
 package com.pulseclinic.pulse_server.modules.scheduling.dto.shift;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.pulseclinic.pulse_server.enums.ShiftKind;
 import com.pulseclinic.pulse_server.modules.rooms.dto.RoomDto;
 import com.pulseclinic.pulse_server.modules.rooms.entity.Room;
@@ -27,8 +28,10 @@ public class ShiftDto {
 
     private ShiftKind kind;
 
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime startTime;
 
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime endTime;
 
     private Integer slotMinutes;
