@@ -260,7 +260,7 @@ public class DoctorServiceImpl implements DoctorService {
                 .map(doctorMapper::mapTo);
     }
 
-    // find by email
+    // Find by email
     @Override
     @Transactional(readOnly = true)
     public Optional<DoctorDto> findByEmail(String email) {
