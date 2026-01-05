@@ -182,7 +182,7 @@ class DoctorIntegrationTest {
                 .licenseId("LIC-67890")
                 .isVerified(false)
                 .staffId(anotherStaff.getId())
-                .departmentId(neurology.getId())
+//                .departmentId(neurology.getId())
                 .build();
 
         // When & Then

@@ -1,5 +1,6 @@
 package com.pulseclinic.pulse_server.modules.scheduling.service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -10,11 +11,13 @@ import com.pulseclinic.pulse_server.modules.scheduling.dto.waitlistEntry.Waitlis
 
 public interface WaitlistEntryService {
     WaitlistEntryDto addToWaitlist(WaitlistEntryRequestDto waitlistEntryRequestDto);
-    Optional<WaitlistEntryDto> callNext(UUID departmentId);
+    Optional<WaitlistEntryDto> callNext(UUID departmentId, LocalDate dutyDate);
     boolean changePriority(UUID entryId, WaitlistPriority priority);
     boolean markAsServed(UUID entryId);
+    boolean markAsNoShow(UUID entryId);
     boolean cancelEntry(UUID entryId);
-    Integer getWaitingCount(UUID departmentId);
+    Integer getWaitingCount(UUID departmentId, LocalDate dutyDate);
     Optional<WaitlistEntryDto> getEntryById(UUID entryId);
     List<WaitlistEntryDto> findAll();
+    List<WaitlistEntryDto> findAllByDepartmentId(UUID departmentId);
 }

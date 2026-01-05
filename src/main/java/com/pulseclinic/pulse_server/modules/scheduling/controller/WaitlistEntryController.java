@@ -1,9 +1,11 @@
 package com.pulseclinic.pulse_server.modules.scheduling.controller;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -39,7 +41,7 @@ public class WaitlistEntryController {
         try {
             WaitlistEntryDto entry = waitlistEntryService.addToWaitlist(requestDto);
             return ResponseEntity.status(HttpStatus.CREATED).body(entry);
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             return ResponseEntity.badRequest().build();
         }
     }
@@ -52,6 +54,16 @@ public class WaitlistEntryController {
         return ResponseEntity.ok(entries);
     }
 
+    // Get entries by department id
+    @GetMapping("/department/{departmentId}")
+    @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
+    public ResponseEntity<List<WaitlistEntryDto>> getAllEntriesByDepartmentId(
+            @PathVariable UUID departmentId
+    ) {
+        List<WaitlistEntryDto> entries = waitlistEntryService.findAllByDepartmentId(departmentId);
+        return ResponseEntity.ok(entries);
+    }
+
     // Get entry by ID
     @GetMapping("/{entryId}")
     @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
@@ -61,11 +73,13 @@ public class WaitlistEntryController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // Call next patient in department queue
-    @PostMapping("/department/{departmentId}/call_next")
+    // Call next patient in department queue for specific duty date
+    @PostMapping("/department/{departmentId}/call-next")
     @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
-    public ResponseEntity<WaitlistEntryDto> callNext(@PathVariable UUID departmentId) {
-        Optional<WaitlistEntryDto> entry = waitlistEntryService.callNext(departmentId);
+    public ResponseEntity<WaitlistEntryDto> callNext(
+            @PathVariable UUID departmentId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dutyDate) {
+        Optional<WaitlistEntryDto> entry = waitlistEntryService.callNext(departmentId, dutyDate);
         return entry.map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
@@ -88,6 +102,14 @@ public class WaitlistEntryController {
         return success ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
     }
 
+    // Mark as no-show (patient didn't come when called)
+    @PutMapping("/{entryId}/no-show")
+    @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
+    public ResponseEntity<Void> markAsNoShow(@PathVariable UUID entryId) {
+        boolean success = waitlistEntryService.markAsNoShow(entryId);
+        return success ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
+    }
+
     // Cancel entry
     @PutMapping("/{entryId}/cancel")
     @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
@@ -96,11 +118,13 @@ public class WaitlistEntryController {
         return success ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
     }
 
-    // Get waiting count for department
+    // Get waiting count for department on specific duty date
     @GetMapping("/department/{departmentId}/waiting/count")
     @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
-    public ResponseEntity<Integer> getWaitingCount(@PathVariable UUID departmentId) {
-        Integer count = waitlistEntryService.getWaitingCount(departmentId);
+    public ResponseEntity<Integer> getWaitingCount(
+            @PathVariable UUID departmentId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dutyDate) {
+        Integer count = waitlistEntryService.getWaitingCount(departmentId, dutyDate);
         return ResponseEntity.ok(count);
     }
 }

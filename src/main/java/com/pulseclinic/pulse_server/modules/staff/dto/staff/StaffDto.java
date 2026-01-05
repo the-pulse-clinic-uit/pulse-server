@@ -1,6 +1,7 @@
 package com.pulseclinic.pulse_server.modules.staff.dto.staff;
 
 import com.pulseclinic.pulse_server.enums.Position;
+import com.pulseclinic.pulse_server.modules.staff.dto.department.DepartmentDto;
 import com.pulseclinic.pulse_server.modules.users.dto.user.UserDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,4 +24,6 @@ public class StaffDto {
 
     // relationships
     private UserDto userDto;
+
+    private DepartmentDto departmentDto;
 }

@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import com.pulseclinic.pulse_server.modules.scheduling.dto.shift.AvailableTimeSlotDto;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -78,10 +79,10 @@ public class ShiftController {
     }
 
     @GetMapping("/{shiftId}/slots/available")
-    public ResponseEntity<List<LocalDateTime>> getAvailableSlots(
+    public ResponseEntity<List<AvailableTimeSlotDto>> getAvailableSlots(
             @PathVariable UUID shiftId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
-        List<LocalDateTime> slots = shiftService.getAvailableSlots(shiftId, date);
+        List<AvailableTimeSlotDto> slots = shiftService.getAvailableSlots(shiftId, date);
         return ResponseEntity.ok(slots);
     }
 

@@ -11,10 +11,12 @@ import org.springframework.stereotype.Component;
 public class StaffMapper implements Mapper<Staff, StaffDto> {
     private final ModelMapper modelMapper;
     private final UserMapper userMapper;
+    private final DepartmentMapper departmentMapper;
 
-    public StaffMapper(ModelMapper modelMapper, UserMapper userMapper){
+    public StaffMapper(ModelMapper modelMapper, UserMapper userMapper, DepartmentMapper departmentMapper){
         this.modelMapper = modelMapper;
         this.userMapper = userMapper;
+        this.departmentMapper = departmentMapper;
     }
 
     @Override
@@ -24,6 +26,7 @@ public class StaffMapper implements Mapper<Staff, StaffDto> {
                 .position(staff.getPosition())
                 .createdAt(staff.getCreatedAt())
                 .userDto(staff.getUser() != null ? userMapper.mapTo(staff.getUser()) : null)
+                .departmentDto(staff.getDepartment() != null ? departmentMapper.mapTo(staff.getDepartment()) : null)
                 .build();
     }
 

@@ -69,7 +69,7 @@ public class DoctorController {
     // Get doctor by ID
     @GetMapping("/{doctorId}")
     public ResponseEntity<DoctorDto> getDoctorById(@PathVariable UUID doctorId) {
-        DoctorDto doctor = doctorService.getDoctorById(doctorId);
+        DoctorDto doctor = doctorService.getDoctorById(doctorId).get();
         return new ResponseEntity<>(doctor, HttpStatus.OK);
     }
 
