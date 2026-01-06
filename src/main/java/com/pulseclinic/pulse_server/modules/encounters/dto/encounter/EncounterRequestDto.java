@@ -25,7 +25,7 @@ public class EncounterRequestDto {
     private LocalDateTime startedAt;
 
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm")
-    @NotNull(message = "Encounter ended_at must be provided")
+//    @NotNull(message = "Encounter ended_at must be provided")
     private LocalDateTime endedAt;
 
     @NotNull(message = "Diagnosis must be provided")

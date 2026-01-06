@@ -98,55 +98,40 @@ public class AppointmentServiceImpl implements AppointmentService {
             throw new RuntimeException("Doctor not found");
         }
 
-//        List<Appointment> conflicts = appointmentRepository.findConflicts(
-//                appointmentRequestDto.getDoctorId(),
-//                appointmentRequestDto.getPatientId(),
-//                appointmentRequestDto.getStartsAt());
-
-//        if (!conflicts.isEmpty()) {
-//            throw new RuntimeException("Time slot conflict detected. Please choose another time schedule");
-//        }
-
         Optional<ShiftAssignment> shiftAssignmentOpt = shiftAssignmentRepository.findById(appointmentRequestDto.getShiftAssignmentId());
         if (shiftAssignmentOpt.isEmpty()) {
             throw new RuntimeException("Shift assignment not found");
         }
 
-
-        Shift shift = shiftAssignmentOpt.get().getShift();
+        ShiftAssignment shiftAssignment = shiftAssignmentOpt.get();
+//        Shift shift = shiftAssignment.getShift();
 
         long appointmentsInSlot = appointmentRepository.countOccupiedSlots(
-                shift.getId(),
+                shiftAssignment.getShift().getId(),
                 appointmentRequestDto.getStartsAt(),
-                appointmentRequestDto.getStartsAt().plusMinutes(shift.getSlotMinutes())
+                appointmentRequestDto.getStartsAt().plusMinutes(shiftAssignment.getShift().getSlotMinutes())
         );
 
         // 3. Check capacity
-        if (appointmentsInSlot >= shift.getCapacityPerSlot()) {
+        if (appointmentsInSlot >= shiftAssignment.getShift().getCapacityPerSlot()) {
             throw new RuntimeException("This slot is fully booked");
         }
 
+        LocalDateTime startsAt = appointmentRequestDto.getStartsAt();
+        LocalDateTime endsAt = appointmentRequestDto.getStartsAt().plusMinutes(shiftAssignment.getShift().getSlotMinutes());
+
 
         Appointment appointment = Appointment.builder()
-                .startsAt(appointmentRequestDto.getStartsAt())
-                .endsAt(appointmentRequestDto.getEndsAt())
+                .startsAt(startsAt)
+                .endsAt(endsAt)
                 .status(appointmentRequestDto.getStatus())
                 .type(appointmentRequestDto.getType())
+                .shiftAssignment(shiftAssignment)
                 .description(appointmentRequestDto.getDescription())
                 .patient(patientOpt.get())
                 .doctor(doctorOpt.get())
                 .build();
 
-
-//        if (appointmentRequestDto.getShiftAssignmentId() != null) {
-//            Optional<ShiftAssignment> shiftAssignmentOpt = shiftAssignmentRepository.findById(appointmentRequestDto.getShiftAssignmentId());
-//            shiftAssignmentOpt.ifPresent(appointment::setShiftAssignment);
-//        }
-//
-//        if (appointmentRequestDto.getFollowUpPlanId() != null) {
-//            Optional<FollowUpPlan> followUpPlanOpt = followUpPlanRepository.findById(appointmentRequestDto.getFollowUpPlanId());
-//            followUpPlanOpt.ifPresent(appointment::setFollowUpPlan);
-//        }
         Appointment savedAppointment = appointmentRepository.save(appointment);
         return appointmentMapper.mapTo(savedAppointment);
     }
