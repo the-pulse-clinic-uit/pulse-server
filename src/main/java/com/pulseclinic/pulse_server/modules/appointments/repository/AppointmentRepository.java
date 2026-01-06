@@ -89,6 +89,7 @@ public interface AppointmentRepository extends JpaRepository<Appointment, UUID> 
                   AND a.endsAt   > :startsAt
                   AND a.deletedAt IS NULL
                   AND a.shiftAssignment.shift.id = :shiftId
+                  AND a.status NOT IN ('DONE', 'CANCELLED')
             """)
     long countOccupiedSlots(
             @Param("shiftId") UUID shiftId,

@@ -117,7 +117,7 @@ CREATE TABLE public.drugs (
 CREATE TABLE public.encounters (
     created_at timestamp(6) without time zone NOT NULL,
     deleted_at timestamp(6) without time zone,
-    ended_at timestamp(6) without time zone NOT NULL,
+    ended_at timestamp(6) without time zone,
     started_at timestamp(6) without time zone NOT NULL,
     appointment_id uuid,
     doctor_id uuid NOT NULL,
@@ -883,6 +883,7 @@ ALTER TABLE ONLY public.prescription_details
 
 ALTER TABLE ONLY public.patients
     ADD CONSTRAINT fkuwca24wcd1tg6pjex8lmc0y7 FOREIGN KEY (user_id) REFERENCES public.users(id);
+
 
 
 --
