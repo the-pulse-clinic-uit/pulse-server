@@ -115,19 +115,8 @@ public class PrescriptionIntegrationTest {
 
     @BeforeEach
     void setUp() {
-        entityManager.createNativeQuery("SET REFERENTIAL_INTEGRITY FALSE").executeUpdate();
-
-        entityManager.createNativeQuery("DELETE FROM prescription_details").executeUpdate();
-        entityManager.createNativeQuery("DELETE FROM prescriptions").executeUpdate();
-        entityManager.createNativeQuery("DELETE FROM encounters").executeUpdate();
-        entityManager.createNativeQuery("DELETE FROM drugs").executeUpdate();
-        entityManager.createNativeQuery("DELETE FROM patients").executeUpdate();
-        entityManager.createNativeQuery("DELETE FROM doctors").executeUpdate();
-        entityManager.createNativeQuery("DELETE FROM staff").executeUpdate();
-        entityManager.createNativeQuery("DELETE FROM users").executeUpdate();
-        entityManager.createNativeQuery("DELETE FROM roles").executeUpdate();
-
-        entityManager.createNativeQuery("SET REFERENTIAL_INTEGRITY TRUE").executeUpdate();
+        // clean database with truncate cascade (postgresql compatible)
+        entityManager.createNativeQuery("TRUNCATE TABLE prescription_details, prescriptions, encounters, drugs, patients, doctors, staff, users, roles RESTART IDENTITY CASCADE").executeUpdate();
 
         // Create test patient
         User patientUser = User.builder()

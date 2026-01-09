@@ -124,20 +124,8 @@ class ShiftIntegrationTest {
 
     @BeforeEach
     void setUp() {
-        // Clean database
-        entityManager.createNativeQuery("SET REFERENTIAL_INTEGRITY FALSE").executeUpdate();
-
-        // Xóa theo thứ tự từ bảng con (chứa FK) đến bảng cha
-        entityManager.createNativeQuery("DELETE FROM shift_assignments").executeUpdate();
-        entityManager.createNativeQuery("DELETE FROM shifts").executeUpdate();
-        entityManager.createNativeQuery("DELETE FROM doctors").executeUpdate();
-        entityManager.createNativeQuery("DELETE FROM staff").executeUpdate();
-        entityManager.createNativeQuery("DELETE FROM rooms").executeUpdate();
-        entityManager.createNativeQuery("DELETE FROM departments").executeUpdate();
-        entityManager.createNativeQuery("DELETE FROM users").executeUpdate();
-        entityManager.createNativeQuery("DELETE FROM roles").executeUpdate();
-
-        entityManager.createNativeQuery("SET REFERENTIAL_INTEGRITY TRUE").executeUpdate();
+        // clean database with truncate cascade (postgresql compatible)
+        entityManager.createNativeQuery("TRUNCATE TABLE shift_assignments, shifts, doctors, staff, rooms, departments, users, roles RESTART IDENTITY CASCADE").executeUpdate();
 
         // Create roles
         doctorRole = Role.builder().name("DOCTOR").build();

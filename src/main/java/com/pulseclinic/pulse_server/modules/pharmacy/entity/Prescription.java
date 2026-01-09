@@ -39,6 +39,7 @@ public class Prescription {
     @Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now();
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     @Builder.Default
     private PrescriptionStatus status = PrescriptionStatus.DRAFT;

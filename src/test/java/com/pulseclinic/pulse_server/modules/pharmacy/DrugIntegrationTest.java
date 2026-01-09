@@ -56,12 +56,8 @@ public class DrugIntegrationTest {
 
     @BeforeEach
     void setUp() {
-//        drugRepository.deleteAll();
-
-        entityManager.createNativeQuery("DELETE FROM drugs").executeUpdate();
-
-//        entityManager.flush();
-//        entityManager.clear();
+        // clean database with truncate cascade (postgresql compatible)
+        entityManager.createNativeQuery("TRUNCATE TABLE drugs RESTART IDENTITY CASCADE").executeUpdate();
 
         testDrug = Drug.builder()
                 .name("Paracetamol")

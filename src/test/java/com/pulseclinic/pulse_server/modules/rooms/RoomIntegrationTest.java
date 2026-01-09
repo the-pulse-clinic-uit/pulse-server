@@ -65,14 +65,8 @@ public class RoomIntegrationTest {
 
     @BeforeEach
     void setUp() {
-        // Clean up before each test
-//        roomRepository.deleteAll();
-//        departmentRepository.deleteAll();
-
-        entityManager.createNativeQuery("DELETE FROM doctors").executeUpdate();
-        entityManager.createNativeQuery("DELETE FROM staff").executeUpdate();
-        entityManager.createNativeQuery("DELETE FROM rooms").executeUpdate();
-        entityManager.createNativeQuery("DELETE FROM departments").executeUpdate();
+        // clean database with truncate cascade (postgresql compatible)
+        entityManager.createNativeQuery("TRUNCATE TABLE doctors, staff, rooms, departments RESTART IDENTITY CASCADE").executeUpdate();
 
 
         // Create test departments

@@ -257,7 +257,7 @@ public class DoctorServiceImpl implements DoctorService {
     @Transactional(readOnly = true)
     public Optional<DoctorDto> getDoctorById(UUID doctorId) {
         return doctorRepository.findById(doctorId)
-                .map(doctorMapper::mapTo);
+                .map(doctorMapper::mapToWithDepartment);
     }
 
     // Find by email

@@ -95,14 +95,8 @@ class StaffIntegrationTest {
 
     @BeforeEach
     void setUp() {
-        // Clean database
-        entityManager.createNativeQuery("DELETE FROM doctors").executeUpdate();
-        entityManager.createNativeQuery("DELETE FROM staff").executeUpdate();
-        entityManager.createNativeQuery("DELETE FROM patients").executeUpdate();
-        entityManager.createNativeQuery("DELETE FROM rooms").executeUpdate();
-        entityManager.createNativeQuery("DELETE FROM departments").executeUpdate();
-        entityManager.createNativeQuery("DELETE FROM users").executeUpdate();
-        entityManager.createNativeQuery("DELETE FROM roles").executeUpdate();
+        // clean database with truncate cascade (postgresql compatible)
+        entityManager.createNativeQuery("TRUNCATE TABLE doctors, staff, patients, rooms, departments, users, roles RESTART IDENTITY CASCADE").executeUpdate();
 
         // Create roles
         doctorRole = Role.builder().name("DOCTOR").build();
