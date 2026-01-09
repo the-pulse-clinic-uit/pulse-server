@@ -30,10 +30,14 @@ public class SecurityConfiguration {
 
         public UrlBasedCorsConfigurationSource corsConfigurationSource() {
                 CorsConfiguration configuration = new CorsConfiguration();
-                configuration.setAllowedOrigins(List.of(
-                                "http://localhost:3000", "http://staff.localhost:3000", "http://doctor.localhost:3000", "http://hms.localhost:3000"));
+//                configuration.setAllowedOrigins(List.of(
+//                                "http://localhost:3000", "http://staff.localhost:3000", "http://doctor.localhost:3000", "http://hms.localhost:3000"));
+//            configuration.setAllowCredentials(true);
 
-        configuration.setAllowedMethods(List.of(
+            configuration.setAllowedOriginPatterns(List.of("*"));
+            configuration.setAllowCredentials(true);
+
+            configuration.setAllowedMethods(List.of(
                 "GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
 
         configuration.setAllowedHeaders(List.of(
@@ -41,7 +45,6 @@ public class SecurityConfiguration {
                 "Content-Type",
                 "Accept"));
 
-        configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
