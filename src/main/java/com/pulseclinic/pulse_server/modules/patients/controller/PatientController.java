@@ -5,8 +5,10 @@ import com.pulseclinic.pulse_server.mappers.impl.UserMapper;
 import com.pulseclinic.pulse_server.modules.patients.dto.PatientDto;
 import com.pulseclinic.pulse_server.modules.patients.dto.PatientRequestDto;
 import com.pulseclinic.pulse_server.modules.patients.dto.PatientSearchDto;
+import com.pulseclinic.pulse_server.modules.patients.dto.PatientViolationSummary;
 import com.pulseclinic.pulse_server.modules.patients.entity.Patient;
 import com.pulseclinic.pulse_server.modules.patients.service.PatientService;
+import com.pulseclinic.pulse_server.modules.patients.service.PatientViolationService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -25,20 +27,34 @@ public class PatientController {
     private final PatientService patientService;
     private final PatientMapper patientMapper;
     private final UserMapper userMapper;
+    private final PatientViolationService patientViolationService;
 
-    public PatientController(PatientService patientService, PatientMapper patientMapper, UserMapper userMapper) {
+    public PatientController(PatientService patientService,
+            PatientMapper patientMapper,
+            UserMapper userMapper,
+            PatientViolationService patientViolationService) {
         this.patientService = patientService;
         this.patientMapper = patientMapper;
         this.userMapper = userMapper;
+        this.patientViolationService = patientViolationService;
     }
 
     @PostMapping("/search")
     @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
-    public ResponseEntity<List<PatientDto>> searchPatient(@RequestBody PatientSearchDto patientSearchDto) {
+    public ResponseEntity<List<PatientDto>> searchPatient(
+            @RequestBody PatientSearchDto patientSearchDto,
+            @RequestParam(value = "withViolations", required = false, defaultValue = "false") boolean withViolations) {
         List<Patient> patients = this.patientService.search(patientSearchDto);
-        return new ResponseEntity<>(
-                patients.stream().map(patient -> patientMapper.mapTo(patient)).collect(Collectors.toList()),
-                HttpStatus.OK);
+        List<PatientDto> patientDtos = patients.stream()
+                .map(patient -> {
+                    PatientDto dto = patientMapper.mapTo(patient);
+                    if (withViolations) {
+                        enrichWithViolationData(dto, patient.getId());
+                    }
+                    return dto;
+                })
+                .collect(Collectors.toList());
+        return new ResponseEntity<>(patientDtos, HttpStatus.OK);
     }
 
     // for staff
@@ -64,11 +80,19 @@ public class PatientController {
 
     @GetMapping
     @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
-    public ResponseEntity<List<PatientDto>> getPatients() {
+    public ResponseEntity<List<PatientDto>> getPatients(
+            @RequestParam(value = "withViolations", required = false, defaultValue = "false") boolean withViolations) {
         List<Patient> patients = this.patientService.getPatients();
-        return new ResponseEntity<>(
-                patients.stream().map(patient -> patientMapper.mapTo(patient)).collect(Collectors.toList()),
-                HttpStatus.OK);
+        List<PatientDto> patientDtos = patients.stream()
+                .map(patient -> {
+                    PatientDto dto = patientMapper.mapTo(patient);
+                    if (withViolations) {
+                        enrichWithViolationData(dto, patient.getId());
+                    }
+                    return dto;
+                })
+                .collect(Collectors.toList());
+        return new ResponseEntity<>(patientDtos, HttpStatus.OK);
     }
 
     @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
@@ -96,4 +120,29 @@ public class PatientController {
         return new ResponseEntity<>(this.patientMapper.mapTo(patient), HttpStatus.OK);
     }
 
+    @GetMapping("/{id}/violations")
+    @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
+    public ResponseEntity<PatientViolationSummary> getPatientViolations(@PathVariable("id") UUID id) {
+        try {
+            PatientViolationSummary summary = patientViolationService.getViolationSummary(id);
+            return ResponseEntity.ok(summary);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    private void enrichWithViolationData(PatientDto dto, UUID patientId) {
+        try {
+            PatientViolationSummary summary = patientViolationService.getViolationSummary(patientId);
+            dto.setHasViolations(summary.isHasViolations());
+            dto.setViolationLevel(summary.getRiskLevel());
+            dto.setNoShowCount(summary.getNoShowCount());
+            dto.setOutstandingDebt(summary.getOutstandingDebt());
+        } catch (Exception e) {
+            dto.setHasViolations(false);
+            dto.setViolationLevel(null);
+            dto.setNoShowCount(0);
+            dto.setOutstandingDebt(null);
+        }
+    }
 }
