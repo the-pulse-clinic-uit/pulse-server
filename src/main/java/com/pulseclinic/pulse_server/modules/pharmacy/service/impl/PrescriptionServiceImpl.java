@@ -7,8 +7,10 @@ import java.util.UUID;
 
 import com.pulseclinic.pulse_server.modules.encounters.repository.EncounterRepository;
 import com.pulseclinic.pulse_server.modules.pharmacy.entity.Prescription;
+import com.pulseclinic.pulse_server.modules.pharmacy.entity.PrescriptionDetail;
 import com.pulseclinic.pulse_server.modules.pharmacy.repository.PrescriptionDetailRepository;
 import com.pulseclinic.pulse_server.modules.pharmacy.repository.PrescriptionRepository;
+import com.pulseclinic.pulse_server.modules.pharmacy.service.DrugService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,19 +29,22 @@ public class PrescriptionServiceImpl implements PrescriptionService {
     private final com.pulseclinic.pulse_server.mappers.impl.PrescriptionMapper prescriptionMapper;
     private final com.pulseclinic.pulse_server.mappers.impl.PrescriptionDetailMapper prescriptionDetailMapper;
     private final com.pulseclinic.pulse_server.modules.appointments.repository.AppointmentRepository appointmentRepository;
+    private final DrugService drugService;
 
     public PrescriptionServiceImpl(PrescriptionRepository prescriptionRepository,
                                   PrescriptionDetailRepository prescriptionDetailRepository,
                                   com.pulseclinic.pulse_server.modules.encounters.repository.EncounterRepository encounterRepository,
                                   com.pulseclinic.pulse_server.mappers.impl.PrescriptionMapper prescriptionMapper,
                                   com.pulseclinic.pulse_server.mappers.impl.PrescriptionDetailMapper prescriptionDetailMapper,
-                                  com.pulseclinic.pulse_server.modules.appointments.repository.AppointmentRepository appointmentRepository) {
+                                  com.pulseclinic.pulse_server.modules.appointments.repository.AppointmentRepository appointmentRepository,
+                                  DrugService drugService) {
         this.prescriptionRepository = prescriptionRepository;
         this.prescriptionDetailRepository = prescriptionDetailRepository;
         this.encounterRepository = encounterRepository;
         this.prescriptionMapper = prescriptionMapper;
         this.prescriptionDetailMapper = prescriptionDetailMapper;
         this.appointmentRepository = appointmentRepository;
+        this.drugService = drugService;
     }
 
     @Override
@@ -134,10 +139,27 @@ public class PrescriptionServiceImpl implements PrescriptionService {
                 return false;
             }
 
+            // get all prescription details
+            List<PrescriptionDetail> details = prescriptionDetailRepository
+                    .findByPrescriptionIdAndDeletedAtIsNullOrderByCreatedAtAsc(prescriptionId);
+
+            // step 1 check if all drugs have sufficient stock
+            for (PrescriptionDetail detail : details) {
+                if (!drugService.hasAvailableStock(detail.getDrug().getId(), detail.getQuantity())) {
+                    throw new RuntimeException("Insufficient stock for drug: " + detail.getDrug().getName());
+                }
+            }
+
+            // step 2 deduct stock for each drug (atomic operation)
+            for (PrescriptionDetail detail : details) {
+                drugService.deductStock(detail.getDrug().getId(), detail.getQuantity());
+            }
+
+            // step 3 update prescription status
             prescription.setStatus(com.pulseclinic.pulse_server.enums.PrescriptionStatus.DISPENSED);
             prescriptionRepository.save(prescription);
 
-            // Auto-complete appointment when prescription is dispensed
+            // auto-complete appointment when prescription is dispensed
             autoCompleteAppointment(prescription);
 
             return true;
@@ -151,7 +173,7 @@ public class PrescriptionServiceImpl implements PrescriptionService {
             var encounter = prescription.getEncounter();
             if (encounter != null && encounter.getAppointment() != null) {
                 var appointment = encounter.getAppointment();
-                // Only mark as done if not already done or cancelled
+                // only mark as done if not already done or cancelled
                 if (appointment.getStatus() != com.pulseclinic.pulse_server.enums.AppointmentStatus.DONE &&
                     appointment.getStatus() != com.pulseclinic.pulse_server.enums.AppointmentStatus.CANCELLED) {
                     appointment.setStatus(com.pulseclinic.pulse_server.enums.AppointmentStatus.DONE);
@@ -159,7 +181,6 @@ public class PrescriptionServiceImpl implements PrescriptionService {
                 }
             }
         } catch (Exception e) {
-            // Log error but don't fail the dispensing
             System.err.println("Error auto-completing appointment: " + e.getMessage());
         }
     }

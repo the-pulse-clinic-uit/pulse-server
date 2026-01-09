@@ -6,9 +6,12 @@ import com.pulseclinic.pulse_server.enums.InvoiceStatus;
 import com.pulseclinic.pulse_server.modules.appointments.repository.AppointmentRepository;
 import com.pulseclinic.pulse_server.modules.billing.repository.InvoiceRepository;
 import com.pulseclinic.pulse_server.modules.patients.repository.PatientRepository;
+import com.pulseclinic.pulse_server.modules.pharmacy.entity.Drug;
+import com.pulseclinic.pulse_server.modules.pharmacy.repository.DrugRepository;
 import com.pulseclinic.pulse_server.modules.reports.dto.AppointmentReportDto;
 import com.pulseclinic.pulse_server.modules.reports.dto.FinancialReportDto;
 import com.pulseclinic.pulse_server.modules.reports.dto.PatientReportDto;
+import com.pulseclinic.pulse_server.modules.reports.dto.PharmacyReportDto;
 import com.pulseclinic.pulse_server.modules.reports.service.ReportService;
 import org.springframework.stereotype.Service;
 
@@ -16,11 +19,13 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class ReportServiceImpl implements ReportService {
@@ -28,13 +33,16 @@ public class ReportServiceImpl implements ReportService {
     private final PatientRepository patientRepository;
     private final AppointmentRepository appointmentRepository;
     private final InvoiceRepository invoiceRepository;
+    private final DrugRepository drugRepository;
 
     public ReportServiceImpl(PatientRepository patientRepository,
                              AppointmentRepository appointmentRepository,
-                             InvoiceRepository invoiceRepository) {
+                             InvoiceRepository invoiceRepository,
+                             DrugRepository drugRepository) {
         this.patientRepository = patientRepository;
         this.appointmentRepository = appointmentRepository;
         this.invoiceRepository = invoiceRepository;
+        this.drugRepository = drugRepository;
     }
 
     @Override
@@ -258,6 +266,70 @@ public class ReportServiceImpl implements ReportService {
                 .outstandingDebt(outstandingDebt != null ? outstandingDebt : BigDecimal.ZERO)
                 .revenueByDepartment(new HashMap<>())
                 .revenueByDoctor(new HashMap<>())
+                .build();
+    }
+
+    @Override
+    public List<PharmacyReportDto> getLowStockDrugs() {
+        List<Drug> drugs = drugRepository.findAll();
+        LocalDate today = LocalDate.now();
+
+        return drugs.stream()
+                .filter(drug -> drug.getDeletedAt() == null)
+                .filter(drug -> drug.getQuantity() < drug.getMinStockLevel() && drug.getQuantity() > 0)
+                .map(drug -> mapToPharmacyReportDto(drug, "LOW_STOCK", today))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<PharmacyReportDto> getExpiringDrugs(Integer days) {
+        if (days == null || days <= 0) {
+            days = 30; // Default to 30 days
+        }
+
+        List<Drug> drugs = drugRepository.findAll();
+        LocalDate today = LocalDate.now();
+        LocalDate expiryThreshold = today.plusDays(days);
+
+        return drugs.stream()
+                .filter(drug -> drug.getDeletedAt() == null)
+                .filter(drug -> drug.getExpiryDate() != null)
+                .filter(drug -> !drug.getExpiryDate().isBefore(today) && !drug.getExpiryDate().isAfter(expiryThreshold))
+                .map(drug -> mapToPharmacyReportDto(drug, "EXPIRING_SOON", today))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<PharmacyReportDto> getOutOfStockDrugs() {
+        List<Drug> drugs = drugRepository.findAll();
+        LocalDate today = LocalDate.now();
+
+        return drugs.stream()
+                .filter(drug -> drug.getDeletedAt() == null)
+                .filter(drug -> drug.getQuantity() == 0)
+                .map(drug -> mapToPharmacyReportDto(drug, "OUT_OF_STOCK", today))
+                .collect(Collectors.toList());
+    }
+
+    private PharmacyReportDto mapToPharmacyReportDto(Drug drug, String status, LocalDate today) {
+        Integer daysUntilExpiry = null;
+        if (drug.getExpiryDate() != null) {
+            daysUntilExpiry = (int) ChronoUnit.DAYS.between(today, drug.getExpiryDate());
+        }
+
+        return PharmacyReportDto.builder()
+                .drugId(drug.getId())
+                .drugName(drug.getName())
+                .dosageForm(drug.getDosageForm())
+                .unit(drug.getUnit())
+                .strength(drug.getStrength())
+                .currentQuantity(drug.getQuantity())
+                .minStockLevel(drug.getMinStockLevel())
+                .expiryDate(drug.getExpiryDate())
+                .batchNumber(drug.getBatchNumber())
+                .unitPrice(drug.getUnitPrice())
+                .daysUntilExpiry(daysUntilExpiry)
+                .status(status)
                 .build();
     }
 }

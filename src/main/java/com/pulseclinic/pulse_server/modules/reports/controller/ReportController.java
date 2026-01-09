@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.pulseclinic.pulse_server.modules.reports.dto.AppointmentReportDto;
 import com.pulseclinic.pulse_server.modules.reports.dto.FinancialReportDto;
 import com.pulseclinic.pulse_server.modules.reports.dto.PatientReportDto;
+import com.pulseclinic.pulse_server.modules.reports.dto.PharmacyReportDto;
 import com.pulseclinic.pulse_server.modules.reports.service.ReportService;
 
 @RestController
@@ -106,6 +107,26 @@ public class ReportController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
         FinancialReportDto report = reportService.getRevenueByDoctor(doctorId, startDate, endDate);
+        return ResponseEntity.ok(report);
+    }
+
+    // Pharmacy Reports
+    @GetMapping("/pharmacy/low-stock")
+    public ResponseEntity<List<PharmacyReportDto>> getLowStockDrugs() {
+        List<PharmacyReportDto> report = reportService.getLowStockDrugs();
+        return ResponseEntity.ok(report);
+    }
+
+    @GetMapping("/pharmacy/expiring")
+    public ResponseEntity<List<PharmacyReportDto>> getExpiringDrugs(
+            @RequestParam(required = false, defaultValue = "30") Integer days) {
+        List<PharmacyReportDto> report = reportService.getExpiringDrugs(days);
+        return ResponseEntity.ok(report);
+    }
+
+    @GetMapping("/pharmacy/out-of-stock")
+    public ResponseEntity<List<PharmacyReportDto>> getOutOfStockDrugs() {
+        List<PharmacyReportDto> report = reportService.getOutOfStockDrugs();
         return ResponseEntity.ok(report);
     }
 }

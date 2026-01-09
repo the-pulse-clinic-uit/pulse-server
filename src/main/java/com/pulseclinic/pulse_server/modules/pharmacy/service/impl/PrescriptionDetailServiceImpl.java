@@ -9,6 +9,7 @@ import com.pulseclinic.pulse_server.modules.pharmacy.entity.PrescriptionDetail;
 import com.pulseclinic.pulse_server.modules.pharmacy.repository.DrugRepository;
 import com.pulseclinic.pulse_server.modules.pharmacy.repository.PrescriptionDetailRepository;
 import com.pulseclinic.pulse_server.modules.pharmacy.repository.PrescriptionRepository;
+import com.pulseclinic.pulse_server.modules.pharmacy.service.DrugService;
 import com.pulseclinic.pulse_server.modules.pharmacy.service.PrescriptionDetailService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,15 +25,18 @@ public class PrescriptionDetailServiceImpl implements PrescriptionDetailService 
     private final PrescriptionRepository prescriptionRepository;
     private final DrugRepository drugRepository;
     private final PrescriptionDetailMapper prescriptionDetailMapper;
+    private final DrugService drugService;
 
     public PrescriptionDetailServiceImpl(PrescriptionDetailRepository prescriptionDetailRepository,
                                         PrescriptionRepository prescriptionRepository,
                                         DrugRepository drugRepository,
-                                        PrescriptionDetailMapper prescriptionDetailMapper) {
+                                        PrescriptionDetailMapper prescriptionDetailMapper,
+                                        DrugService drugService) {
         this.prescriptionDetailRepository = prescriptionDetailRepository;
         this.prescriptionRepository = prescriptionRepository;
         this.drugRepository = drugRepository;
         this.prescriptionDetailMapper = prescriptionDetailMapper;
+        this.drugService = drugService;
     }
 
     @Override
@@ -49,6 +53,13 @@ public class PrescriptionDetailServiceImpl implements PrescriptionDetailService 
         }
 
         Drug drug = drugOpt.get();
+
+        // Check drug availability before adding to prescription
+        if (!drugService.hasAvailableStock(drug.getId(), detailRequestDto.getQuantity())) {
+            throw new RuntimeException("Insufficient stock for drug: " + drug.getName() +
+                    ". Available: " + drug.getQuantity() + ", Requested: " + detailRequestDto.getQuantity());
+        }
+
         BigDecimal unitPrice = detailRequestDto.getUnitPrice() != null ?
                 detailRequestDto.getUnitPrice() : drug.getUnitPrice();
         BigDecimal itemTotal = unitPrice.multiply(BigDecimal.valueOf(detailRequestDto.getQuantity()));

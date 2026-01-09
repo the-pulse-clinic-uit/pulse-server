@@ -3,6 +3,7 @@ package com.pulseclinic.pulse_server.modules.reports.service;
 import com.pulseclinic.pulse_server.modules.reports.dto.AppointmentReportDto;
 import com.pulseclinic.pulse_server.modules.reports.dto.FinancialReportDto;
 import com.pulseclinic.pulse_server.modules.reports.dto.PatientReportDto;
+import com.pulseclinic.pulse_server.modules.reports.dto.PharmacyReportDto;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -24,4 +25,9 @@ public interface ReportService {
     FinancialReportDto getRevenueReportByYear(int year);
     FinancialReportDto getRevenueByDepartment(UUID departmentId, LocalDate startDate, LocalDate endDate);
     FinancialReportDto getRevenueByDoctor(UUID doctorId, LocalDate startDate, LocalDate endDate);
+
+    // Pharmacy Reports
+    List<PharmacyReportDto> getLowStockDrugs();
+    List<PharmacyReportDto> getExpiringDrugs(Integer days);
+    List<PharmacyReportDto> getOutOfStockDrugs();
 }
