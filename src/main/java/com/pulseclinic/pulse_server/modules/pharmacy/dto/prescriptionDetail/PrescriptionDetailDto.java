@@ -1,5 +1,6 @@
 package com.pulseclinic.pulse_server.modules.pharmacy.dto.prescriptionDetail;
 
+import com.pulseclinic.pulse_server.modules.pharmacy.dto.allergy.AllergyWarning;
 import com.pulseclinic.pulse_server.modules.pharmacy.dto.drug.DrugDto;
 import com.pulseclinic.pulse_server.modules.pharmacy.dto.prescription.PrescriptionDto;
 import com.pulseclinic.pulse_server.modules.pharmacy.entity.Drug;
@@ -17,6 +18,7 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -43,6 +45,9 @@ public class PrescriptionDetailDto {
     private LocalDateTime createdAt = LocalDateTime.now();
 
     private String frequency; // 2 times per day
+
+    // Allergy warnings for this prescription detail
+    private List<AllergyWarning> allergyWarnings;
 
     // relationships => 2
     private DrugDto drugDto;

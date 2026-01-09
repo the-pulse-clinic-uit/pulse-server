@@ -17,9 +17,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.pulseclinic.pulse_server.modules.pharmacy.dto.allergy.AllergyCheckRequest;
+import com.pulseclinic.pulse_server.modules.pharmacy.dto.allergy.AllergyCheckResponse;
+import com.pulseclinic.pulse_server.modules.pharmacy.dto.allergy.AllergyWarning;
 import com.pulseclinic.pulse_server.modules.pharmacy.dto.prescription.PrescriptionDto;
 import com.pulseclinic.pulse_server.modules.pharmacy.dto.prescription.PrescriptionRequestDto;
 import com.pulseclinic.pulse_server.modules.pharmacy.dto.prescriptionDetail.PrescriptionDetailDto;
+import com.pulseclinic.pulse_server.modules.pharmacy.service.AllergyCheckService;
 import com.pulseclinic.pulse_server.modules.pharmacy.service.PrescriptionService;
 import com.pulseclinic.pulse_server.modules.patients.repository.PatientRepository;
 import com.pulseclinic.pulse_server.modules.patients.entity.Patient;
@@ -31,10 +35,14 @@ import jakarta.validation.Valid;
 public class PrescriptionController {
     private final PrescriptionService prescriptionService;
     private final PatientRepository patientRepository;
+    private final AllergyCheckService allergyCheckService;
 
-    public PrescriptionController(PrescriptionService prescriptionService, PatientRepository patientRepository) {
+    public PrescriptionController(PrescriptionService prescriptionService,
+            PatientRepository patientRepository,
+            AllergyCheckService allergyCheckService) {
         this.prescriptionService = prescriptionService;
         this.patientRepository = patientRepository;
+        this.allergyCheckService = allergyCheckService;
     }
 
     // Create new prescription from encounter
@@ -108,5 +116,29 @@ public class PrescriptionController {
     public ResponseEntity<String> printPrescription(@PathVariable UUID prescriptionId) {
         String printout = prescriptionService.printPrescription(prescriptionId);
         return ResponseEntity.ok(printout);
+    }
+
+    // Check allergies before prescribing
+    @PostMapping("/check-allergies")
+    @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
+    public ResponseEntity<AllergyCheckResponse> checkAllergies(
+            @Valid @RequestBody AllergyCheckRequest request) {
+        try {
+            List<AllergyWarning> warnings = allergyCheckService.checkPatientAllergies(
+                    request.getPatientId(),
+                    request.getDrugIds());
+
+            AllergyCheckResponse response = AllergyCheckResponse.builder()
+                    .hasWarnings(!warnings.isEmpty())
+                    .warnings(warnings)
+                    .message(warnings.isEmpty()
+                            ? "No allergy conflicts detected"
+                            : "Allergy warnings found - review before prescribing")
+                    .build();
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 }

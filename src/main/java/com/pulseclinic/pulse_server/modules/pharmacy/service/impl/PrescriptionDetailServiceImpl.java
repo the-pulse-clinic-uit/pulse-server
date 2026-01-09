@@ -1,6 +1,7 @@
 package com.pulseclinic.pulse_server.modules.pharmacy.service.impl;
 
 import com.pulseclinic.pulse_server.mappers.impl.PrescriptionDetailMapper;
+import com.pulseclinic.pulse_server.modules.pharmacy.dto.allergy.AllergyWarning;
 import com.pulseclinic.pulse_server.modules.pharmacy.dto.prescriptionDetail.PrescriptionDetailDto;
 import com.pulseclinic.pulse_server.modules.pharmacy.dto.prescriptionDetail.PrescriptionDetailRequestDto;
 import com.pulseclinic.pulse_server.modules.pharmacy.entity.Drug;
@@ -9,16 +10,21 @@ import com.pulseclinic.pulse_server.modules.pharmacy.entity.PrescriptionDetail;
 import com.pulseclinic.pulse_server.modules.pharmacy.repository.DrugRepository;
 import com.pulseclinic.pulse_server.modules.pharmacy.repository.PrescriptionDetailRepository;
 import com.pulseclinic.pulse_server.modules.pharmacy.repository.PrescriptionRepository;
+import com.pulseclinic.pulse_server.modules.pharmacy.service.AllergyCheckService;
 import com.pulseclinic.pulse_server.modules.pharmacy.service.DrugService;
 import com.pulseclinic.pulse_server.modules.pharmacy.service.PrescriptionDetailService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 @Service
+@Slf4j
 public class PrescriptionDetailServiceImpl implements PrescriptionDetailService {
 
     private final PrescriptionDetailRepository prescriptionDetailRepository;
@@ -26,17 +32,20 @@ public class PrescriptionDetailServiceImpl implements PrescriptionDetailService 
     private final DrugRepository drugRepository;
     private final PrescriptionDetailMapper prescriptionDetailMapper;
     private final DrugService drugService;
+    private final AllergyCheckService allergyCheckService;
 
     public PrescriptionDetailServiceImpl(PrescriptionDetailRepository prescriptionDetailRepository,
-                                        PrescriptionRepository prescriptionRepository,
-                                        DrugRepository drugRepository,
-                                        PrescriptionDetailMapper prescriptionDetailMapper,
-                                        DrugService drugService) {
+            PrescriptionRepository prescriptionRepository,
+            DrugRepository drugRepository,
+            PrescriptionDetailMapper prescriptionDetailMapper,
+            DrugService drugService,
+            AllergyCheckService allergyCheckService) {
         this.prescriptionDetailRepository = prescriptionDetailRepository;
         this.prescriptionRepository = prescriptionRepository;
         this.drugRepository = drugRepository;
         this.prescriptionDetailMapper = prescriptionDetailMapper;
         this.drugService = drugService;
+        this.allergyCheckService = allergyCheckService;
     }
 
     @Override
@@ -53,6 +62,21 @@ public class PrescriptionDetailServiceImpl implements PrescriptionDetailService 
         }
 
         Drug drug = drugOpt.get();
+        Prescription prescription = prescriptionOpt.get();
+
+        // Check for allergies BEFORE saving
+        UUID patientId = prescription.getEncounter().getPatient().getId();
+        List<AllergyWarning> allergyWarnings = allergyCheckService.checkPatientAllergies(
+                patientId,
+                Collections.singletonList(drug.getId()));
+
+        // Log warnings (don't block - doctor can override)
+        if (!allergyWarnings.isEmpty()) {
+            for (AllergyWarning warning : allergyWarnings) {
+                log.warn("ALLERGY WARNING for prescription {}: {}",
+                        prescription.getId(), warning.getMessage());
+            }
+        }
 
         // Check drug availability before adding to prescription
         if (!drugService.hasAvailableStock(drug.getId(), detailRequestDto.getQuantity())) {
@@ -60,8 +84,8 @@ public class PrescriptionDetailServiceImpl implements PrescriptionDetailService 
                     ". Available: " + drug.getQuantity() + ", Requested: " + detailRequestDto.getQuantity());
         }
 
-        BigDecimal unitPrice = detailRequestDto.getUnitPrice() != null ?
-                detailRequestDto.getUnitPrice() : drug.getUnitPrice();
+        BigDecimal unitPrice = detailRequestDto.getUnitPrice() != null ? detailRequestDto.getUnitPrice()
+                : drug.getUnitPrice();
         BigDecimal itemTotal = unitPrice.multiply(BigDecimal.valueOf(detailRequestDto.getQuantity()));
 
         PrescriptionDetail detail = PrescriptionDetail.builder()
@@ -78,7 +102,12 @@ public class PrescriptionDetailServiceImpl implements PrescriptionDetailService 
                 .build();
 
         PrescriptionDetail savedDetail = prescriptionDetailRepository.save(detail);
-        return prescriptionDetailMapper.mapTo(savedDetail);
+
+        // Add allergy warnings to the response
+        PrescriptionDetailDto responseDto = prescriptionDetailMapper.mapTo(savedDetail);
+        responseDto.setAllergyWarnings(allergyWarnings);
+
+        return responseDto;
     }
 
     @Override
@@ -119,7 +148,7 @@ public class PrescriptionDetailServiceImpl implements PrescriptionDetailService 
 
             PrescriptionDetail detail = detailOpt.get();
             detail.setQuantity(quantity);
-            
+
             updateLineTotal(detailId);
             return true;
         } catch (Exception e) {
@@ -137,7 +166,7 @@ public class PrescriptionDetailServiceImpl implements PrescriptionDetailService 
             }
 
             PrescriptionDetail detail = detailOpt.get();
-            
+
             // Kiểm tra prescription có thể modify không (phải ở trạng thái DRAFT)
             if (detail.getPrescription().getStatus() != com.pulseclinic.pulse_server.enums.PrescriptionStatus.DRAFT) {
                 return false;
