@@ -1,0 +1,184 @@
+{
+  "project": "pulse-clinic-server",
+  "description": "Pulse Clinic is a comprehensive Hospital Management System that helps healthcare providers manage patients, appointments, prescriptions, admissions, and staff operations efficiently. The system supports doctors, staff, and patients with a secure, role-based platform. 🏥💊",
+  "stack": {
+    "framework": "Spring Boot 3.5.6 (Java 21)",
+    "platforms": [
+      "HTTP REST API",
+      "WebSocket (STOMP protocol for real-time chat)"
+    ],
+    "auth": "Spring Security with JWT tokens, BCrypt password encoding, token blacklist for logout",
+    "database": "PostgreSQL with Spring Data JPA/Hibernate, Flyway migrations",
+    "storage": "Supabase Storage for user avatars and medical files",
+    "llm": "Google Vertex AI (Gemini), model: gemini-2.5-flash, used in ai/chat module for conversational support",
+    "environment": "application.properties with keys like gemini.project-id, gemini.location, database credentials, Supabase config",
+    "dependencies": {
+      "key": [
+        "spring-boot-starter-web@3.5.6",
+        "spring-boot-starter-data-jpa@3.5.6",
+        "spring-boot-starter-security@3.5.6",
+        "spring-boot-starter-validation@3.5.6",
+        "spring-boot-starter-websocket@3.5.6",
+        "spring-boot-starter-mail@3.5.6",
+        "spring-boot-starter-data-redis@3.5.6",
+        "google-cloud-vertexai@1.11.0",
+        "postgresql@runtime",
+        "flyway-core@latest",
+        "jjwt-api@0.11.5",
+        "modelmapper@3.2.1",
+        "springdoc-openapi-starter-webmvc-ui@2.8.14",
+        "lombok@latest"
+      ],
+      "dev": [
+        "spring-boot-starter-test",
+        "h2database@runtime",
+        "spring-security-test"
+      ]
+    }
+  },
+  "modules": {
+    "users": "User authentication, profile management, role-based access control (RBAC)",
+    "patients": "Patient registration, medical records, violation tracking (no-shows, debt)",
+    "staff": "Staff and doctor management, department assignments",
+    "appointments": "Appointment scheduling with statuses (PENDING, CONFIRMED, CANCELLED, NO_SHOW, DONE) and types (NORMAL, FOLLOW_UP, EMERGENCY)",
+    "pharmacy": "Drug/medication inventory with stock management, prescription creation and tracking, allergy checking",
+    "encounters": "Patient visit records, diagnosis, clinical notes, follow-up plans",
+    "admissions": "Hospital admission management, room assignment, discharge tracking",
+    "billing": "Invoice generation, payment tracking, expense management",
+    "scheduling": "Staff shift management, shift assignments, waitlist management",
+    "rooms": "Hospital room and bed availability tracking",
+    "notifications": "User notifications via email/SMS channels",
+    "reports": "Analytics and reporting for clinic operations",
+    "chat": "Real-time staff communication via WebSocket",
+    "ai": "AI-powered chat assistant for patient and staff support"
+  },
+  "api_endpoints": {
+    "auth": [
+      "POST /auth/login",
+      "POST /auth/register",
+      "POST /auth/logout",
+      "POST /auth/forgot-password",
+      "POST /auth/reset-password"
+    ],
+    "users": [
+      "GET /users/me",
+      "PATCH /users/me",
+      "POST /users/avatar",
+      "PATCH /users/:id/deactivate",
+      "PATCH /users/:id/activate"
+    ],
+    "patients": [
+      "POST /patients/search",
+      "POST /patients/register",
+      "GET /patients/:id",
+      "PATCH /patients/:id",
+      "GET /patients/:id/violations"
+    ],
+    "appointments": [
+      "GET /appointments",
+      "POST /appointments",
+      "GET /appointments/:id",
+      "PATCH /appointments/:id",
+      "DELETE /appointments/:id",
+      "PATCH /appointments/:id/status"
+    ],
+    "pharmacy": [
+      "GET /drugs",
+      "POST /drugs",
+      "GET /drugs/:id",
+      "PATCH /drugs/:id",
+      "DELETE /drugs/:id",
+      "GET /prescriptions",
+      "POST /prescriptions",
+      "PATCH /prescriptions/:id",
+      "GET /prescription-details"
+    ],
+    "encounters": [
+      "GET /encounters",
+      "POST /encounters",
+      "PATCH /encounters/:id",
+      "GET /follow-up-plans"
+    ],
+    "billing": [
+      "GET /invoices",
+      "POST /invoices",
+      "PATCH /invoices/:id",
+      "POST /invoices/:id/record-payment"
+    ],
+    "admissions": [
+      "GET /admissions",
+      "POST /admissions",
+      "PATCH /admissions/:id"
+    ],
+    "staff": [
+      "GET /doctors",
+      "POST /doctors",
+      "GET /departments",
+      "POST /departments"
+    ],
+    "scheduling": [
+      "GET /shifts",
+      "POST /shifts",
+      "GET /shift-assignments",
+      "POST /shift-assignments",
+      "GET /waitlist-entries"
+    ],
+    "ai": [
+      "POST /ai/chat"
+    ]
+  },
+  "key_flows": {
+    "authentication": "JWT-based authentication with Spring Security; BCrypt password hashing; token blacklist for logout via Redis",
+    "appointment_booking": "Patients or staff create appointments; doctors confirm; system tracks status changes; no-shows update violation records",
+    "prescription_flow": "Doctor creates prescription during encounter; allergy checking performed; stock levels updated; prescription linked to invoice",
+    "admission_process": "Patient admitted to hospital; room assigned; daily tracking; discharge updates room availability",
+    "billing": "Invoices generated from encounters/prescriptions; payment tracking; overdue detection",
+    "ai_chat": "POST /ai/chat with {message, history?}; service queries relevant DB entities (drugs, doctors, departments); calls Gemini API with context; returns {reply, history}. Friendly, supportive responses for patient and staff support. Stateless; history managed client-side."
+  },
+  "ai_chat_details": {
+    "model": "gemini-2.0-flash-exp",
+    "system_instruction": "You are a helpful, friendly assistant for Pulse Clinic! 🏥 Always respond with a warm, professional, and supportive tone. Use emojis occasionally 😊 to make responses more engaging. Keep answers concise, helpful, and user-focused. Focus on helping patients and staff with questions about appointments, medications, departments, and doctors. NEVER mention technical details like databases, code, or internal systems. If data isn't found, suggest contacting the clinic directly or checking the app.",
+    "history_format": "Array of {role: 'user'|'assistant', content: string}",
+    "request_format": "{message: string, history?: [...]}",
+    "response_format": "{reply: string, history: [...]}",
+    "database_context": "Service automatically queries relevant entities based on keywords (drugs, doctors, departments, appointments) and includes results in prompt context for accurate, data-driven responses.",
+    "enhancements": "Future: Add patient medical history queries (with privacy controls), appointment availability checking, prescription refill support."
+  },
+  "answering_guidelines": {
+    "style": "Friendly, professional, and supportive! Use emojis 😊🏥 to make responses engaging. Be concise but warm—like a helpful clinic receptionist. Reference clinic features helpfully (e.g., 'Check with your doctor', 'Visit the pharmacy'), but prioritize user needs and privacy. NEVER talk about code, databases, or technical internals—keep it 100% user-focused.",
+    "security": "Respect authentication and roles; no patient data exposed without authorization; follow HIPAA-like privacy principles.",
+    "performance": "Limit DB queries to 5 results per entity type; warn on large conversation histories.",
+    "data_queries": "For questions about drugs, doctors, departments—query database and include results in AI context for accurate answers.",
+    "updates": "Keep this JSON updated as features change."
+  },
+  "paths_of_interest": [
+    "src/main/java/com/pulseclinic/pulse_server/modules/ (all business modules)",
+    "src/main/java/com/pulseclinic/pulse_server/modules/ai/ (AI chat implementation)",
+    "src/main/java/com/pulseclinic/pulse_server/security/ (auth and JWT)",
+    "src/main/java/com/pulseclinic/pulse_server/config/ (application configuration)",
+    "src/main/resources/application.properties (environment config)",
+    "src/main/resources/db/migration/ (Flyway SQL migrations)"
+  ],
+  "entities": {
+    "User": "UUID id, email (unique), password (hashed), firstName, lastName, citizenId, role relation",
+    "Patient": "UUID id, health insurance ID, blood type, allergies, violation tracking",
+    "Doctor": "License ID (unique), staff 1:1 relation, verified flag",
+    "Staff": "Position, department relation",
+    "Department": "Name, description",
+    "Appointment": "UUID, date range, status (PENDING/CONFIRMED/CANCELLED/NO_SHOW/DONE), type (NORMAL/FOLLOW_UP/EMERGENCY), doctor/patient relations",
+    "Drug": "UUID, name (unique), dosage form, unit, strength, stock management (minimum level, current stock)",
+    "Prescription": "Total price, notes, status (DRAFT/COMPLETED/CANCELLED), linked to encounter",
+    "Encounter": "Type, diagnosis, clinical notes, linked to appointment and prescription",
+    "Invoice": "Total/paid amounts, due date, status (UNPAID/PAID/OVERDUE)",
+    "Admission": "Patient hospital stay, room assignment, admission/discharge dates",
+    "Room": "Room number, bed count, availability",
+    "Shift": "Schedule for staff members",
+    "Notification": "User notifications with channels (EMAIL/SMS)"
+  },
+  "limitations": {
+    "llm_visibility": "LLM sees only provided context (DB query results, system instruction); no direct DB/file access.",
+    "ai_chat": "Stateless; no server-side sessions; history client-managed. Responses are helpful and supportive! 😊",
+    "privacy": "Patient data queries respect authentication; no sensitive medical records exposed without authorization.",
+    "streaming": "Not implemented; HTTP only (non-streaming responses)."
+  }
+}
