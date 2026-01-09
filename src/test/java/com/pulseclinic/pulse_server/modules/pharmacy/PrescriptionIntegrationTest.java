@@ -185,6 +185,8 @@ public class PrescriptionIntegrationTest {
                 .unit(DrugUnit.TABLET)
                 .strength("500mg")
                 .unitPrice(new BigDecimal("2.50"))
+                .quantity(100)
+                .minStockLevel(10)
                 .build();
         testDrug1 = drugRepository.save(testDrug1);
 
@@ -194,6 +196,8 @@ public class PrescriptionIntegrationTest {
                 .unit(DrugUnit.CAPSULE)
                 .strength("250mg")
                 .unitPrice(new BigDecimal("5.00"))
+                .quantity(50)
+                .minStockLevel(10)
                 .build();
         testDrug2 = drugRepository.save(testDrug2);
     }

@@ -248,6 +248,8 @@ public class DataSeeder {
                             .unit(DrugUnit.TABLET)
                             .strength("500mg")
                             .unitPrice(new BigDecimal("10000"))
+                            .quantity(100)
+                            .minStockLevel(10)
                             .build(),
                     Drug.builder()
                             .name("Ibuprofen")
@@ -255,6 +257,8 @@ public class DataSeeder {
                             .unit(DrugUnit.TABLET)
                             .strength("400mg")
                             .unitPrice(new BigDecimal("15000"))
+                            .quantity(100)
+                            .minStockLevel(10)
                             .build(),
                     Drug.builder()
                             .name("Amoxicillin")
@@ -262,6 +266,8 @@ public class DataSeeder {
                             .unit(DrugUnit.CAPSULE)
                             .strength("500mg")
                             .unitPrice(new BigDecimal("20000"))
+                            .quantity(100)
+                            .minStockLevel(10)
                             .build(),
                     Drug.builder()
                             .name("Cough Syrup")
@@ -269,6 +275,8 @@ public class DataSeeder {
                             .unit(DrugUnit.BOTTLE)
                             .strength("120ml")
                             .unitPrice(new BigDecimal("200000"))
+                            .quantity(100)
+                            .minStockLevel(10)
                             .build(),
                     Drug.builder()
                             .name("Insulin")
@@ -276,6 +284,8 @@ public class DataSeeder {
                             .unit(DrugUnit.VIAL)
                             .strength("100IU/ml")
                             .unitPrice(new BigDecimal("1000000"))
+                            .quantity(100)
+                            .minStockLevel(10)
                             .build(),
                     Drug.builder()
                             .name("Hydrocortisone Cream")
@@ -283,6 +293,8 @@ public class DataSeeder {
                             .unit(DrugUnit.TUBE)
                             .strength("1%")
                             .unitPrice(new BigDecimal("80000"))
+                            .quantity(100)
+                            .minStockLevel(10)
                             .build(),
                     Drug.builder()
                             .name("Aspirin")
@@ -290,6 +302,8 @@ public class DataSeeder {
                             .unit(DrugUnit.TABLET)
                             .strength("300mg")
                             .unitPrice(new BigDecimal("5000"))
+                            .quantity(100)
+                            .minStockLevel(10)
                             .build(),
                     Drug.builder()
                             .name("Omeprazole")
@@ -297,6 +311,8 @@ public class DataSeeder {
                             .unit(DrugUnit.CAPSULE)
                             .strength("20mg")
                             .unitPrice(new BigDecimal("30000"))
+                            .quantity(100)
+                            .minStockLevel(10)
                             .build()
             );
             drugRepository.saveAll(drugs);

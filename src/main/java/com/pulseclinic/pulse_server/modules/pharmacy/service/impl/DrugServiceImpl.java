@@ -59,6 +59,49 @@ public class DrugServiceImpl implements DrugService {
         if (drugDto.getDosageForm() != null){
             drug.setDosageForm(drugDto.getDosageForm());
         }
+        if (drugDto.getQuantity() != null){
+            drug.setQuantity(drugDto.getQuantity());
+        }
+        if (drugDto.getExpiryDate() != null){
+            drug.setExpiryDate(drugDto.getExpiryDate());
+        }
+        if (drugDto.getMinStockLevel() != null){
+            drug.setMinStockLevel(drugDto.getMinStockLevel());
+        }
+        if (drugDto.getBatchNumber() != null){
+            drug.setBatchNumber(drugDto.getBatchNumber());
+        }
         return this.drugRepository.save(drug);
+    }
+
+    @Override
+    public void deductStock(UUID drugId, Integer quantity) {
+        Drug drug = this.drugRepository.findById(drugId)
+                .orElseThrow(() -> new RuntimeException("Drug not found"));
+
+        if (drug.getQuantity() < quantity) {
+            throw new RuntimeException("Insufficient stock for drug: " + drug.getName() +
+                    ". Available: " + drug.getQuantity() + ", Required: " + quantity);
+        }
+
+        drug.setQuantity(drug.getQuantity() - quantity);
+        this.drugRepository.save(drug);
+    }
+
+    @Override
+    public void restockDrug(UUID drugId, Integer quantity) {
+        Drug drug = this.drugRepository.findById(drugId)
+                .orElseThrow(() -> new RuntimeException("Drug not found"));
+
+        drug.setQuantity(drug.getQuantity() + quantity);
+        this.drugRepository.save(drug);
+    }
+
+    @Override
+    public boolean hasAvailableStock(UUID drugId, Integer requestedQuantity) {
+        Drug drug = this.drugRepository.findById(drugId)
+                .orElseThrow(() -> new RuntimeException("Drug not found"));
+
+        return drug.getQuantity() >= requestedQuantity;
     }
 }

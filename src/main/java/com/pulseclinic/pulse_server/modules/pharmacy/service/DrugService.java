@@ -14,4 +14,7 @@ public interface DrugService {
     List<Drug> getAllDrugs();
     void deleteDrug(UUID id);
     Drug updateDrug(UUID id, DrugDto drugDto);
+    void deductStock(UUID drugId, Integer quantity);
+    void restockDrug(UUID drugId, Integer quantity);
+    boolean hasAvailableStock(UUID drugId, Integer requestedQuantity);
 }

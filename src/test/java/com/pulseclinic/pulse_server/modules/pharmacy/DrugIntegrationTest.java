@@ -65,6 +65,8 @@ public class DrugIntegrationTest {
                 .unit(DrugUnit.TABLET)
                 .strength("500mg")
                 .unitPrice(new BigDecimal("2.50"))
+                .quantity(100)
+                .minStockLevel(10)
                 .createdAt(LocalDateTime.now())
                 .build();
         testDrug = drugRepository.save(testDrug);
@@ -153,6 +155,8 @@ public class DrugIntegrationTest {
                 .unit(DrugUnit.CAPSULE)
                 .strength("500mg")
                 .unitPrice(new BigDecimal("8.00"))
+                .quantity(50)
+                .minStockLevel(10)
                 .build();
         drugRepository.save(drug2);
 
@@ -162,6 +166,8 @@ public class DrugIntegrationTest {
                 .unit(DrugUnit.TABLET)
                 .strength("200mg")
                 .unitPrice(new BigDecimal("3.00"))
+                .quantity(75)
+                .minStockLevel(10)
                 .build();
         drugRepository.save(drug3);
 
@@ -203,6 +209,8 @@ public class DrugIntegrationTest {
                 .unit(DrugUnit.ML)
                 .strength("100mg/5ml")
                 .unitPrice(new BigDecimal("10.00"))
+                .quantity(200)
+                .minStockLevel(10)
                 .createdAt(LocalDateTime.now())
                 .build();
         drugRepository.save(activeDrug);
@@ -225,6 +233,8 @@ public class DrugIntegrationTest {
                 .unit(DrugUnit.VIAL)
                 .strength("1g")
                 .unitPrice(new BigDecimal("25.00"))
+                .quantity(30)
+                .minStockLevel(10)
                 .build();
         drugRepository.save(injection);
 
@@ -234,6 +244,8 @@ public class DrugIntegrationTest {
                 .unit(DrugUnit.BOTTLE)
                 .strength("5mg/5ml")
                 .unitPrice(new BigDecimal("15.00"))
+                .quantity(40)
+                .minStockLevel(10)
                 .build();
         drugRepository.save(syrup);
 
@@ -277,6 +289,8 @@ public class DrugIntegrationTest {
                 .unit(DrugUnit.TUBE)
                 .strength("0.5%")
                 .unitPrice(new BigDecimal("12.75"))
+                .quantity(60)
+                .minStockLevel(10)
                 .createdAt(LocalDateTime.now())
                 .build();
         completeDrug = drugRepository.save(completeDrug);
@@ -411,6 +425,8 @@ public class DrugIntegrationTest {
                 .unit(DrugUnit.TABLET)
                 .strength("100mg")
                 .unitPrice(new BigDecimal("5.00"))
+                .quantity(80)
+                .minStockLevel(10)
                 .build();
         drugRepository.save(anotherDrug);
 
