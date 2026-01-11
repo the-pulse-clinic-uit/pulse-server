@@ -100,7 +100,7 @@ public class DrugServiceImpl implements DrugService {
     @Override
     public boolean hasAvailableStock(UUID drugId, Integer requestedQuantity) {
         Drug drug = this.drugRepository.findById(drugId)
-                .orElseThrow(() -> new RuntimeException("Drug not found"));
+                    .orElseThrow(() -> new RuntimeException("Drug not found"));
 
         return drug.getQuantity() >= requestedQuantity;
     }

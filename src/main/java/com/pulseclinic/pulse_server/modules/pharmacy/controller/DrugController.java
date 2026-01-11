@@ -62,4 +62,18 @@ public class DrugController {
         this.drugService.deleteDrug(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
+    @PatchMapping("/restock/{id}")
+    @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
+    public ResponseEntity<HttpStatus> restockDrug(@PathVariable UUID id ,@RequestBody Integer amount){
+        this.drugService.restockDrug(id, amount);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PatchMapping("/destock/{id}")
+    @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
+    public ResponseEntity<HttpStatus> destockDrug(@PathVariable UUID id ,@RequestBody Integer amount){
+        this.drugService.deductStock(id, amount);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 }
