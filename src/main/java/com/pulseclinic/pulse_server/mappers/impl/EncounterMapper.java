@@ -3,6 +3,7 @@ package com.pulseclinic.pulse_server.mappers.impl;
 import com.pulseclinic.pulse_server.mappers.Mapper;
 import com.pulseclinic.pulse_server.modules.encounters.dto.encounter.EncounterDto;
 import com.pulseclinic.pulse_server.modules.encounters.dto.encounter.EncounterRequestDto;
+import com.pulseclinic.pulse_server.modules.encounters.dto.encounter.EncounterSummaryDto;
 import com.pulseclinic.pulse_server.modules.encounters.entity.Encounter;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
@@ -43,5 +44,33 @@ public class EncounterMapper implements Mapper<Encounter, EncounterDto> {
 
     public Encounter mapFrom(EncounterRequestDto encounterRequestDto) {
         return this.modelMapper.map(encounterRequestDto, Encounter.class);
+    }
+
+    public EncounterSummaryDto mapToSummary(Encounter encounter) {
+        String patientName = null;
+        if (encounter.getPatient() != null && encounter.getPatient().getUser() != null) {
+            patientName = encounter.getPatient().getUser().getFullName();
+        }
+
+        String doctorName = null;
+        if (encounter.getDoctor() != null && encounter.getDoctor().getStaff() != null
+                && encounter.getDoctor().getStaff().getUser() != null) {
+            doctorName = encounter.getDoctor().getStaff().getUser().getFullName();
+        }
+
+        return EncounterSummaryDto.builder()
+                .id(encounter.getId())
+                .type(encounter.getType())
+                .startedAt(encounter.getStartedAt())
+                .endedAt(encounter.getEndedAt())
+                .diagnosis(encounter.getDiagnosis())
+                .notes(encounter.getNotes())
+                .createdAt(encounter.getCreatedAt())
+                .patientId(encounter.getPatient() != null ? encounter.getPatient().getId() : null)
+                .patientName(patientName)
+                .doctorId(encounter.getDoctor() != null ? encounter.getDoctor().getId() : null)
+                .doctorName(doctorName)
+                .appointmentId(encounter.getAppointment() != null ? encounter.getAppointment().getId() : null)
+                .build();
     }
 }

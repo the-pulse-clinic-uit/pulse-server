@@ -8,6 +8,7 @@ import java.util.UUID;
 import com.pulseclinic.pulse_server.enums.EncounterType;
 import com.pulseclinic.pulse_server.modules.encounters.dto.encounter.EncounterDto;
 import com.pulseclinic.pulse_server.modules.encounters.dto.encounter.EncounterRequestDto;
+import com.pulseclinic.pulse_server.modules.encounters.dto.encounter.EncounterSummaryDto;
 
 public interface EncounterService {
     EncounterDto startEncounter(EncounterRequestDto encounterRequestDto);
@@ -18,6 +19,7 @@ public interface EncounterService {
 
     Optional<EncounterDto> getEncounterById(UUID encounterId);
     List<EncounterDto> getAllEncounters();
+    List<EncounterSummaryDto> getAllEncounterSummaries();
     List<EncounterDto> getEncountersByPatient(UUID patientId);
     List<EncounterDto> getEncountersByDoctor(UUID doctorId);
     List<EncounterDto> getEncountersByPatientAndDoctor(UUID patientId, UUID doctorId);

@@ -6,6 +6,7 @@ import com.pulseclinic.pulse_server.modules.appointments.entity.Appointment;
 import com.pulseclinic.pulse_server.modules.appointments.repository.AppointmentRepository;
 import com.pulseclinic.pulse_server.modules.encounters.dto.encounter.EncounterDto;
 import com.pulseclinic.pulse_server.modules.encounters.dto.encounter.EncounterRequestDto;
+import com.pulseclinic.pulse_server.modules.encounters.dto.encounter.EncounterSummaryDto;
 import com.pulseclinic.pulse_server.modules.encounters.dto.followUpPlan.FollowUpPlanDto;
 import com.pulseclinic.pulse_server.modules.encounters.entity.Encounter;
 import com.pulseclinic.pulse_server.modules.encounters.entity.FollowUpPlan;
@@ -124,6 +125,15 @@ public class EncounterServiceImpl implements EncounterService {
         List<Encounter> encounters = encounterRepository.findByDeletedAtIsNullOrderByStartedAtDesc();
         return encounters.stream()
                 .map(encounterMapper::mapTo)
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<EncounterSummaryDto> getAllEncounterSummaries() {
+        List<Encounter> encounters = encounterRepository.findByDeletedAtIsNullOrderByStartedAtDesc();
+        return encounters.stream()
+                .map(encounterMapper::mapToSummary)
                 .toList();
     }
 

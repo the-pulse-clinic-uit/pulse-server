@@ -25,12 +25,9 @@ public class AdmissionRequestDto {
     // relationships => 4
     private EncounterDto encounterDto; // optional
 
-    @NotNull(message = "Patient ID is required")
     private PatientDto patientDto;
 
-    @NotNull(message = "Doctor ID is required")
     private DoctorDto doctorDto;
 
-    @NotNull(message = "Room ID is required")
     private RoomDto roomDto;
 }

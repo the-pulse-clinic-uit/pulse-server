@@ -1,5 +1,6 @@
 package com.pulseclinic.pulse_server.modules.admissions.service;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -12,4 +13,5 @@ public interface AdmissionService {
     boolean transferRoom(UUID admissionId, UUID newRoomId);
     boolean dischargePatient(UUID admissionId);
     boolean updateNotes(UUID admissionId, String notes);
+    List<AdmissionDto> getAllAdmissions();
 }

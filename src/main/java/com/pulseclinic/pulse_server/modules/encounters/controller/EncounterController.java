@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.pulseclinic.pulse_server.modules.encounters.dto.encounter.EncounterDto;
 import com.pulseclinic.pulse_server.modules.encounters.dto.encounter.EncounterRequestDto;
+import com.pulseclinic.pulse_server.modules.encounters.dto.encounter.EncounterSummaryDto;
 import com.pulseclinic.pulse_server.modules.encounters.dto.followUpPlan.FollowUpPlanDto;
 import com.pulseclinic.pulse_server.modules.encounters.service.EncounterService;
 import com.pulseclinic.pulse_server.modules.patients.repository.PatientRepository;
@@ -51,6 +52,14 @@ public class EncounterController {
     @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
     public ResponseEntity<List<EncounterDto>> getAllEncounters() {
         List<EncounterDto> encounters = encounterService.getAllEncounters();
+        return ResponseEntity.ok(encounters);
+    }
+
+    // get all encounters (lightweight summary - faster for lists)
+    @GetMapping("/summary")
+    @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
+    public ResponseEntity<List<EncounterSummaryDto>> getAllEncounterSummaries() {
+        List<EncounterSummaryDto> encounters = encounterService.getAllEncounterSummaries();
         return ResponseEntity.ok(encounters);
     }
 

@@ -1,7 +1,13 @@
 package com.pulseclinic.pulse_server.modules.admissions.controller;
 
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
+import com.pulseclinic.pulse_server.mappers.impl.AdmissionMapper;
+import com.pulseclinic.pulse_server.modules.admissions.entity.Admission;
+import com.pulseclinic.pulse_server.modules.users.dto.user.UserDto;
+import com.pulseclinic.pulse_server.modules.users.entity.User;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,6 +35,13 @@ public class AdmissionController {
 
     public AdmissionController(AdmissionService admissionService) {
         this.admissionService = admissionService;
+    }
+
+    @GetMapping
+    @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
+    public ResponseEntity<List<AdmissionDto>> getAllAdmissions(){
+        List<AdmissionDto> allAdmissions = this.admissionService.getAllAdmissions();
+        return new ResponseEntity<>(allAdmissions ,HttpStatus.OK);
     }
 
     @PostMapping
