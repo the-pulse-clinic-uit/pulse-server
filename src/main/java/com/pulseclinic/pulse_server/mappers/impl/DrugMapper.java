@@ -25,6 +25,10 @@ public class DrugMapper implements Mapper<Drug, DrugDto> {
                 .strength(drug.getStrength())
                 .createdAt(drug.getCreatedAt())
                 .unitPrice(drug.getUnitPrice())
+                .batchNumber(drug.getBatchNumber())
+                .expiryDate(drug.getExpiryDate())
+                .minStockLevel(drug.getMinStockLevel())
+                .quantity(drug.getQuantity())
                 .build();
     }
 
