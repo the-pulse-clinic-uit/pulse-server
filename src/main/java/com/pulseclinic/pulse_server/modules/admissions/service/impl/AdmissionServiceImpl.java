@@ -51,22 +51,48 @@ public class AdmissionServiceImpl implements AdmissionService {
     @Override
     @Transactional
     public AdmissionDto admitPatient(AdmissionRequestDto admissionRequestDto) {
-        Optional<Patient> patientOpt = patientRepository.findById(admissionRequestDto.getPatientDto().getId());
-        if (patientOpt.isEmpty()) {
-            throw new RuntimeException("Patient not found");
+        Patient patient;
+        Doctor doctor;
+        Encounter encounter = null;
+
+        // encounterDto to get patient and doctor
+        if (admissionRequestDto.getEncounterDto() != null && admissionRequestDto.getEncounterDto().getId() != null) {
+            Optional<Encounter> encounterOpt = encounterRepository.findById(admissionRequestDto.getEncounterDto().getId());
+            if (encounterOpt.isEmpty()) {
+                throw new RuntimeException("Encounter not found");
+            }
+            encounter = encounterOpt.get();
+            patient = encounter.getPatient();
+            doctor = encounter.getDoctor();
+        }
+        // patientDto and doctorDto directly
+        else if (admissionRequestDto.getPatientDto() != null && admissionRequestDto.getDoctorDto() != null) {
+            Optional<Patient> patientOpt = patientRepository.findById(admissionRequestDto.getPatientDto().getId());
+            if (patientOpt.isEmpty()) {
+                throw new RuntimeException("Patient not found");
+            }
+            patient = patientOpt.get();
+
+            Optional<Doctor> doctorOpt = doctorRepository.findById(admissionRequestDto.getDoctorDto().getId());
+            if (doctorOpt.isEmpty()) {
+                throw new RuntimeException("Doctor not found");
+            }
+            doctor = doctorOpt.get();
+        } else {
+            throw new RuntimeException("Either encounterDto or both patientDto and doctorDto must be provided");
         }
 
+        // Check for existing ongoing admission
         Optional<Admission> existingAdmission = admissionRepository.findByPatientIdAndStatusAndDeletedAtIsNull(
-                admissionRequestDto.getPatientDto().getId(), AdmissionStatus.ONGOING);
+                patient.getId(), AdmissionStatus.ONGOING);
         if (existingAdmission.isPresent()) {
             throw new RuntimeException("Patient already has an ongoing admission");
         }
 
-        Optional<Doctor> doctorOpt = doctorRepository.findById(admissionRequestDto.getDoctorDto().getId());
-        if (doctorOpt.isEmpty()) {
-            throw new RuntimeException("Doctor not found");
+        // Validate room
+        if (admissionRequestDto.getRoomDto() == null || admissionRequestDto.getRoomDto().getId() == null) {
+            throw new RuntimeException("Room is required");
         }
-
         Optional<Room> roomOpt = roomRepository.findById(admissionRequestDto.getRoomDto().getId());
         if (roomOpt.isEmpty()) {
             throw new RuntimeException("Room not found");
@@ -74,15 +100,11 @@ public class AdmissionServiceImpl implements AdmissionService {
 
         Admission admission = Admission.builder()
                 .notes(admissionRequestDto.getNotes())
-                .patient(patientOpt.get())
-                .doctor(doctorOpt.get())
+                .patient(patient)
+                .doctor(doctor)
                 .room(roomOpt.get())
+                .encounter(encounter)
                 .build();
-
-        if (admissionRequestDto.getEncounterDto().getId() != null) {
-            Optional<Encounter> encounterOpt = encounterRepository.findById(admissionRequestDto.getEncounterDto().getId());
-            encounterOpt.ifPresent(admission::setEncounter);
-        }
 
         Admission savedAdmission = admissionRepository.save(admission);
         return admissionMapper.mapTo(savedAdmission);
