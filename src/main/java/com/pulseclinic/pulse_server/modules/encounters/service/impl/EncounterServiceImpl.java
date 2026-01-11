@@ -1,12 +1,16 @@
 package com.pulseclinic.pulse_server.modules.encounters.service.impl;
 
+import com.pulseclinic.pulse_server.enums.AdmissionStatus;
 import com.pulseclinic.pulse_server.mappers.impl.EncounterMapper;
 import com.pulseclinic.pulse_server.mappers.impl.FollowUpPlanMapper;
+import com.pulseclinic.pulse_server.modules.admissions.entity.Admission;
+import com.pulseclinic.pulse_server.modules.admissions.repository.AdmissionRepository;
 import com.pulseclinic.pulse_server.modules.appointments.entity.Appointment;
 import com.pulseclinic.pulse_server.modules.appointments.repository.AppointmentRepository;
 import com.pulseclinic.pulse_server.modules.encounters.dto.encounter.EncounterDto;
 import com.pulseclinic.pulse_server.modules.encounters.dto.encounter.EncounterRequestDto;
 import com.pulseclinic.pulse_server.modules.encounters.dto.encounter.EncounterSummaryDto;
+import com.pulseclinic.pulse_server.modules.encounters.dto.encounter.EncounterWithAdmissionStatusDto;
 import com.pulseclinic.pulse_server.modules.encounters.dto.followUpPlan.FollowUpPlanDto;
 import com.pulseclinic.pulse_server.modules.encounters.entity.Encounter;
 import com.pulseclinic.pulse_server.modules.encounters.entity.FollowUpPlan;
@@ -34,6 +38,7 @@ public class EncounterServiceImpl implements EncounterService {
     private final DoctorRepository doctorRepository;
     private final AppointmentRepository appointmentRepository;
     private final FollowUpPlanRepository followUpPlanRepository;
+    private final AdmissionRepository admissionRepository;
     private final EncounterMapper encounterMapper;
     private final FollowUpPlanMapper followUpPlanMapper;
 
@@ -42,6 +47,7 @@ public class EncounterServiceImpl implements EncounterService {
                                DoctorRepository doctorRepository,
                                AppointmentRepository appointmentRepository,
                                FollowUpPlanRepository followUpPlanRepository,
+                               AdmissionRepository admissionRepository,
                                EncounterMapper encounterMapper,
                                FollowUpPlanMapper followUpPlanMapper) {
         this.encounterRepository = encounterRepository;
@@ -49,6 +55,7 @@ public class EncounterServiceImpl implements EncounterService {
         this.doctorRepository = doctorRepository;
         this.appointmentRepository = appointmentRepository;
         this.followUpPlanRepository = followUpPlanRepository;
+        this.admissionRepository = admissionRepository;
         this.encounterMapper = encounterMapper;
         this.followUpPlanMapper = followUpPlanMapper;
     }
@@ -193,6 +200,45 @@ public class EncounterServiceImpl implements EncounterService {
 
     @Override
     @Transactional(readOnly = true)
+    public List<EncounterWithAdmissionStatusDto> getCompletedEncountersWithAdmissionStatus() {
+        List<Encounter> encounters = encounterRepository.findByEndedAtIsNotNullAndDeletedAtIsNullOrderByEndedAtDesc();
+        return encounters.stream()
+                .map(encounter -> {
+                    Optional<Admission> admissionOpt = admissionRepository.findByEncounterIdAndDeletedAtIsNull(encounter.getId());
+                    AdmissionStatus admissionStatus = admissionOpt.map(Admission::getStatus).orElse(null);
+
+                    String patientName = null;
+                    if (encounter.getPatient() != null && encounter.getPatient().getUser() != null) {
+                        patientName = encounter.getPatient().getUser().getFullName();
+                    }
+
+                    String doctorName = null;
+                    if (encounter.getDoctor() != null && encounter.getDoctor().getStaff() != null
+                            && encounter.getDoctor().getStaff().getUser() != null) {
+                        doctorName = encounter.getDoctor().getStaff().getUser().getFullName();
+                    }
+
+                    return EncounterWithAdmissionStatusDto.builder()
+                            .id(encounter.getId())
+                            .type(encounter.getType())
+                            .startedAt(encounter.getStartedAt())
+                            .endedAt(encounter.getEndedAt())
+                            .diagnosis(encounter.getDiagnosis())
+                            .notes(encounter.getNotes())
+                            .createdAt(encounter.getCreatedAt())
+                            .patientId(encounter.getPatient() != null ? encounter.getPatient().getId() : null)
+                            .patientName(patientName)
+                            .doctorId(encounter.getDoctor() != null ? encounter.getDoctor().getId() : null)
+                            .doctorName(doctorName)
+                            .appointmentId(encounter.getAppointment() != null ? encounter.getAppointment().getId() : null)
+                            .admissionStatus(admissionStatus)
+                            .build();
+                })
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public List<EncounterDto> getEncountersByDateRange(LocalDateTime startDate, LocalDateTime endDate) {
         List<Encounter> encounters = encounterRepository.findByDateRange(startDate, endDate);
         return encounters.stream()
@@ -282,22 +328,22 @@ public class EncounterServiceImpl implements EncounterService {
         Encounter encounter = encounterOpt.get();
         StringBuilder summary = new StringBuilder();
 
-        summary.append("=== BÁO CÁO KHÁM BỆNH ===\n\n");
-        summary.append("Mã số: ").append(encounter.getId()).append("\n");
-        summary.append("Loại khám: ").append(encounter.getType()).append("\n");
-        summary.append("Bệnh nhân: ").append(encounter.getPatient().getUser().getFullName()).append("\n");
-        summary.append("Bác sĩ: ").append(encounter.getDoctor().getStaff().getUser().getFullName()).append("\n");
-        summary.append("Thời gian bắt đầu: ").append(encounter.getStartedAt()).append("\n");
+        summary.append("=== ENCOUNTER REPORT ===\n\n");
+        summary.append("ID: ").append(encounter.getId()).append("\n");
+        summary.append("Type: ").append(encounter.getType()).append("\n");
+        summary.append("Patient: ").append(encounter.getPatient().getUser().getFullName()).append("\n");
+        summary.append("Doctor: ").append(encounter.getDoctor().getStaff().getUser().getFullName()).append("\n");
+        summary.append("Started at: ").append(encounter.getStartedAt()).append("\n");
 
         if (encounter.getEndedAt() != null) {
-            summary.append("Thời gian kết thúc: ").append(encounter.getEndedAt()).append("\n");
-            summary.append("Thời lượng: ").append(getDuration(encounterId).toMinutes()).append(" phút\n");
+            summary.append("Ended at: ").append(encounter.getEndedAt()).append("\n");
+            summary.append("Duration: ").append(getDuration(encounterId).toMinutes()).append(" minutes\n");
         } else {
-            summary.append("Trạng thái: Đang khám\n");
+            summary.append("Status: In progress\n");
         }
 
-        summary.append("\nCHẨN ĐOÁN:\n").append(encounter.getDiagnosis()).append("\n");
-        summary.append("\nGHI CHÚ:\n").append(encounter.getNotes()).append("\n");
+        summary.append("\nDIAGNOSIS:\n").append(encounter.getDiagnosis()).append("\n");
+        summary.append("\nNOTES:\n").append(encounter.getNotes()).append("\n");
 
         return summary.toString();
     }
@@ -310,7 +356,6 @@ public class EncounterServiceImpl implements EncounterService {
 
         Encounter encounter = encounterOpt.get();
         if (encounter.getEndedAt() == null) {
-            // Nếu chưa kết thúc, tính từ lúc bắt đầu đến hiện tại
             return Duration.between(encounter.getStartedAt(), LocalDateTime.now());
         }
 

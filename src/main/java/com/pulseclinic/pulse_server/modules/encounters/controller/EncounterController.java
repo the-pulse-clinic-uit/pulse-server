@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import com.pulseclinic.pulse_server.modules.encounters.dto.encounter.EncounterDto;
 import com.pulseclinic.pulse_server.modules.encounters.dto.encounter.EncounterRequestDto;
 import com.pulseclinic.pulse_server.modules.encounters.dto.encounter.EncounterSummaryDto;
+import com.pulseclinic.pulse_server.modules.encounters.dto.encounter.EncounterWithAdmissionStatusDto;
 import com.pulseclinic.pulse_server.modules.encounters.dto.followUpPlan.FollowUpPlanDto;
 import com.pulseclinic.pulse_server.modules.encounters.service.EncounterService;
 import com.pulseclinic.pulse_server.modules.patients.repository.PatientRepository;
@@ -131,6 +132,13 @@ public class EncounterController {
     @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
     public ResponseEntity<List<EncounterDto>> getCompletedEncounters() {
         List<EncounterDto> encounters = encounterService.getCompletedEncounters();
+        return ResponseEntity.ok(encounters);
+    }
+
+    @GetMapping("/completed/with-admission-status")
+    @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
+    public ResponseEntity<List<EncounterWithAdmissionStatusDto>> getCompletedEncountersWithAdmissionStatus() {
+        List<EncounterWithAdmissionStatusDto> encounters = encounterService.getCompletedEncountersWithAdmissionStatus();
         return ResponseEntity.ok(encounters);
     }
 

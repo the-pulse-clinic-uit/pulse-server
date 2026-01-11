@@ -9,6 +9,7 @@ import com.pulseclinic.pulse_server.enums.EncounterType;
 import com.pulseclinic.pulse_server.modules.encounters.dto.encounter.EncounterDto;
 import com.pulseclinic.pulse_server.modules.encounters.dto.encounter.EncounterRequestDto;
 import com.pulseclinic.pulse_server.modules.encounters.dto.encounter.EncounterSummaryDto;
+import com.pulseclinic.pulse_server.modules.encounters.dto.encounter.EncounterWithAdmissionStatusDto;
 
 public interface EncounterService {
     EncounterDto startEncounter(EncounterRequestDto encounterRequestDto);
@@ -26,6 +27,7 @@ public interface EncounterService {
     List<EncounterDto> getEncountersByType(EncounterType type);
     List<EncounterDto> getActiveEncounters();
     List<EncounterDto> getCompletedEncounters();
+    List<EncounterWithAdmissionStatusDto> getCompletedEncountersWithAdmissionStatus();
     List<EncounterDto> getEncountersByDateRange(LocalDateTime startDate, LocalDateTime endDate);
     List<EncounterDto> getTodayEncounters();
     Optional<EncounterDto> getEncounterByAppointment(UUID appointmentId);
