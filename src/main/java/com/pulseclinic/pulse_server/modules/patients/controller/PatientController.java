@@ -9,6 +9,7 @@ import com.pulseclinic.pulse_server.modules.patients.dto.PatientViolationSummary
 import com.pulseclinic.pulse_server.modules.patients.entity.Patient;
 import com.pulseclinic.pulse_server.modules.patients.service.PatientService;
 import com.pulseclinic.pulse_server.modules.patients.service.PatientViolationService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -20,6 +21,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+@Slf4j
 @RestController
 @RequestMapping("/patients")
 public class PatientController {
@@ -82,6 +84,7 @@ public class PatientController {
     @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
     public ResponseEntity<List<PatientDto>> getPatients(
             @RequestParam(value = "withViolations", required = false, defaultValue = "false") boolean withViolations) {
+        log.info("getPatients called with withViolations={}", withViolations);
         List<Patient> patients = this.patientService.getPatients();
         List<PatientDto> patientDtos = patients.stream()
                 .map(patient -> {
@@ -134,11 +137,17 @@ public class PatientController {
     private void enrichWithViolationData(PatientDto dto, UUID patientId) {
         try {
             PatientViolationSummary summary = patientViolationService.getViolationSummary(patientId);
+            log.info("Enriching patient {} with violations: hasViolations={}, level={}, noShow={}, debt={}",
+                    patientId, summary.isHasViolations(), summary.getRiskLevel(),
+                    summary.getNoShowCount(), summary.getOutstandingDebt());
             dto.setHasViolations(summary.isHasViolations());
             dto.setViolationLevel(summary.getRiskLevel());
             dto.setNoShowCount(summary.getNoShowCount());
             dto.setOutstandingDebt(summary.getOutstandingDebt());
+            log.info("After enrichment - dto hasViolations={}, level={}",
+                    dto.getHasViolations(), dto.getViolationLevel());
         } catch (Exception e) {
+            log.error("Failed to enrich patient {} with violation data: {}", patientId, e.getMessage(), e);
             dto.setHasViolations(false);
             dto.setViolationLevel(null);
             dto.setNoShowCount(0);
