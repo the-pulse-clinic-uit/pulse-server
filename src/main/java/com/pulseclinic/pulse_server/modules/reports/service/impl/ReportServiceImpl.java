@@ -109,6 +109,19 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
+    public List<AppointmentReportDto> getAppointmentReportByRange(LocalDate startDate, LocalDate endDate) {
+        List<AppointmentReportDto> reports = new ArrayList<>();
+        LocalDate current = startDate;
+
+        while (!current.isAfter(endDate)) {
+            reports.add(getAppointmentReportByDate(current));
+            current = current.plusDays(1);
+        }
+
+        return reports;
+    }
+
+    @Override
     public AppointmentReportDto getAppointmentReportByDoctor(UUID doctorId, LocalDate startDate, LocalDate endDate) {
         LocalDateTime start = startDate.atStartOfDay();
         LocalDateTime end = endDate.atTime(23, 59, 59);

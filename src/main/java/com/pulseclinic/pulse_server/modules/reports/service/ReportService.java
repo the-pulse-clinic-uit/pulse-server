@@ -16,6 +16,7 @@ public interface ReportService {
 
     // Appointment Reports
     AppointmentReportDto getAppointmentReportByDate(LocalDate date);
+    List<AppointmentReportDto> getAppointmentReportByRange(LocalDate startDate, LocalDate endDate);
     AppointmentReportDto getAppointmentReportByDoctor(UUID doctorId, LocalDate startDate, LocalDate endDate);
     AppointmentReportDto getAppointmentReportByDepartment(UUID departmentId, LocalDate startDate, LocalDate endDate);
 

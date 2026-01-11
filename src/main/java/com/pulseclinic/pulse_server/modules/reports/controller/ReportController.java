@@ -51,6 +51,14 @@ public class ReportController {
         return ResponseEntity.ok(report);
     }
 
+    @GetMapping("/appointments/range")
+    public ResponseEntity<List<AppointmentReportDto>> getAppointmentReportByRange(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+        List<AppointmentReportDto> reports = reportService.getAppointmentReportByRange(startDate, endDate);
+        return ResponseEntity.ok(reports);
+    }
+
     @GetMapping("/appointments/by-doctor/{doctorId}")
     public ResponseEntity<AppointmentReportDto> getAppointmentReportByDoctor(
             @PathVariable UUID doctorId,
