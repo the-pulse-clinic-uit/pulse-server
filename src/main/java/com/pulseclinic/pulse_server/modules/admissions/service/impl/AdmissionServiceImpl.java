@@ -99,6 +99,7 @@ public class AdmissionServiceImpl implements AdmissionService {
         }
 
         Admission admission = Admission.builder()
+                .status(admissionRequestDto.getStatus() != null ? admissionRequestDto.getStatus() : AdmissionStatus.ONGOING)
                 .notes(admissionRequestDto.getNotes())
                 .patient(patient)
                 .doctor(doctor)

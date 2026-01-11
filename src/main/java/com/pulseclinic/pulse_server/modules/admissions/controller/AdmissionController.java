@@ -51,6 +51,7 @@ public class AdmissionController {
             AdmissionDto admission = admissionService.admitPatient(requestDto);
             return ResponseEntity.status(HttpStatus.CREATED).body(admission);
         } catch (Exception e) {
+            log.error("Failed to admit patient: {}", e.getMessage(), e);
             return ResponseEntity.badRequest().build();
         }
     }
