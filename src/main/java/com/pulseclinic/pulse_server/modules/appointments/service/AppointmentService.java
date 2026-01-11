@@ -16,6 +16,7 @@ public interface AppointmentService {
     boolean rescheduleAppointment(UUID appointmentId, LocalDateTime newStartTime, LocalDateTime newEndTime);
     boolean cancelAppointment(UUID appointmentId, String reason);
     boolean confirmAppointment(UUID appointmentId);
+    boolean noshowAppointment(UUID appointmentId);
     boolean checkIn(UUID appointmentId);
     boolean markAsDone(UUID appointmentId);
     EncounterDto createEncounter(UUID appointmentId);

@@ -89,6 +89,13 @@ public class AppointmentController {
         return confirmed ? ResponseEntity.ok().build() : ResponseEntity.badRequest().build();
     }
 
+    @PutMapping("/{appointmentId}/noshow")
+    @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
+    public ResponseEntity<Void> noshowAppointment(@PathVariable UUID appointmentId) {
+        boolean noshowed = appointmentService.noshowAppointment(appointmentId);
+        return noshowed ? ResponseEntity.ok().build() : ResponseEntity.badRequest().build();
+    }
+
     // Check-in appointment
     @PutMapping("/{appointmentId}/checkin")
     public ResponseEntity<Void> checkIn(@PathVariable UUID appointmentId) {

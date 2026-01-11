@@ -265,6 +265,12 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     @Override
     @Transactional
+    public boolean noshowAppointment(UUID appointmentId) {
+        return updateStatus(appointmentId, AppointmentStatus.NO_SHOW);
+    }
+
+    @Override
+    @Transactional
     public boolean checkIn(UUID appointmentId) {
         return updateStatus(appointmentId, AppointmentStatus.CHECKED_IN);
     }
