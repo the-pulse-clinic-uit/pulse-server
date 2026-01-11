@@ -239,6 +239,54 @@ public class EncounterServiceImpl implements EncounterService {
 
     @Override
     @Transactional(readOnly = true)
+    public List<EncounterWithAdmissionStatusDto> getEncountersEligibleForAdmission() {
+        List<Encounter> encounters = encounterRepository.findByEndedAtIsNotNullAndDeletedAtIsNullOrderByEndedAtDesc();
+        return encounters.stream()
+                .map(encounter -> {
+                    Optional<Admission> admissionOpt = admissionRepository.findByEncounterIdAndDeletedAtIsNull(encounter.getId());
+                    AdmissionStatus admissionStatus = admissionOpt.map(Admission::getStatus).orElse(null);
+                    return new Object[] { encounter, admissionStatus };
+                })
+                .filter(arr -> {
+                    AdmissionStatus status = (AdmissionStatus) arr[1];
+                    return status == null || status == AdmissionStatus.DISCHARGED || status == AdmissionStatus.OUTPATIENT;
+                })
+                .map(arr -> {
+                    Encounter encounter = (Encounter) arr[0];
+                    AdmissionStatus admissionStatus = (AdmissionStatus) arr[1];
+
+                    String patientName = null;
+                    if (encounter.getPatient() != null && encounter.getPatient().getUser() != null) {
+                        patientName = encounter.getPatient().getUser().getFullName();
+                    }
+
+                    String doctorName = null;
+                    if (encounter.getDoctor() != null && encounter.getDoctor().getStaff() != null
+                            && encounter.getDoctor().getStaff().getUser() != null) {
+                        doctorName = encounter.getDoctor().getStaff().getUser().getFullName();
+                    }
+
+                    return EncounterWithAdmissionStatusDto.builder()
+                            .id(encounter.getId())
+                            .type(encounter.getType())
+                            .startedAt(encounter.getStartedAt())
+                            .endedAt(encounter.getEndedAt())
+                            .diagnosis(encounter.getDiagnosis())
+                            .notes(encounter.getNotes())
+                            .createdAt(encounter.getCreatedAt())
+                            .patientId(encounter.getPatient() != null ? encounter.getPatient().getId() : null)
+                            .patientName(patientName)
+                            .doctorId(encounter.getDoctor() != null ? encounter.getDoctor().getId() : null)
+                            .doctorName(doctorName)
+                            .appointmentId(encounter.getAppointment() != null ? encounter.getAppointment().getId() : null)
+                            .admissionStatus(admissionStatus)
+                            .build();
+                })
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public List<EncounterDto> getEncountersByDateRange(LocalDateTime startDate, LocalDateTime endDate) {
         List<Encounter> encounters = encounterRepository.findByDateRange(startDate, endDate);
         return encounters.stream()

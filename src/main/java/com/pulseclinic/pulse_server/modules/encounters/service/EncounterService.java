@@ -28,6 +28,7 @@ public interface EncounterService {
     List<EncounterDto> getActiveEncounters();
     List<EncounterDto> getCompletedEncounters();
     List<EncounterWithAdmissionStatusDto> getCompletedEncountersWithAdmissionStatus();
+    List<EncounterWithAdmissionStatusDto> getEncountersEligibleForAdmission();
     List<EncounterDto> getEncountersByDateRange(LocalDateTime startDate, LocalDateTime endDate);
     List<EncounterDto> getTodayEncounters();
     Optional<EncounterDto> getEncounterByAppointment(UUID appointmentId);

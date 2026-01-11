@@ -142,6 +142,14 @@ public class EncounterController {
         return ResponseEntity.ok(encounters);
     }
 
+    // get encounters eligible for admission (status: null, DISCHARGED, or OUTPATIENT)
+    @GetMapping("/eligible-for-admission")
+    @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
+    public ResponseEntity<List<EncounterWithAdmissionStatusDto>> getEncountersEligibleForAdmission() {
+        List<EncounterWithAdmissionStatusDto> encounters = encounterService.getEncountersEligibleForAdmission();
+        return ResponseEntity.ok(encounters);
+    }
+
     // get today's encounters
     @GetMapping("/today")
     @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
