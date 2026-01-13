@@ -80,7 +80,7 @@ public class EncounterServiceImpl implements EncounterService {
             throw new RuntimeException("Ended time must be after started time");
         }
 
-        if (encounterRequestDto.getStartedAt().isAfter(LocalDateTime.now())) {
+        if (encounterRequestDto.getStartedAt() != null && encounterRequestDto.getStartedAt().isAfter(LocalDateTime.now())) {
             throw new RuntimeException("Encounter cannot start in the future");
         }
 

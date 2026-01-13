@@ -40,7 +40,7 @@ public class RoomController {
     }
 
     @PostMapping
-    @PreAuthorize("hasAnyAuthority('doctor')")
+    @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
     public ResponseEntity<RoomDto> createRoom(@RequestBody RoomRequestDto roomRequestDto) {
         Room room = this.roomService.createRoom(roomRequestDto);
         RoomDto response = this.roomMapper.mapTo(room);
@@ -80,7 +80,7 @@ public class RoomController {
     }
 
     @PatchMapping("/{id}")
-    @PreAuthorize("hasAnyAuthority('doctor')")
+    @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
     public ResponseEntity<RoomDto> updateRoom(@PathVariable UUID id, @RequestBody RoomDto roomDto) {
         Room room = this.roomService.updateRoom(id, roomDto);
         return new ResponseEntity<>(this.roomMapper.mapTo(room), HttpStatus.OK);
