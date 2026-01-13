@@ -4,10 +4,12 @@ import com.pulseclinic.pulse_server.security.config.OtpProperties;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 import java.util.TimeZone;
 
 @EnableConfigurationProperties(OtpProperties.class)
+@EnableJpaRepositories(basePackages = "com.pulseclinic.pulse_server")
 @SpringBootApplication
 public class PulseClinicApiApplication {
 
