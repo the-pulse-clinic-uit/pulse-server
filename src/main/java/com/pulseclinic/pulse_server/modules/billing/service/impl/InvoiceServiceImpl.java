@@ -262,7 +262,7 @@ public class InvoiceServiceImpl implements InvoiceService {
                     prescriptionService.finalizePrescription(prescription.getId());
                 }
 
-                if (prescription.getStatus() == com.pulseclinic.pulse_server.enums.PrescriptionStatus.FINAL
+                if (prescription.getStatus() == com.pulseclinic.pulse_server.enums.PrescriptionStatus.DISPENSED
                     || prescription.getStatus() == com.pulseclinic.pulse_server.enums.PrescriptionStatus.DRAFT) {
                     prescriptionService.dispenseMedication(prescription.getId());
                 }

@@ -108,7 +108,7 @@ public class PrescriptionServiceImpl implements PrescriptionService {
             }
 
             prescription.setTotalPrice(calculateTotal(prescriptionId));
-            prescription.setStatus(com.pulseclinic.pulse_server.enums.PrescriptionStatus.FINAL);
+            prescription.setStatus(com.pulseclinic.pulse_server.enums.PrescriptionStatus.DISPENSED);
             prescriptionRepository.save(prescription);
 
             // Auto-end encounter when prescription is finalized
@@ -135,7 +135,7 @@ public class PrescriptionServiceImpl implements PrescriptionService {
 
             var prescription = prescriptionOpt.get();
 
-            if (prescription.getStatus() != com.pulseclinic.pulse_server.enums.PrescriptionStatus.FINAL) {
+            if (prescription.getStatus() != com.pulseclinic.pulse_server.enums.PrescriptionStatus.DISPENSED) {
                 return false;
             }
 
