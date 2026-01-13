@@ -35,6 +35,20 @@ jobs:
           --health-timeout 5s
           --health-retries 5
 
+      postgres-test:
+        image: postgres:latest
+        env:
+          POSTGRES_DB: pulse-db-test
+          POSTGRES_USER: user
+          POSTGRES_PASSWORD: 135792468
+        ports:
+          - 5434:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - uses: actions/checkout@v3
 
