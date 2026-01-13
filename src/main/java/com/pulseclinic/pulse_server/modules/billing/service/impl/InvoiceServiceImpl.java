@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,6 +35,9 @@ public class InvoiceServiceImpl implements InvoiceService {
     private final WebClient webClient;
     private final PrescriptionRepository prescriptionRepository;
     private final com.pulseclinic.pulse_server.modules.pharmacy.service.PrescriptionService prescriptionService;
+
+    @Value("${vnpay.api.url:http://localhost:8081}")
+    private String vnpayApiUrl;
 
     public InvoiceServiceImpl(InvoiceRepository invoiceRepository,
                               EncounterRepository encounterRepository,
@@ -210,11 +214,11 @@ public class InvoiceServiceImpl implements InvoiceService {
 
 
         return webClient.get()
-                .uri("http://localhost:8081/api/v1/payment/vn-pay?amount=" + amount)
+                .uri(vnpayApiUrl + "/api/v1/payment/vn-pay?amount=" + amount)
                 .header("X-INVOICE-ID", String.valueOf(invoiceId))
                 .retrieve()
                 .bodyToMono(String.class)
-                .block(); // giống await fetch()
+                .block();
     }
 
     @Override
