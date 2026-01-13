@@ -1,17 +1,18 @@
 package com.pulseclinic.pulse_server.modules.appointments.repository;
 
-import com.pulseclinic.pulse_server.enums.AppointmentStatus;
-import com.pulseclinic.pulse_server.enums.AppointmentType;
-import com.pulseclinic.pulse_server.modules.appointments.entity.Appointment;
-import com.pulseclinic.pulse_server.modules.staff.entity.Department;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.UUID;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.UUID;
+import com.pulseclinic.pulse_server.enums.AppointmentStatus;
+import com.pulseclinic.pulse_server.enums.AppointmentType;
+import com.pulseclinic.pulse_server.modules.appointments.entity.Appointment;
+import com.pulseclinic.pulse_server.modules.staff.entity.Department;
 
 @Repository
 public interface AppointmentRepository extends JpaRepository<Appointment, UUID> {
@@ -95,5 +96,17 @@ public interface AppointmentRepository extends JpaRepository<Appointment, UUID> 
             @Param("shiftId") UUID shiftId,
             @Param("startsAt") LocalDateTime startsAt,
             @Param("endsAt") LocalDateTime endsAt
+    );
+    
+    // Follow-up plan related queries
+    boolean existsByFollowUpPlanAndStartsAt(
+        com.pulseclinic.pulse_server.modules.encounters.entity.FollowUpPlan followUpPlan, 
+        LocalDateTime startsAt
+    );
+    
+    List<Appointment> findByPatientIdAndStatusAndStartsAtAfter(
+        UUID patientId, 
+        AppointmentStatus status, 
+        LocalDateTime startsAt
     );
 }
