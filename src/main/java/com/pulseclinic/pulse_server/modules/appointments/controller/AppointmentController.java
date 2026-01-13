@@ -62,7 +62,7 @@ public class AppointmentController {
     }
 
     // Reschedule appointment
-    @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
+    @PreAuthorize("hasAnyAuthority('doctor', 'staff', 'patient')")
     @PutMapping("/{appointmentId}/reschedule")
     public ResponseEntity<Void> rescheduleAppointment(
             @PathVariable UUID appointmentId,
