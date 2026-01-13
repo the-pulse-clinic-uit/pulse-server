@@ -98,28 +98,34 @@ public class AppointmentServiceImpl implements AppointmentService {
             throw new RuntimeException("Doctor not found");
         }
 
-        Optional<ShiftAssignment> shiftAssignmentOpt = shiftAssignmentRepository.findById(appointmentRequestDto.getShiftAssignmentId());
-        if (shiftAssignmentOpt.isEmpty()) {
-            throw new RuntimeException("Shift assignment not found");
-        }
-
-        ShiftAssignment shiftAssignment = shiftAssignmentOpt.get();
-//        Shift shift = shiftAssignment.getShift();
-
-        long appointmentsInSlot = appointmentRepository.countOccupiedSlots(
-                shiftAssignment.getShift().getId(),
-                appointmentRequestDto.getStartsAt(),
-                appointmentRequestDto.getStartsAt().plusMinutes(shiftAssignment.getShift().getSlotMinutes())
-        );
-
-        // 3. Check capacity
-        if (appointmentsInSlot >= shiftAssignment.getShift().getCapacityPerSlot()) {
-            throw new RuntimeException("This slot is fully booked");
-        }
-
+        ShiftAssignment shiftAssignment = null;
         LocalDateTime startsAt = appointmentRequestDto.getStartsAt();
-        LocalDateTime endsAt = appointmentRequestDto.getStartsAt().plusMinutes(shiftAssignment.getShift().getSlotMinutes());
+        LocalDateTime endsAt = appointmentRequestDto.getEndsAt();
 
+        if (appointmentRequestDto.getShiftAssignmentId() != null) {
+            Optional<ShiftAssignment> shiftAssignmentOpt = shiftAssignmentRepository.findById(appointmentRequestDto.getShiftAssignmentId());
+            if (shiftAssignmentOpt.isEmpty()) {
+                throw new RuntimeException("Shift assignment not found");
+            }
+
+            shiftAssignment = shiftAssignmentOpt.get();
+
+            long appointmentsInSlot = appointmentRepository.countOccupiedSlots(
+                    shiftAssignment.getShift().getId(),
+                    startsAt,
+                    startsAt.plusMinutes(shiftAssignment.getShift().getSlotMinutes())
+            );
+
+            // Check capacity
+            if (appointmentsInSlot >= shiftAssignment.getShift().getCapacityPerSlot()) {
+                throw new RuntimeException("This slot is fully booked");
+            }
+
+            endsAt = startsAt.plusMinutes(shiftAssignment.getShift().getSlotMinutes());
+        } else if (endsAt == null) {
+            // Default to 30 minutes if no shift and no endsAt provided
+            endsAt = startsAt.plusMinutes(30);
+        }
 
         Appointment appointment = Appointment.builder()
                 .startsAt(startsAt)
