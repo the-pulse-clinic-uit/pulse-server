@@ -22,6 +22,7 @@ import com.pulseclinic.pulse_server.modules.pharmacy.dto.allergy.AllergyCheckRes
 import com.pulseclinic.pulse_server.modules.pharmacy.dto.allergy.AllergyWarning;
 import com.pulseclinic.pulse_server.modules.pharmacy.dto.prescription.PrescriptionDto;
 import com.pulseclinic.pulse_server.modules.pharmacy.dto.prescription.PrescriptionRequestDto;
+import com.pulseclinic.pulse_server.modules.pharmacy.dto.prescription.PrescriptionWithDetailsDto;
 import com.pulseclinic.pulse_server.modules.pharmacy.dto.prescriptionDetail.PrescriptionDetailDto;
 import com.pulseclinic.pulse_server.modules.pharmacy.service.AllergyCheckService;
 import com.pulseclinic.pulse_server.modules.pharmacy.service.PrescriptionService;
@@ -137,6 +138,28 @@ public class PrescriptionController {
                     .build();
 
             return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping("/doctor/{doctorId}")
+    @PreAuthorize("hasAnyAuthority('doctor', 'staff', 'admin')")
+    public ResponseEntity<List<PrescriptionWithDetailsDto>> getPrescriptionsByDoctorId(@PathVariable UUID doctorId) {
+        try {
+            List<PrescriptionWithDetailsDto> prescriptions = prescriptionService.getPrescriptionsByDoctorId(doctorId);
+            return ResponseEntity.ok(prescriptions);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping("/all-with-details")
+    @PreAuthorize("hasAnyAuthority('staff', 'admin')")
+    public ResponseEntity<List<PrescriptionWithDetailsDto>> getAllPrescriptionsWithDetails() {
+        try {
+            List<PrescriptionWithDetailsDto> prescriptions = prescriptionService.getAllPrescriptionsWithDetails();
+            return ResponseEntity.ok(prescriptions);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }

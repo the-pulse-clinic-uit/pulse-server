@@ -18,4 +18,13 @@ public interface PrescriptionRepository extends JpaRepository<Prescription, UUID
 
     @Query("SELECT p FROM Prescription p WHERE p.encounter.patient.id = :patientId AND p.deletedAt IS NULL ORDER BY p.createdAt DESC")
     List<Prescription> findByPatientId(@Param("patientId") UUID patientId);
+
+    @Query("SELECT p FROM Prescription p WHERE p.encounter.doctor.id = :doctorId AND p.deletedAt IS NULL ORDER BY p.createdAt DESC")
+    List<Prescription> findByDoctorId(@Param("doctorId") UUID doctorId);
+
+    @Query("SELECT DISTINCT p FROM Prescription p LEFT JOIN FETCH p.encounter e LEFT JOIN FETCH e.patient LEFT JOIN FETCH e.doctor d LEFT JOIN FETCH d.staff s LEFT JOIN FETCH s.user WHERE p.deletedAt IS NULL ORDER BY p.createdAt DESC")
+    List<Prescription> findAllWithDetails();
+
+    @Query("SELECT DISTINCT p FROM Prescription p LEFT JOIN FETCH p.encounter e LEFT JOIN FETCH e.patient LEFT JOIN FETCH e.doctor d LEFT JOIN FETCH d.staff s LEFT JOIN FETCH s.user WHERE p.encounter.doctor.id = :doctorId AND p.deletedAt IS NULL ORDER BY p.createdAt DESC")
+    List<Prescription> findByDoctorIdWithDetails(@Param("doctorId") UUID doctorId);
 }

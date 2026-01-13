@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.pulseclinic.pulse_server.modules.pharmacy.dto.prescription.PrescriptionDto;
 import com.pulseclinic.pulse_server.modules.pharmacy.dto.prescription.PrescriptionRequestDto;
+import com.pulseclinic.pulse_server.modules.pharmacy.dto.prescription.PrescriptionWithDetailsDto;
 import com.pulseclinic.pulse_server.modules.pharmacy.dto.prescriptionDetail.PrescriptionDetailDto;
 import com.pulseclinic.pulse_server.modules.pharmacy.dto.prescriptionDetail.PrescriptionDetailRequestDto;
 import com.pulseclinic.pulse_server.modules.pharmacy.service.PrescriptionService;
@@ -28,6 +29,7 @@ public class PrescriptionServiceImpl implements PrescriptionService {
     private final EncounterRepository encounterRepository;
     private final com.pulseclinic.pulse_server.mappers.impl.PrescriptionMapper prescriptionMapper;
     private final com.pulseclinic.pulse_server.mappers.impl.PrescriptionDetailMapper prescriptionDetailMapper;
+    private final com.pulseclinic.pulse_server.mappers.impl.EncounterMapper encounterMapper;
     private final com.pulseclinic.pulse_server.modules.appointments.repository.AppointmentRepository appointmentRepository;
     private final DrugService drugService;
 
@@ -36,6 +38,7 @@ public class PrescriptionServiceImpl implements PrescriptionService {
                                   com.pulseclinic.pulse_server.modules.encounters.repository.EncounterRepository encounterRepository,
                                   com.pulseclinic.pulse_server.mappers.impl.PrescriptionMapper prescriptionMapper,
                                   com.pulseclinic.pulse_server.mappers.impl.PrescriptionDetailMapper prescriptionDetailMapper,
+                                  com.pulseclinic.pulse_server.mappers.impl.EncounterMapper encounterMapper,
                                   com.pulseclinic.pulse_server.modules.appointments.repository.AppointmentRepository appointmentRepository,
                                   DrugService drugService) {
         this.prescriptionRepository = prescriptionRepository;
@@ -43,6 +46,7 @@ public class PrescriptionServiceImpl implements PrescriptionService {
         this.encounterRepository = encounterRepository;
         this.prescriptionMapper = prescriptionMapper;
         this.prescriptionDetailMapper = prescriptionDetailMapper;
+        this.encounterMapper = encounterMapper;
         this.appointmentRepository = appointmentRepository;
         this.drugService = drugService;
     }
@@ -247,5 +251,43 @@ public class PrescriptionServiceImpl implements PrescriptionService {
         }
 
         return printout.toString();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<PrescriptionWithDetailsDto> getPrescriptionsByDoctorId(UUID doctorId) {
+        List<Prescription> prescriptions = prescriptionRepository.findByDoctorIdWithDetails(doctorId);
+        return prescriptions.stream()
+                .map(this::mapToPrescriptionWithDetails)
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<PrescriptionWithDetailsDto> getAllPrescriptionsWithDetails() {
+        List<Prescription> prescriptions = prescriptionRepository.findAllWithDetails();
+        return prescriptions.stream()
+                .map(this::mapToPrescriptionWithDetails)
+                .toList();
+    }
+
+    private PrescriptionWithDetailsDto mapToPrescriptionWithDetails(Prescription prescription) {
+        List<PrescriptionDetailDto> details = prescriptionDetailRepository
+                .findByPrescriptionIdAndDeletedAtIsNullOrderByCreatedAtAsc(prescription.getId())
+                .stream()
+                .map(prescriptionDetailMapper::mapTo)
+                .toList();
+
+        return PrescriptionWithDetailsDto.builder()
+                .id(prescription.getId())
+                .totalPrice(prescription.getTotalPrice())
+                .notes(prescription.getNotes())
+                .createdAt(prescription.getCreatedAt())
+                .status(prescription.getStatus())
+                .encounterDto(prescription.getEncounter() != null
+                    ? encounterMapper.mapTo(prescription.getEncounter())
+                    : null)
+                .prescriptionDetails(details)
+                .build();
     }
 }

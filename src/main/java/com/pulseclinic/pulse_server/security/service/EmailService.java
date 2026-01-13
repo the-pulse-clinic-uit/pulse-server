@@ -2,12 +2,15 @@ package com.pulseclinic.pulse_server.security.service;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @Service
+@Slf4j
 public class EmailService {
     private final JavaMailSender mailSender;
 
@@ -18,6 +21,7 @@ public class EmailService {
         this.mailSender = mailSender;
     }
 
+    @Async
     public void sendPasswordResetOtp(String to, String otp) {
         String subject = "Password Reset OTP";
         String html = buildOtpHtml(otp);
@@ -25,6 +29,7 @@ public class EmailService {
         sendHtml(to, subject, html);
     }
 
+    @Async
     public void sendNotification(String to, String title, String content) {
         String html = buildNotificationHtml(title, content);
         sendHtml(to, title, html);
@@ -42,8 +47,9 @@ public class EmailService {
 
             helper.setText(html, true);
             mailSender.send(message);
+            log.info("Email sent successfully to {}", to);
         } catch (MessagingException e) {
-            throw new RuntimeException("Failed to send email",e);
+            log.error("Failed to send email to {}: {}", to, e.getMessage());
         }
     }
 

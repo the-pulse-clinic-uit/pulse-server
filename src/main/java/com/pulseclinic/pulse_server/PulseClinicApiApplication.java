@@ -5,9 +5,11 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.scheduling.annotation.EnableAsync;
 
 import java.util.TimeZone;
 
+@EnableAsync
 @EnableConfigurationProperties(OtpProperties.class)
 @EnableJpaRepositories(basePackages = "com.pulseclinic.pulse_server")
 @SpringBootApplication
