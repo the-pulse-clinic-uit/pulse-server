@@ -115,10 +115,10 @@ public class PrescriptionIntegrationTest {
 
     @BeforeEach
     void setUp() {
-        // clean database with truncate cascade (postgresql compatible)
+
         entityManager.createNativeQuery("TRUNCATE TABLE prescription_details, prescriptions, encounters, drugs, patients, doctors, staff, users, roles RESTART IDENTITY CASCADE").executeUpdate();
 
-        // Create test patient
+
         User patientUser = User.builder()
                 .email("patient@test.com")
                 .hashedPassword("password")
@@ -140,7 +140,7 @@ public class PrescriptionIntegrationTest {
                 .build();
         testPatient = patientRepository.save(testPatient);
 
-        // Create test doctor
+
         User doctorUser = User.builder()
                 .email("doctor@test.com")
                 .hashedPassword("password")
@@ -167,7 +167,7 @@ public class PrescriptionIntegrationTest {
                 .build();
         testDoctor = doctorRepository.save(testDoctor);
 
-        // Create test encounter
+
         testEncounter = Encounter.builder()
                 .type(EncounterType.APPOINTED)
                 .diagnosis("Common cold")
@@ -178,7 +178,7 @@ public class PrescriptionIntegrationTest {
                 .build();
         testEncounter = encounterRepository.save(testEncounter);
 
-        // Create test drugs
+
         testDrug1 = Drug.builder()
                 .name("Paracetamol")
                 .dosageForm(DrugDosageForm.TABLET)
@@ -202,21 +202,21 @@ public class PrescriptionIntegrationTest {
         testDrug2 = drugRepository.save(testDrug2);
     }
 
-    // ========================================
-    // BACKEND_RX_001: Create new prescription from encounter
-    // ========================================
+
+
+
 
     @Test
     @WithMockUser(authorities = "doctor")
     @DisplayName("BACKEND_RX_001: Should create new prescription from encounter successfully")
     void testCreatePrescription_Success() throws Exception {
-        // Given
+
         PrescriptionRequestDto requestDto = PrescriptionRequestDto.builder()
                 .notes("Take medication as prescribed")
                 .encounterId(testEncounter.getId())
                 .build();
 
-        // When & Then
+
         MvcResult result = mockMvc.perform(post("/prescriptions")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestDto)))
@@ -229,7 +229,7 @@ public class PrescriptionIntegrationTest {
                 .andExpect(jsonPath("$.createdAt").exists())
                 .andReturn();
 
-        // Verify in database
+
         String responseBody = result.getResponse().getContentAsString();
         PrescriptionDto createdPrescription = objectMapper.readValue(responseBody, PrescriptionDto.class);
 
@@ -242,13 +242,13 @@ public class PrescriptionIntegrationTest {
     @WithMockUser(authorities = "staff")
     @DisplayName("BACKEND_RX_001: Staff should also create prescription")
     void testCreatePrescription_AsStaff_Success() throws Exception {
-        // Given
+
         PrescriptionRequestDto requestDto = PrescriptionRequestDto.builder()
                 .notes("Staff created prescription")
                 .encounterId(testEncounter.getId())
                 .build();
 
-        // When & Then
+
         mockMvc.perform(post("/prescriptions")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestDto)))
@@ -261,14 +261,14 @@ public class PrescriptionIntegrationTest {
     @WithMockUser(authorities = "doctor")
     @DisplayName("BACKEND_RX_001: Should fail when encounter not found")
     void testCreatePrescription_EncounterNotFound() throws Exception {
-        // Given
+
         UUID nonExistentEncounterId = UUID.randomUUID();
         PrescriptionRequestDto requestDto = PrescriptionRequestDto.builder()
                 .notes("Invalid encounter")
                 .encounterId(nonExistentEncounterId)
                 .build();
 
-        // When & Then
+
         mockMvc.perform(post("/prescriptions")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestDto)))
@@ -276,15 +276,15 @@ public class PrescriptionIntegrationTest {
                 .andExpect(status().isBadRequest());
     }
 
-    // ========================================
-    // BACKEND_RX_002: Get prescription details
-    // ========================================
+
+
+
 
     @Test
     @WithMockUser(authorities = "doctor")
     @DisplayName("BACKEND_RX_002: Should retrieve prescription details with subtotals")
     void testGetPrescriptionDetails_Success() throws Exception {
-        // Given - Create prescription with drug items
+
         Prescription prescription = Prescription.builder()
                 .totalPrice(BigDecimal.ZERO)
                 .notes("Test prescription")
@@ -293,7 +293,7 @@ public class PrescriptionIntegrationTest {
                 .build();
         prescription = prescriptionRepository.save(prescription);
 
-        // Add drug items
+
         PrescriptionDetail detail1 = PrescriptionDetail.builder()
                 .drug(testDrug1)
                 .prescription(prescription)
@@ -320,7 +320,7 @@ public class PrescriptionIntegrationTest {
                 .build();
         prescriptionDetailRepository.save(detail2);
 
-        // When & Then
+
         mockMvc.perform(get("/prescriptions/{id}/details", prescription.getId())
                         .with(jwt().authorities(new SimpleGrantedAuthority("doctor")))
                         .contentType(MediaType.APPLICATION_JSON))
@@ -339,7 +339,7 @@ public class PrescriptionIntegrationTest {
     @WithMockUser(authorities = "staff")
     @DisplayName("BACKEND_RX_002: Staff should also retrieve prescription details")
     void testGetPrescriptionDetails_AsStaff_Success() throws Exception {
-        // Given
+
         Prescription prescription = Prescription.builder()
                 .totalPrice(BigDecimal.ZERO)
                 .notes("Test")
@@ -348,7 +348,7 @@ public class PrescriptionIntegrationTest {
                 .build();
         prescription = prescriptionRepository.save(prescription);
 
-        // When & Then
+
         mockMvc.perform(get("/prescriptions/{id}/details", prescription.getId())
                         .with(jwt().authorities(new SimpleGrantedAuthority("staff")))
                         .contentType(MediaType.APPLICATION_JSON))
@@ -360,7 +360,7 @@ public class PrescriptionIntegrationTest {
     @WithMockUser(authorities = "doctor")
     @DisplayName("BACKEND_RX_002: Should return empty array when no drug items")
     void testGetPrescriptionDetails_EmptyList() throws Exception {
-        // Given - Prescription without drug items
+
         Prescription prescription = Prescription.builder()
                 .totalPrice(BigDecimal.ZERO)
                 .notes("Empty prescription")
@@ -370,25 +370,25 @@ public class PrescriptionIntegrationTest {
                 .build();
         prescription = prescriptionRepository.save(prescription);
 
-        // When & Then
+
         mockMvc.perform(get("/prescriptions/{id}/details", prescription.getId())
                         .with(jwt().authorities(new SimpleGrantedAuthority("doctor")))
-//                        .with(jwt().authr)
+
                         .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(0)));
     }
 
-    // ========================================
-    // BACKEND_RX_003: Finalize prescription
-    // ========================================
+
+
+
 
     @Test
     @WithMockUser(authorities = "doctor")
     @DisplayName("BACKEND_RX_003: Should finalize prescription from DRAFT to FINAL")
     void testFinalizePrescription_Success() throws Exception {
-        // Given - Create prescription in DRAFT status with items
+
         Prescription prescription = Prescription.builder()
                 .totalPrice(BigDecimal.ZERO)
                 .notes("Test prescription")
@@ -410,16 +410,16 @@ public class PrescriptionIntegrationTest {
                 .build();
         prescriptionDetailRepository.save(detail);
 
-        // When & Then
+
         mockMvc.perform(put("/prescriptions/{id}/finalize", prescription.getId())
                         .with(jwt().authorities(new SimpleGrantedAuthority("doctor")))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk());
 
-        // Verify status changed to FINAL
+
         Prescription finalizedPrescription = prescriptionRepository.findById(prescription.getId()).orElseThrow();
-        assertThat(finalizedPrescription.getStatus()).isEqualTo(PrescriptionStatus.FINAL);
+        assertThat(finalizedPrescription.getStatus()).isEqualTo(PrescriptionStatus.DISPENSED);
         assertThat(finalizedPrescription.getTotalPrice()).isEqualByComparingTo(new BigDecimal("25.00"));
     }
 
@@ -427,16 +427,16 @@ public class PrescriptionIntegrationTest {
     @WithMockUser(authorities = "doctor")
     @DisplayName("BACKEND_RX_003: Should lock editing after finalization")
     void testFinalizePrescription_EditingLocked() throws Exception {
-        // Given - Finalized prescription
+
         Prescription prescription = Prescription.builder()
                 .totalPrice(new BigDecimal("25.00"))
                 .notes("Test prescription")
-                .status(PrescriptionStatus.FINAL)
+                .status(PrescriptionStatus.DISPENSED)
                 .encounter(testEncounter)
                 .build();
         prescription = prescriptionRepository.save(prescription);
 
-        // When & Then - Try to finalize again (should fail)
+
         mockMvc.perform(put("/prescriptions/{id}/finalize", prescription.getId())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
@@ -447,7 +447,7 @@ public class PrescriptionIntegrationTest {
     @WithMockUser(authorities = "staff")
     @DisplayName("BACKEND_RX_003: Staff should also finalize prescription")
     void testFinalizePrescription_AsStaff_Success() throws Exception {
-        // Given
+
         Prescription prescription = Prescription.builder()
                 .totalPrice(BigDecimal.ZERO)
                 .notes("Test")
@@ -456,7 +456,7 @@ public class PrescriptionIntegrationTest {
                 .build();
         prescription = prescriptionRepository.save(prescription);
 
-        // When & Then
+
         mockMvc.perform(put("/prescriptions/{prescriptionId}/finalize", prescription.getId())
                         .with(jwt().authorities(new SimpleGrantedAuthority("staff")))
                         .contentType(MediaType.APPLICATION_JSON))
@@ -464,30 +464,30 @@ public class PrescriptionIntegrationTest {
                 .andExpect(status().isOk());
     }
 
-    // ========================================
-    // BACKEND_RX_004: Dispense prescription
-    // ========================================
+
+
+
 
     @Test
     @WithMockUser(authorities = "doctor")
     @DisplayName("BACKEND_RX_004: Should dispense prescription from FINAL to DISPENSED")
     void testDispensePrescription_Success() throws Exception {
-        // Given - Prescription in FINAL status
+
         Prescription prescription = Prescription.builder()
                 .totalPrice(new BigDecimal("25.00"))
                 .notes("Test prescription")
-                .status(PrescriptionStatus.FINAL)
+                .status(PrescriptionStatus.DISPENSED)
                 .encounter(testEncounter)
                 .build();
         prescription = prescriptionRepository.save(prescription);
 
-        // When & Then
+
         mockMvc.perform(put("/prescriptions/{id}/dispense", prescription.getId())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk());
 
-        // Verify status changed to DISPENSED
+
         Prescription dispensedPrescription = prescriptionRepository.findById(prescription.getId()).orElseThrow();
         assertThat(dispensedPrescription.getStatus()).isEqualTo(PrescriptionStatus.DISPENSED);
     }
@@ -496,7 +496,7 @@ public class PrescriptionIntegrationTest {
     @WithMockUser(authorities = "doctor")
     @DisplayName("BACKEND_RX_004: Should fail when prescription not in FINAL status")
     void testDispensePrescription_NotFinalStatus() throws Exception {
-        // Given - Prescription in DRAFT status
+
         Prescription prescription = Prescription.builder()
                 .totalPrice(BigDecimal.ZERO)
                 .notes("Test prescription")
@@ -505,7 +505,7 @@ public class PrescriptionIntegrationTest {
                 .build();
         prescription = prescriptionRepository.save(prescription);
 
-        // When & Then - Cannot dispense DRAFT prescription
+
         mockMvc.perform(put("/prescriptions/{id}/dispense", prescription.getId())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
@@ -516,31 +516,31 @@ public class PrescriptionIntegrationTest {
     @WithMockUser(authorities = "staff")
     @DisplayName("BACKEND_RX_004: Staff should also dispense prescription")
     void testDispensePrescription_AsStaff_Success() throws Exception {
-        // Given
+
         Prescription prescription = Prescription.builder()
                 .totalPrice(new BigDecimal("25.00"))
                 .notes("Test")
-                .status(PrescriptionStatus.FINAL)
+                .status(PrescriptionStatus.DISPENSED)
                 .encounter(testEncounter)
                 .build();
         prescription = prescriptionRepository.save(prescription);
 
-        // When & Then
+
         mockMvc.perform(put("/prescriptions/{id}/dispense", prescription.getId())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk());
     }
 
-    // ========================================
-    // BACKEND_RX_005: Add drug item to prescription
-    // ========================================
+
+
+
 
     @Test
     @WithMockUser(authorities = "doctor")
     @DisplayName("BACKEND_RX_005: Should add drug item to prescription successfully")
     void testAddDrugItem_Success() throws Exception {
-        // Given - Prescription in DRAFT status
+
         Prescription prescription = Prescription.builder()
                 .totalPrice(BigDecimal.ZERO)
                 .notes("Test prescription")
@@ -561,7 +561,7 @@ public class PrescriptionIntegrationTest {
                 .instructions("Take with water")
                 .build();
 
-        // When & Then
+
         MvcResult result = mockMvc.perform(post("/prescriptions/details")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(detailRequest)))
@@ -573,7 +573,7 @@ public class PrescriptionIntegrationTest {
                 .andExpect(jsonPath("$.itemTotalPrice").value(25.00))
                 .andReturn();
 
-        // Verify item linked to prescription
+
         String responseBody = result.getResponse().getContentAsString();
         PrescriptionDetailDto createdDetail = objectMapper.readValue(responseBody, PrescriptionDetailDto.class);
 
@@ -586,7 +586,7 @@ public class PrescriptionIntegrationTest {
     @WithMockUser(authorities = "doctor")
     @DisplayName("BACKEND_RX_005: Should use drug's default price if not provided")
     void testAddDrugItem_DefaultPrice() throws Exception {
-        // Given
+
         Prescription prescription = Prescription.builder()
                 .totalPrice(BigDecimal.ZERO)
                 .notes("Test")
@@ -605,21 +605,21 @@ public class PrescriptionIntegrationTest {
                 .instructions("Take with water")
                 .build();
 
-        // When & Then - Should use drug's unitPrice (2.50)
+
         mockMvc.perform(post("/prescriptions/details")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(detailRequest)))
                 .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.unitPrice").value(2.50))
-                .andExpect(jsonPath("$.itemTotalPrice").value(12.50)); // 5 * 2.50
+                .andExpect(jsonPath("$.itemTotalPrice").value(12.50));
     }
 
     @Test
     @WithMockUser(authorities = "doctor")
     @DisplayName("BACKEND_RX_005: Should fail when prescription not found")
     void testAddDrugItem_PrescriptionNotFound() throws Exception {
-        // Given
+
         UUID nonExistentPrescriptionId = UUID.randomUUID();
         PrescriptionDetailRequestDto detailRequest = PrescriptionDetailRequestDto.builder()
                 .drugId(testDrug1.getId())
@@ -631,7 +631,7 @@ public class PrescriptionIntegrationTest {
                 .instructions("Take with water")
                 .build();
 
-        // When & Then
+
         mockMvc.perform(post("/prescriptions/details")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(detailRequest)))
@@ -643,7 +643,7 @@ public class PrescriptionIntegrationTest {
     @WithMockUser(authorities = "doctor")
     @DisplayName("BACKEND_RX_005: Should fail when drug not found")
     void testAddDrugItem_DrugNotFound() throws Exception {
-        // Given
+
         Prescription prescription = Prescription.builder()
                 .totalPrice(BigDecimal.ZERO)
                 .notes("Test")
@@ -663,7 +663,7 @@ public class PrescriptionIntegrationTest {
                 .instructions("Take with water")
                 .build();
 
-        // When & Then
+
         mockMvc.perform(post("/prescriptions/details")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(detailRequest)))

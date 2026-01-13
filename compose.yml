@@ -11,3 +11,12 @@ services:
     image: redis:7-alpine
     ports:
       - "6379:6379"
+
+  postgres-test:
+    image: 'postgres:latest'
+    environment:
+      - 'POSTGRES_DB=pulse-db-test'
+      - 'POSTGRES_PASSWORD=135792468'
+      - 'POSTGRES_USER=user'
+    ports:
+      - '5434:5432'
