@@ -250,6 +250,8 @@ public class DataSeeder {
                             .unitPrice(new BigDecimal("10000"))
                             .quantity(100)
                             .minStockLevel(10)
+                            .batchNumber("BATCH-2024-001")
+                            .expiryDate(LocalDate.now().plusYears(2))
                             .build(),
                     Drug.builder()
                             .name("Ibuprofen")
@@ -259,6 +261,8 @@ public class DataSeeder {
                             .unitPrice(new BigDecimal("15000"))
                             .quantity(100)
                             .minStockLevel(10)
+                            .batchNumber("BATCH-2024-002")
+                            .expiryDate(LocalDate.now().plusYears(2))
                             .build(),
                     Drug.builder()
                             .name("Amoxicillin")
@@ -268,6 +272,8 @@ public class DataSeeder {
                             .unitPrice(new BigDecimal("20000"))
                             .quantity(100)
                             .minStockLevel(10)
+                            .batchNumber("BATCH-2024-003")
+                            .expiryDate(LocalDate.now().plusYears(3))
                             .build(),
                     Drug.builder()
                             .name("Cough Syrup")
@@ -277,6 +283,8 @@ public class DataSeeder {
                             .unitPrice(new BigDecimal("200000"))
                             .quantity(100)
                             .minStockLevel(10)
+                            .batchNumber("BATCH-2024-004")
+                            .expiryDate(LocalDate.now().plusYears(1))
                             .build(),
                     Drug.builder()
                             .name("Insulin")
@@ -286,6 +294,8 @@ public class DataSeeder {
                             .unitPrice(new BigDecimal("1000000"))
                             .quantity(100)
                             .minStockLevel(10)
+                            .batchNumber("BATCH-2024-005")
+                            .expiryDate(LocalDate.now().plusMonths(6))
                             .build(),
                     Drug.builder()
                             .name("Hydrocortisone Cream")
@@ -295,6 +305,8 @@ public class DataSeeder {
                             .unitPrice(new BigDecimal("80000"))
                             .quantity(100)
                             .minStockLevel(10)
+                            .batchNumber("BATCH-2024-006")
+                            .expiryDate(LocalDate.now().plusYears(2))
                             .build(),
                     Drug.builder()
                             .name("Aspirin")
@@ -304,6 +316,8 @@ public class DataSeeder {
                             .unitPrice(new BigDecimal("5000"))
                             .quantity(100)
                             .minStockLevel(10)
+                            .batchNumber("BATCH-2024-007")
+                            .expiryDate(LocalDate.now().plusYears(3))
                             .build(),
                     Drug.builder()
                             .name("Omeprazole")
@@ -313,6 +327,8 @@ public class DataSeeder {
                             .unitPrice(new BigDecimal("30000"))
                             .quantity(100)
                             .minStockLevel(10)
+                            .batchNumber("BATCH-2024-008")
+                            .expiryDate(LocalDate.now().plusYears(2))
                             .build()
             );
             drugRepository.saveAll(drugs);
