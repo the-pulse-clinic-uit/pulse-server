@@ -29,9 +29,11 @@ public class DoctorMapper implements Mapper<Doctor, DoctorDto> {
                 .licenseId(doctor.getLicenseId())
                 .isVerified(doctor.getIsVerified())
                 .createdAt(doctor.getCreatedAt())
+                .averageRating(doctor.getAverageRating())
+                .ratingCount(doctor.getRatingCount())
                 .staffDto(doctor.getStaff() != null ? staffMapper.mapTo(doctor.getStaff()) : null)
                 // Don't map department to avoid StackOverflow - accessible via staffDto.department if needed
-                    .departmentDto(null)
+                .departmentDto(null)
                 .build();
         return doctorDto;
     }
@@ -42,6 +44,8 @@ public class DoctorMapper implements Mapper<Doctor, DoctorDto> {
                 .licenseId(doctor.getLicenseId())
                 .isVerified(doctor.getIsVerified())
                 .createdAt(doctor.getCreatedAt())
+                .averageRating(doctor.getAverageRating())
+                .ratingCount(doctor.getRatingCount())
                 .departmentDto(doctor.getDepartment() != null ?
                     DepartmentDto.builder()
                         .id(doctor.getDepartment().getId())

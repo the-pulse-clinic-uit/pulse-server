@@ -16,7 +16,7 @@ import com.pulseclinic.pulse_server.modules.encounters.dto.encounter.EncounterDt
 import com.pulseclinic.pulse_server.modules.encounters.dto.encounter.EncounterRequestDto;
 import com.pulseclinic.pulse_server.modules.encounters.dto.encounter.EncounterSummaryDto;
 import com.pulseclinic.pulse_server.modules.encounters.dto.encounter.EncounterWithAdmissionStatusDto;
-import com.pulseclinic.pulse_server.modules.encounters.dto.followUpPlan.FollowUpPlanDto;
+import com.pulseclinic.pulse_server.modules.encounters.dto.encounter.RatingRequestDto;
 import com.pulseclinic.pulse_server.modules.encounters.service.EncounterService;
 import com.pulseclinic.pulse_server.modules.patients.repository.PatientRepository;
 import com.pulseclinic.pulse_server.modules.patients.entity.Patient;
@@ -211,5 +211,34 @@ public class EncounterController {
     public ResponseEntity<String> generateSummary(@PathVariable UUID encounterId) {
         String summary = encounterService.generateSummary(encounterId);
         return ResponseEntity.ok(summary);
+    }
+
+    @PostMapping("/{encounterId}/rate")
+    @PreAuthorize("hasAuthority('patient')")
+    public ResponseEntity<EncounterDto> rateEncounter(
+            @PathVariable UUID encounterId,
+            @Valid @RequestBody RatingRequestDto ratingRequestDto,
+            Authentication authentication) {
+        String email = authentication.getName();
+        Optional<Patient> patient = patientRepository.findByEmail(email);
+        if (patient.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        Optional<EncounterDto> encounterOpt = encounterService.getEncounterById(encounterId);
+        if (encounterOpt.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        if (!encounterOpt.get().getPatientDto().getId().equals(patient.get().getId())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        try {
+            EncounterDto ratedEncounter = encounterService.rateEncounter(encounterId, ratingRequestDto);
+            return ResponseEntity.ok(ratedEncounter);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 }

@@ -10,6 +10,7 @@ import com.pulseclinic.pulse_server.modules.encounters.dto.encounter.EncounterDt
 import com.pulseclinic.pulse_server.modules.encounters.dto.encounter.EncounterRequestDto;
 import com.pulseclinic.pulse_server.modules.encounters.dto.encounter.EncounterSummaryDto;
 import com.pulseclinic.pulse_server.modules.encounters.dto.encounter.EncounterWithAdmissionStatusDto;
+import com.pulseclinic.pulse_server.modules.encounters.dto.encounter.RatingRequestDto;
 
 public interface EncounterService {
     EncounterDto startEncounter(EncounterRequestDto encounterRequestDto);
@@ -32,4 +33,6 @@ public interface EncounterService {
     List<EncounterDto> getEncountersByDateRange(LocalDateTime startDate, LocalDateTime endDate);
     List<EncounterDto> getTodayEncounters();
     Optional<EncounterDto> getEncounterByAppointment(UUID appointmentId);
+
+    EncounterDto rateEncounter(UUID encounterId, RatingRequestDto ratingRequestDto);
 }

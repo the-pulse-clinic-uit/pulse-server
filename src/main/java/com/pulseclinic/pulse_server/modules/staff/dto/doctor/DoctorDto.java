@@ -23,6 +23,10 @@ public class DoctorDto {
 
     private LocalDateTime createdAt;
 
+    private Double averageRating;
+
+    private Integer ratingCount;
+
     // relationships => 1 (department is derived from staff.department)
 
     private StaffDto staffDto;

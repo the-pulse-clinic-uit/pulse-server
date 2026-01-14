@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.pulseclinic.pulse_server.modules.encounters.dto.encounter.DoctorRatingDto;
 import com.pulseclinic.pulse_server.modules.staff.dto.doctor.DoctorDto;
 import com.pulseclinic.pulse_server.modules.staff.dto.doctor.DoctorRequestDto;
 import com.pulseclinic.pulse_server.modules.staff.service.DoctorService;
@@ -57,6 +58,7 @@ public class DoctorController {
     }
 
     @GetMapping("/me")
+    @PreAuthorize("hasAuthority('doctor')")
     public ResponseEntity<DoctorDto> getDoctorMe(Authentication authentication) {
         String email = authentication.getName();
         Optional<DoctorDto> doctor = doctorService.findByEmail(email);
@@ -64,6 +66,14 @@ public class DoctorController {
             return ResponseEntity.ok(doctor.get());
         }
         return ResponseEntity.notFound().build();
+    }
+
+    @GetMapping("/me/ratings")
+    @PreAuthorize("hasAuthority('doctor')")
+    public ResponseEntity<List<DoctorRatingDto>> getMyRatings(Authentication authentication) {
+        String email = authentication.getName();
+        List<DoctorRatingDto> ratings = doctorService.getRatingsByDoctorEmail(email);
+        return ResponseEntity.ok(ratings);
     }
 
     // Get doctor by ID

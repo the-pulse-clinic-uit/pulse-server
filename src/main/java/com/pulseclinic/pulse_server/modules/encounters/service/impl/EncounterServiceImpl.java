@@ -11,6 +11,7 @@ import com.pulseclinic.pulse_server.modules.encounters.dto.encounter.EncounterDt
 import com.pulseclinic.pulse_server.modules.encounters.dto.encounter.EncounterRequestDto;
 import com.pulseclinic.pulse_server.modules.encounters.dto.encounter.EncounterSummaryDto;
 import com.pulseclinic.pulse_server.modules.encounters.dto.encounter.EncounterWithAdmissionStatusDto;
+import com.pulseclinic.pulse_server.modules.encounters.dto.encounter.RatingRequestDto;
 import com.pulseclinic.pulse_server.modules.encounters.dto.followUpPlan.FollowUpPlanDto;
 import com.pulseclinic.pulse_server.modules.encounters.entity.Encounter;
 import com.pulseclinic.pulse_server.modules.encounters.entity.FollowUpPlan;
@@ -408,5 +409,37 @@ public class EncounterServiceImpl implements EncounterService {
         }
 
         return Duration.between(encounter.getStartedAt(), encounter.getEndedAt());
+    }
+
+    @Override
+    @Transactional
+    public EncounterDto rateEncounter(UUID encounterId, RatingRequestDto ratingRequestDto) {
+        Encounter encounter = encounterRepository.findById(encounterId)
+                .orElseThrow(() -> new RuntimeException("Encounter not found"));
+
+        if (encounter.getEndedAt() == null) {
+            throw new RuntimeException("Cannot rate an encounter that has not ended");
+        }
+
+        if (encounter.getRating() != null) {
+            throw new RuntimeException("Encounter has already been rated");
+        }
+
+        encounter.setRating(ratingRequestDto.getRating());
+        encounter.setRatingComment(ratingRequestDto.getComment());
+        encounter.setRatedAt(LocalDateTime.now());
+
+        Doctor doctor = encounter.getDoctor();
+        int currentCount = doctor.getRatingCount() != null ? doctor.getRatingCount() : 0;
+        double currentAvg = doctor.getAverageRating() != null ? doctor.getAverageRating() : 0.0;
+
+        double newAvg = (currentAvg * currentCount + ratingRequestDto.getRating()) / (currentCount + 1);
+        doctor.setAverageRating(newAvg);
+        doctor.setRatingCount(currentCount + 1);
+
+        doctorRepository.save(doctor);
+        Encounter savedEncounter = encounterRepository.save(encounter);
+
+        return encounterMapper.mapTo(savedEncounter);
     }
 }

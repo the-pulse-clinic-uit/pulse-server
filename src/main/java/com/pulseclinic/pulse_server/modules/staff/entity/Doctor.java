@@ -39,6 +39,14 @@ public class Doctor {
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
+    @Column(name = "average_rating")
+    private Double averageRating;
+
+    @Column(name = "rating_count")
+    @ColumnDefault("0")
+    @Builder.Default
+    private Integer ratingCount = 0;
+
     // relationships => 1
 
     @OneToOne(fetch = FetchType.EAGER)

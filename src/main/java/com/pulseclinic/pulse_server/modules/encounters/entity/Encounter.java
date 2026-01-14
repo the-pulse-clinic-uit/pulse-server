@@ -54,6 +54,15 @@ public class Encounter {
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
+    @Column(name = "rating")
+    private Integer rating;
+
+    @Column(name = "rating_comment", columnDefinition = "TEXT")
+    private String ratingComment;
+
+    @Column(name = "rated_at")
+    private LocalDateTime ratedAt;
+
     // relationships => 3
 
     @OneToOne(fetch = FetchType.LAZY, optional = true)

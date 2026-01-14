@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 
 import com.pulseclinic.pulse_server.enums.Position;
 import com.pulseclinic.pulse_server.mappers.impl.*;
+import com.pulseclinic.pulse_server.modules.encounters.dto.encounter.DoctorRatingDto;
 import com.pulseclinic.pulse_server.modules.users.entity.Role;
 import com.pulseclinic.pulse_server.modules.users.entity.User;
 import com.pulseclinic.pulse_server.modules.users.repository.RoleRepository;
@@ -285,5 +286,28 @@ public class DoctorServiceImpl implements DoctorService {
         resultDto.getStaffDto().setUserDto(userMapper.mapTo(user));
 
         return resultDto;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<DoctorRatingDto> getRatingsByDoctorEmail(String email) {
+        Optional<Doctor> doctorOpt = doctorRepository.findByEmail(email);
+        if (doctorOpt.isEmpty()) {
+            return List.of();
+        }
+
+        List<Encounter> ratedEncounters = encounterRepository
+                .findByDoctorIdAndRatingIsNotNullAndDeletedAtIsNullOrderByRatedAtDesc(doctorOpt.get().getId());
+
+        return ratedEncounters.stream()
+                .map(e -> DoctorRatingDto.builder()
+                        .encounterId(e.getId())
+                        .rating(e.getRating())
+                        .comment(e.getRatingComment())
+                        .ratedAt(e.getRatedAt())
+                        .patientName(e.getPatient() != null && e.getPatient().getUser() != null
+                                ? e.getPatient().getUser().getFullName() : null)
+                        .build())
+                .collect(Collectors.toList());
     }
 }

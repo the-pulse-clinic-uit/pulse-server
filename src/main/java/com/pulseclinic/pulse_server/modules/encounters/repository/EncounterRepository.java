@@ -41,4 +41,6 @@ public interface EncounterRepository extends JpaRepository<Encounter, UUID> {
         ORDER BY e.startedAt ASC
         """)
     List<Encounter> findTodayEncounters();
+
+    List<Encounter> findByDoctorIdAndRatingIsNotNullAndDeletedAtIsNullOrderByRatedAtDesc(UUID doctorId);
 }

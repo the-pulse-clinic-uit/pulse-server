@@ -31,6 +31,12 @@ public class EncounterDto {
 
     private LocalDateTime createdAt;
 
+    private Integer rating;
+
+    private String ratingComment;
+
+    private LocalDateTime ratedAt;
+
     // relationships => 3
     private AppointmentDto appointmentDto;
 

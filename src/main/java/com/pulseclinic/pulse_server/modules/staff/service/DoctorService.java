@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import com.pulseclinic.pulse_server.modules.encounters.dto.encounter.DoctorRatingDto;
 import com.pulseclinic.pulse_server.modules.staff.dto.doctor.DoctorDto;
 import com.pulseclinic.pulse_server.modules.staff.dto.doctor.DoctorRequestDto;
 
@@ -20,4 +21,5 @@ public interface DoctorService {
     List<Object> getPatients(UUID doctorId);
     List<Object> getShiftSchedule(UUID doctorId, LocalDate date);
     boolean checkAvailability(UUID doctorId, LocalDateTime dateTime);
+    List<DoctorRatingDto> getRatingsByDoctorEmail(String email);
 }

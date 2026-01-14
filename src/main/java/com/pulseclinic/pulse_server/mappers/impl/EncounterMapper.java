@@ -30,6 +30,9 @@ public class EncounterMapper implements Mapper<Encounter, EncounterDto> {
                 .diagnosis(encounter.getDiagnosis())
                 .notes(encounter.getNotes())
                 .createdAt(encounter.getCreatedAt())
+                .rating(encounter.getRating())
+                .ratingComment(encounter.getRatingComment())
+                .ratedAt(encounter.getRatedAt())
                 .patientDto(encounter.getPatient() != null ? patientMapper.mapTo(encounter.getPatient()) : null)
                 .doctorDto(encounter.getDoctor() != null ? doctorMapper.mapTo(encounter.getDoctor()) : null)
                 // Use ModelMapper for appointment to avoid circular dependency
