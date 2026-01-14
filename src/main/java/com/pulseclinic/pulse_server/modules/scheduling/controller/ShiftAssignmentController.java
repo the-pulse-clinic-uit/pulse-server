@@ -90,7 +90,7 @@ public class ShiftAssignmentController {
 
     // Get assignments by doctor within date range
     @GetMapping("/assignments/by_doctor/{doctorId}")
-    @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
+    @PreAuthorize("hasAnyAuthority('doctor', 'staff', 'patient')")
     public ResponseEntity<List<ShiftAssignmentDto>> findByDoctor(
             @PathVariable UUID doctorId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
