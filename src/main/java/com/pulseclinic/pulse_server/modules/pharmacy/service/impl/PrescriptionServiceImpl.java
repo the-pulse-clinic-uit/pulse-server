@@ -143,27 +143,8 @@ public class PrescriptionServiceImpl implements PrescriptionService {
                 return false;
             }
 
-            // get all prescription details
-            List<PrescriptionDetail> details = prescriptionDetailRepository
-                    .findByPrescriptionIdAndDeletedAtIsNullOrderByCreatedAtAsc(prescriptionId);
-
-            // step 1 check if all drugs have sufficient stock
-            for (PrescriptionDetail detail : details) {
-                if (!drugService.hasAvailableStock(detail.getDrug().getId(), detail.getQuantity())) {
-                    throw new RuntimeException("Insufficient stock for drug: " + detail.getDrug().getName());
-                }
-            }
-
-            // step 2 deduct stock for each drug (atomic operation)
-            for (PrescriptionDetail detail : details) {
-                drugService.deductStock(detail.getDrug().getId(), detail.getQuantity());
-            }
-
-            // step 3 update prescription status
             prescription.setStatus(com.pulseclinic.pulse_server.enums.PrescriptionStatus.DISPENSED);
             prescriptionRepository.save(prescription);
-
-            // auto-complete appointment when prescription is dispensed
             autoCompleteAppointment(prescription);
 
             return true;

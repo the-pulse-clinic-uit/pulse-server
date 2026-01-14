@@ -78,11 +78,12 @@ public class PrescriptionDetailServiceImpl implements PrescriptionDetailService 
             }
         }
 
-        // Check drug availability before adding to prescription
         if (!drugService.hasAvailableStock(drug.getId(), detailRequestDto.getQuantity())) {
             throw new RuntimeException("Insufficient stock for drug: " + drug.getName() +
                     ". Available: " + drug.getQuantity() + ", Requested: " + detailRequestDto.getQuantity());
         }
+
+        drugService.deductStock(drug.getId(), detailRequestDto.getQuantity());
 
         BigDecimal unitPrice = detailRequestDto.getUnitPrice() != null ? detailRequestDto.getUnitPrice()
                 : drug.getUnitPrice();
@@ -147,8 +148,19 @@ public class PrescriptionDetailServiceImpl implements PrescriptionDetailService 
             }
 
             PrescriptionDetail detail = detailOpt.get();
-            detail.setQuantity(quantity);
+            Integer oldQuantity = detail.getQuantity();
+            Integer quantityDiff = quantity - oldQuantity;
 
+            if (quantityDiff > 0) {
+                if (!drugService.hasAvailableStock(detail.getDrug().getId(), quantityDiff)) {
+                    throw new RuntimeException("Insufficient stock to increase quantity");
+                }
+                drugService.deductStock(detail.getDrug().getId(), quantityDiff);
+            } else if (quantityDiff < 0) {
+                drugService.restockDrug(detail.getDrug().getId(), Math.abs(quantityDiff));
+            }
+
+            detail.setQuantity(quantity);
             updateLineTotal(detailId);
             return true;
         } catch (Exception e) {
@@ -167,10 +179,11 @@ public class PrescriptionDetailServiceImpl implements PrescriptionDetailService 
 
             PrescriptionDetail detail = detailOpt.get();
 
-            // Kiểm tra prescription có thể modify không (phải ở trạng thái DRAFT)
             if (detail.getPrescription().getStatus() != com.pulseclinic.pulse_server.enums.PrescriptionStatus.DRAFT) {
                 return false;
             }
+
+            drugService.restockDrug(detail.getDrug().getId(), detail.getQuantity());
 
             prescriptionDetailRepository.deleteById(detailId);
             return true;
