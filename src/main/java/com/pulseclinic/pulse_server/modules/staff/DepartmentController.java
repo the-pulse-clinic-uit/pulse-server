@@ -85,7 +85,7 @@ public class DepartmentController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyAuthority('doctor', 'staff')")
+    @PreAuthorize("hasAnyAuthority('doctor', 'staff', 'patient')")
     public ResponseEntity<List<DepartmentDto>> getAll() {
         List<Department> departments = this.departmentService.findAll(); // deleted is null
         return new ResponseEntity<>(
